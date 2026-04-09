@@ -7,6 +7,8 @@ from am_bridge.stages import (
     build_conversion_plan,
     build_review_template,
     build_starter_bundle,
+    build_vue_page_config,
+    generate_pm_test_checklist,
 )
 
 
@@ -19,7 +21,11 @@ FORM_XML = Path(
 def test_stage1_package_resolves_primary_dataset_and_backend_chains() -> None:
     config = load_cli_config(CONFIG_PATH)
 
-    package = build_conversion_package(FORM_XML, backend_roots=config.backendRoots)
+    package = build_conversion_package(
+        FORM_XML,
+        backend_roots=config.backendRoots,
+        source_roots=config.sourceRoots,
+    )
     traces = {trace.transactionId: trace for trace in package.backendTraces}
 
     assert package.page.primaryDatasetId == "ds_scorechk"
@@ -50,11 +56,20 @@ def test_stage1_package_resolves_primary_dataset_and_backend_chains() -> None:
     assert lookup_trace.tableCandidates == ["score_jew"]
     assert lookup_trace.responseFieldCandidates == ["testCategory", "testname"]
 
+    related_pages = {item.target: item for item in package.relatedPages}
+    assert related_pages["DefApp::scholarship.xml"].resolutionStatus == "resolved"
+    assert related_pages["DefApp::scholarship.xml"].pageId == "scholarship"
+    assert related_pages["scurl"].resolutionStatus == "unresolved"
+
 
 def test_review_overrides_flow_into_stage2_and_stage3_outputs(tmp_path: Path) -> None:
     config = load_cli_config(CONFIG_PATH)
 
-    base_package = build_conversion_package(FORM_XML, backend_roots=config.backendRoots)
+    base_package = build_conversion_package(
+        FORM_XML,
+        backend_roots=config.backendRoots,
+        source_roots=config.sourceRoots,
+    )
     review = build_review_template(base_package)
     review["primaryDatasetId"] = "ds_testCategory"
     review["secondaryDatasetIds"] = ["ds_scorechk", "ds_screen"]
@@ -68,9 +83,12 @@ def test_review_overrides_flow_into_stage2_and_stage3_outputs(tmp_path: Path) ->
     reviewed_package = build_conversion_package(
         FORM_XML,
         backend_roots=config.backendRoots,
+        source_roots=config.sourceRoots,
         review_path=review_path,
     )
     plan = build_conversion_plan(reviewed_package)
+    vue_config = build_vue_page_config(reviewed_package, plan)
+    pm_checklist = generate_pm_test_checklist(reviewed_package, plan, vue_config)
     bundle = build_starter_bundle(reviewed_package, plan)
 
     assert reviewed_package.page.primaryDatasetId == "ds_testCategory"
@@ -82,6 +100,12 @@ def test_review_overrides_flow_into_stage2_and_stage3_outputs(tmp_path: Path) ->
     )
     assert reviewed_trace.sqlMapId == "manual.testNameList"
     assert "testNameList.do" in plan.aiPrompts["backend"]
+    assert vue_config.primaryDatasetId == "ds_testCategory"
+    assert vue_config.relatedPages
+    assert any(item["componentId"] == "Combo0" for item in vue_config.searchControls)
+    assert "PM Test Checklist" in pm_checklist
+    assert "`TX-TESTNAMESELECT-1`" in pm_checklist
+    assert "DefApp::scholarship.xml" in pm_checklist
 
     mapper_file = next(file for file in bundle.backendFiles if file.path.endswith("Mapper.xml"))
     assert "manual.testNameList" in mapper_file.content

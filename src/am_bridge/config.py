@@ -27,8 +27,11 @@ class StageArtifactPaths:
     pageSpec: Path
     packageJson: Path
     packageReport: Path
+    analysisReport: Path
     planJson: Path
     planReport: Path
+    vueConfigJson: Path
+    pmChecklist: Path
     starterDir: Path
     reviewJson: Path
 
@@ -119,8 +122,11 @@ def derive_stage_artifact_paths(input_path: Path, config: CliConfig) -> StageArt
     page_spec = config.pageSpecRoot / relative_path.with_name(f"{relative_stem.name}-spec.md")
     package_json = config.packageRoot / relative_path.with_name(f"{relative_stem.name}-package.json")
     package_report = config.packageRoot / relative_path.with_name(f"{relative_stem.name}-package.md")
+    analysis_report = config.packageRoot / relative_path.with_name(f"{relative_stem.name}-analysis.md")
     plan_json = config.planRoot / relative_path.with_name(f"{relative_stem.name}-plan.json")
     plan_report = config.planRoot / relative_path.with_name(f"{relative_stem.name}-plan.md")
+    vue_config_json = config.planRoot / relative_path.with_name(f"{relative_stem.name}-vue-config.json")
+    pm_checklist = config.planRoot / relative_path.with_name(f"{relative_stem.name}-pm-checklist.md")
     starter_dir = config.starterRoot / relative_stem
     review_json = config.reviewRoot / relative_path.with_name(f"{relative_stem.name}-review.json")
 
@@ -129,8 +135,11 @@ def derive_stage_artifact_paths(input_path: Path, config: CliConfig) -> StageArt
         pageSpec=page_spec,
         packageJson=package_json,
         packageReport=package_report,
+        analysisReport=analysis_report,
         planJson=plan_json,
         planReport=plan_report,
+        vueConfigJson=vue_config_json,
+        pmChecklist=pm_checklist,
         starterDir=starter_dir,
         reviewJson=review_json,
     )

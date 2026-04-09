@@ -41,6 +41,7 @@ Read:
 
 - `artifacts/packages/...-package.json`
 - `artifacts/packages/...-package.md`
+- `artifacts/packages/...-analysis.md`
 - `artifacts/reviews/...-review.json`
 
 Check first:
@@ -49,6 +50,7 @@ Check first:
 - `mainGridComponentId`
 - `primaryTransactionIds`
 - backend trace coverage
+- related popup/subview screens as separate pages
 
 If the dominant business dataset is wrong, edit the review JSON before stage 2.
 
@@ -77,6 +79,8 @@ Read:
 
 - `artifacts/plans/...-plan.json`
 - `artifacts/plans/...-plan.md`
+- `artifacts/plans/...-vue-config.json`
+- `artifacts/plans/...-pm-checklist.md`
 
 Use this stage to lock:
 
@@ -84,6 +88,8 @@ Use this stage to lock:
 - frontend/backend split
 - platform boundary
 - execution order
+- Vue implementation contract JSON
+- PM validation checklist
 
 ### Stage 3: Generate Starter Bundle
 
@@ -97,6 +103,8 @@ Read:
 
 - `artifacts/starter/<page>/starter-bundle.json`
 - `artifacts/starter/<page>/handoff-prompts.json`
+- `artifacts/starter/<page>/vue-page-config.json`
+- `artifacts/starter/<page>/pm-test-checklist.md`
 - generated starter files
 
 Treat stage 3 as scaffold + contract, not as final production code.

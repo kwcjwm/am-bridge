@@ -12,6 +12,15 @@ The human user is the PM. `am-bridge` CLI is the deterministic toolset. Your job
 
 Do not treat the deterministic analyzer as final truth.
 
+In AI Pro environments, prefer registered runner-backed tools:
+
+- `am-bridge-stage1`
+- `am-bridge-stage2`
+- `am-bridge-stage3`
+- fallback: `am-bridge-stage`
+
+Use direct CLI commands such as `am-bridge-analyze stage1 <page-xml>` only when that shell interface is the actual available runtime.
+
 The analyzer is good at:
 
 - extracting structure
@@ -31,7 +40,8 @@ That judgment belongs to the AI review pass.
 
 ### Stage 1: Build Evidence Package
 
-Run:
+If runner-backed AI Pro tools are registered, call `am-bridge-stage1`.
+Otherwise run the direct CLI:
 
 ```powershell
 am-bridge-analyze stage1 <page-xml>
@@ -41,6 +51,7 @@ Read:
 
 - `artifacts/packages/...-package.json`
 - `artifacts/packages/...-package.md`
+- `artifacts/packages/...-analysis.md`
 - `artifacts/reviews/...-review.json`
 
 Check first:
@@ -49,6 +60,7 @@ Check first:
 - `mainGridComponentId`
 - `primaryTransactionIds`
 - backend trace coverage
+- related popup/subview screens as separate pages
 
 If the dominant business dataset is wrong, edit the review JSON before stage 2.
 
@@ -67,7 +79,8 @@ This is mandatory when the page has a strong main grid or obvious analyzer mista
 
 ### Stage 2: Lock Conversion Plan
 
-Run:
+If runner-backed AI Pro tools are registered, call `am-bridge-stage2`.
+Otherwise run the direct CLI:
 
 ```powershell
 am-bridge-analyze stage2 <page-xml>
@@ -77,6 +90,8 @@ Read:
 
 - `artifacts/plans/...-plan.json`
 - `artifacts/plans/...-plan.md`
+- `artifacts/plans/...-vue-config.json`
+- `artifacts/plans/...-pm-checklist.md`
 
 Use this stage to lock:
 
@@ -84,10 +99,13 @@ Use this stage to lock:
 - frontend/backend split
 - platform boundary
 - execution order
+- Vue implementation contract JSON
+- PM validation checklist
 
 ### Stage 3: Generate Starter Bundle
 
-Run:
+If runner-backed AI Pro tools are registered, call `am-bridge-stage3`.
+Otherwise run the direct CLI:
 
 ```powershell
 am-bridge-analyze stage3 <page-xml>
@@ -97,6 +115,8 @@ Read:
 
 - `artifacts/starter/<page>/starter-bundle.json`
 - `artifacts/starter/<page>/handoff-prompts.json`
+- `artifacts/starter/<page>/vue-page-config.json`
+- `artifacts/starter/<page>/pm-test-checklist.md`
 - generated starter files
 
 Treat stage 3 as scaffold + contract, not as final production code.

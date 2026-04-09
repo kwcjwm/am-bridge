@@ -22,7 +22,10 @@
     "successCriteria": [
       "The PM/PL role split is preserved.",
       "The model knows to use review.json as the correction layer.",
-      "The AM page modernization workflow is reusable."
+      "The AM page modernization workflow is reusable.",
+      "Stage 1 produces a detailed integrated legacy analysis report.",
+      "Stage 2 produces a Vue page config JSON.",
+      "Stage 2 produces a PM-facing checklist."
     ]
   },
   "toolRegistration": {
@@ -54,13 +57,16 @@
   "validation": {
     "preferredChecks": [
       "/harness",
-      "stage1 on a known page"
+      "stage1 on a known page",
+      "stage2 on a known page"
     ],
     "sampleExpectations": {
       "page": "samples/ScoreRanking_Proj-master/src/main/resources/egovframework/conf/scoreranking/DefApp/Win32/form.xml",
       "primaryDatasetId": "ds_scorechk",
       "mainGridComponentId": "Grid0",
-      "backendTraceSqlMapId": "sampleDAO.ScoreChk"
+      "backendTraceSqlMapId": "sampleDAO.ScoreChk",
+      "vueConfigFile": "artifacts/plans/DefApp/Win32/form-vue-config.json",
+      "pmChecklistFile": "artifacts/plans/DefApp/Win32/form-pm-checklist.md"
     }
   }
 }

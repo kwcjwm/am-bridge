@@ -309,10 +309,24 @@ class BackendTraceModel:
 
 
 @dataclass
+class RelatedPageModel:
+    navigationId: str = ""
+    navigationType: str = ""
+    triggerFunction: str = ""
+    target: str = ""
+    resolvedPath: str = ""
+    pageId: str = ""
+    pageName: str = ""
+    pageType: str = ""
+    resolutionStatus: str = ""
+
+
+@dataclass
 class PageConversionPackage(JsonDataclassMixin):
     packageId: str
     page: PageModel
     backendTraces: list[BackendTraceModel] = field(default_factory=list)
+    relatedPages: list[RelatedPageModel] = field(default_factory=list)
     openQuestions: list[str] = field(default_factory=list)
     aiHints: list[str] = field(default_factory=list)
     stageNotes: list[str] = field(default_factory=list)
@@ -337,6 +351,29 @@ class ConversionPlanModel(JsonDataclassMixin):
     executionSteps: list[str] = field(default_factory=list)
     verificationChecks: list[str] = field(default_factory=list)
     aiPrompts: dict[str, str] = field(default_factory=dict)
+
+
+@dataclass
+class VuePageConfigModel(JsonDataclassMixin):
+    pageId: str
+    pageName: str = ""
+    legacySourceFile: str = ""
+    pageType: str = ""
+    vuePageName: str = ""
+    route: str = ""
+    interactionPattern: str = ""
+    primaryDatasetId: str = ""
+    mainGridComponentId: str = ""
+    primaryTransactionIds: list[str] = field(default_factory=list)
+    datasets: list[dict[str, Any]] = field(default_factory=list)
+    grids: list[dict[str, Any]] = field(default_factory=list)
+    searchControls: list[dict[str, Any]] = field(default_factory=list)
+    actions: list[dict[str, Any]] = field(default_factory=list)
+    endpoints: list[dict[str, Any]] = field(default_factory=list)
+    relatedPages: list[dict[str, Any]] = field(default_factory=list)
+    frontendFiles: list[str] = field(default_factory=list)
+    backendFiles: list[str] = field(default_factory=list)
+    verificationChecks: list[str] = field(default_factory=list)
 
 
 @dataclass

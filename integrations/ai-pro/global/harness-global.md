@@ -13,17 +13,21 @@ Your job is to load the project harness, identify the project workflow, check to
 
 When `/harness` is invoked:
 
-1. Read the workspace harness sources if they exist:
+1. Validate the workspace root first:
+   - read `AGENTS.md` if it exists
+   - if `AGENTS.md` does not describe the internal AM harness, report `wrong workspace`
+   - if `.agents/agents/` exists in an `am-bridge` workspace, report `wrong workspace`
+   - do not continue bootstrap when the workspace looks like the external support repository or a stale carry-in bundle
+2. Read the workspace harness sources if they exist:
    - `AGENTS.md`
    - `.agents/skills/`
-   - `.agents/agents/`
    - `integrations/ai-pro/project/`
-2. Identify:
+3. Identify:
    - project role split
    - project-local skill or workflow prompt
    - deterministic tool entry points
    - missing prerequisites
-3. Report:
+4. Report:
    - whether the harness is valid
    - which workflow should be used for real work
    - which tools are callable
@@ -35,6 +39,7 @@ When `/harness` is invoked:
 - Do not pretend tools are registered if they are not.
 - Do not collapse project harness and global harness into one concept.
 - Prefer workspace harness files over free-form improvisation.
+- Fail fast when the operator opened the wrong workspace root.
 
 ## Expected Output
 

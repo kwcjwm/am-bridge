@@ -8,7 +8,7 @@ Recommended public tool names:
 - `am-bridge-stage2`
 - `am-bridge-stage3`
 
-All of them should call [scripts/ai_pro_stage_runner.py](C:/workspace/am-bridge/scripts/ai_pro_stage_runner.py).
+All of them should call `scripts/ai_pro_stage_runner.py`.
 
 ## Why Use The Runner
 
@@ -31,7 +31,10 @@ The runner prints JSON including:
 - generated artifact paths
 - key page decisions
 - compact backend trace summary
+- related screen summary
 - frontend/backend file blueprints for later stages
+- Vue page config path for stage 2 and stage 3
+- PM checklist path for stage 2 and stage 3
 
 ## Recommended Registration Pattern
 

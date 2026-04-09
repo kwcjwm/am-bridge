@@ -25,6 +25,8 @@
 
 - Stage 1: run package analysis and write review overrides if the primary dataset or backend trace is wrong.
 - Stage 2: lock the primary dataset, primary transaction, platform boundaries, and file blueprint ownership.
+- Stage 2 deliverable: emit a Vue page config JSON that downstream generation can consume directly.
+- Stage 2 deliverable: emit a PM-facing test checklist so the page can be validated before signoff.
 - Stage 3: generate starter files and let AI Pro fill business logic using the starter bundle plus review overrides.
 - Verification: compare the generated page flow against the original datasets, transactions, and popup/subview flows.
 
@@ -33,7 +35,13 @@
 - Primary dataset matches the dominant result grid or primary business response.
 - Search/code/view-state datasets are not treated as equal peers to the primary result dataset.
 - Each primary transaction has a resolved or manually corrected backend route chain.
+- Popup/subview targets are treated as separate related screens, not merged silently into the current page.
 - No shared platform function is reimplemented locally without explicit approval.
+
+## Related Screens
+
+- subview:scurl -> unresolved (unresolved)
+- popup:DefApp::scholarship.xml -> scholarship (resolved)
 
 ## AI Prompts
 
@@ -46,13 +54,13 @@ Review page form. Confirm whether primaryDatasetId=ds_scorechk really represents
 ### frontend
 
 ```text
-Using the stage 1 package and stage 2 plan for form, implement the frontend files (frontend/src/pages/form/FormPage.vue, frontend/src/composables/useFormPage.ts, frontend/src/api/form.ts). Preserve the interaction pattern grid-page, treat ds_scorechk as the main business result, and keep platform features out of local reimplementation.
+Using the stage 1 package, stage 2 plan, and Vue page config for form, implement the frontend files (frontend/src/pages/form/FormPage.vue, frontend/src/composables/useFormPage.ts, frontend/src/api/form.ts). Preserve the interaction pattern grid-page, treat ds_scorechk as the main business result, and keep platform features out of local reimplementation.
 ```
 
 ### backend
 
 ```text
-Using the stage 1 package and stage 2 plan for form, implement the backend files (backend/src/main/java/com/example/am/form/web/FormPageController.java, backend/src/main/java/com/example/am/form/service/FormPageService.java, backend/src/main/java/com/example/am/form/service/impl/FormPageServiceImpl.java, backend/src/main/java/com/example/am/form/dto/FormPageSearchCondition.java, backend/src/main/java/com/example/am/form/dto/FormPageRow.java, backend/src/main/resources/mapper/FormPageMapper.xml). Map the legacy route http://127.0.0.1:8080/miplatform/testScoreChk.do through EgovSampleController.selectScoreList. Preserve business behavior, but expose cleaner Spring Boot request/response DTOs.
+Using the stage 1 package, stage 2 plan, and Vue page config for form, implement the backend files (backend/src/main/java/com/example/am/form/web/FormPageController.java, backend/src/main/java/com/example/am/form/service/FormPageService.java, backend/src/main/java/com/example/am/form/service/impl/FormPageServiceImpl.java, backend/src/main/java/com/example/am/form/dto/FormPageSearchCondition.java, backend/src/main/java/com/example/am/form/dto/FormPageRow.java, backend/src/main/resources/mapper/FormPageMapper.xml). Map the legacy route http://127.0.0.1:8080/miplatform/testScoreChk.do through EgovSampleController.selectScoreList. Preserve business behavior, but expose cleaner Spring Boot request/response DTOs.
 ```
 
 ## Package Hints
@@ -60,3 +68,4 @@ Using the stage 1 package and stage 2 plan for form, implement the backend files
 - Treat ds_scorechk as the primary business dataset unless review overrides say otherwise.
 - Primary dataset reasons: largest-grid:Grid0, transaction-output:TX-BUTTON0ONCLICK-1, wide-schema:5, default-records:1
 - Resolved backend chain begins at EgovSampleController.selectScoreList.
+- Treat popup/subview navigation targets as related screens. Do not merge them into the current page implementation by default.

@@ -6,5 +6,5 @@ artifacts/analysis/*
 !artifacts/target/README.md
 artifacts/reports/*
 !artifacts/reports/README.md
+artifacts/internal-ai-workspace/*
 samples/**/target/
-

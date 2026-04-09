@@ -1150,13 +1150,39 @@
       ]
     }
   ],
+  "relatedPages": [
+    {
+      "navigationId": "NAV-0001",
+      "navigationType": "subview",
+      "triggerFunction": "Button1_OnClick",
+      "target": "scurl",
+      "resolvedPath": "",
+      "pageId": "",
+      "pageName": "",
+      "pageType": "",
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "navigationId": "NAV-0002",
+      "navigationType": "popup",
+      "triggerFunction": "Button2_OnClick",
+      "target": "DefApp::scholarship.xml",
+      "resolvedPath": "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\scholarship.xml",
+      "pageId": "scholarship",
+      "pageName": "New Form",
+      "pageType": "main",
+      "resolutionStatus": "resolved"
+    }
+  ],
   "openQuestions": [
+    "Related screen target scurl could not be resolved automatically. Confirm whether it should be treated as a separate page.",
     "TX-FNCMTR-1 uses a dynamic or wrapper URL. Confirm the final endpoint contract manually."
   ],
   "aiHints": [
     "Treat ds_scorechk as the primary business dataset unless review overrides say otherwise.",
     "Primary dataset reasons: largest-grid:Grid0, transaction-output:TX-BUTTON0ONCLICK-1, wide-schema:5, default-records:1",
-    "Resolved backend chain begins at EgovSampleController.selectScoreList."
+    "Resolved backend chain begins at EgovSampleController.selectScoreList.",
+    "Treat popup/subview navigation targets as related screens. Do not merge them into the current page implementation by default."
   ],
   "stageNotes": [
     "Treat stage 1 output as evidence plus candidate judgment, not as immutable truth.",

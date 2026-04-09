@@ -1,6 +1,6 @@
 # GLM-4.7 Bootstrap Playbook For AI Pro
 
-Use this document when the repository has been cloned into an AI Pro environment and `GLM-4.7` should perform the setup work.
+Use this document when the exported internal workspace has been opened in an AI Pro environment and `GLM-4.7` should perform the setup work.
 
 The setup target has three layers:
 
@@ -14,12 +14,16 @@ The final outcome is:
 - the project AM workflow is discoverable
 - `am-bridge-stage1|2|3` can be called by the model
 - the model can run staged AM work against `aaa.xml`
+- stage1 emits a detailed integrated legacy analysis report
+- stage2 emits a Vue page config JSON for implementation
+- stage2 emits a PM-facing test checklist
 
 ## Inputs GLM-4.7 Must Discover
 
 Before changing anything, discover:
 
 - the repository root
+- whether the current workspace is the exported internal bundle root
 - the AI Pro home or config root
 - whether AI Pro supports global slash commands
 - whether AI Pro supports saved prompts or workflow definitions
@@ -27,6 +31,7 @@ Before changing anything, discover:
 - whether Python is available for running `scripts/ai_pro_stage_runner.py`
 
 If one of those items is missing, report it instead of guessing.
+If the current workspace is not the exported internal bundle root, stop and ask the operator to open the exported bundle instead of the external support repository.
 
 ## Phase 1: Global Harness
 
@@ -62,6 +67,7 @@ Teach AI Pro how this AM project is supposed to operate.
 ### Primary Sources
 
 - `AGENTS.md`
+- `bootstrap-initial-prompt.md`
 - `.agents/skills/am-page-modernization/SKILL.md`
 - `integrations/ai-pro/project/am-page-modernization.md`
 - `integrations/ai-pro/project/operator-prompts.md`
@@ -71,6 +77,7 @@ Teach AI Pro how this AM project is supposed to operate.
 1. Check whether AI Pro can read workspace files directly.
 2. If yes:
    - keep `AGENTS.md` and `.agents/` as the primary project harness
+   - use `bootstrap-initial-prompt.md` as the first operator message
    - make sure `/harness` reads them
 3. If no:
    - register `integrations/ai-pro/project/am-page-modernization.md` as the project workflow prompt
@@ -144,11 +151,14 @@ Run these checks:
    - confirm JSON output
    - confirm `primaryDatasetId`
    - confirm backend trace summary exists when possible
-3. if stage1 passes, optionally run stage2 or stage3 on the sample page
+3. `am-bridge-stage2` on a known page
+   - confirm `...-vue-config.json` is created
+   - confirm `...-pm-checklist.md` is created
+4. if stage2 passes, optionally run stage3 on the same known page
 
 ### Expected Sample Validation Result
 
-When run against the sample `form.xml`, stage1 should show:
+When run against the bundled sample `form.xml`, stage1 should show:
 
 - `primaryDatasetId = ds_scorechk`
 - `mainGridComponentId = Grid0`

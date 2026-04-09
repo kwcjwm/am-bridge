@@ -1,11 +1,16 @@
 # AI Pro Bootstrap Prompts
 
-These prompts are for the human operator to paste into AI Pro after cloning this repository into the target environment.
+These prompts are for the human operator to paste into AI Pro after opening the exported internal workspace in the target environment.
+
+## Prompt 0: Internal Workspace Readiness Check
+
+Use `bootstrap-initial-prompt.md` as the first message in the internal AI workspace.
+Do not start with the prompts below until the readiness report is complete.
 
 ## Prompt 1: Discover The AI Pro Environment
 
 ```text
-You are preparing this repository for AI Pro + GLM-4.7.
+You are preparing the exported internal AM workspace for AI Pro + GLM-4.7.
 
 First, inspect the local AI Pro environment and discover:
 - where global prompts or slash commands are stored
@@ -13,7 +18,7 @@ First, inspect the local AI Pro environment and discover:
 - where tool registrations are stored
 - whether Python is available
 
-Use these repository files as the source of truth:
+Use these workspace files as the source of truth:
 - integrations/ai-pro/bootstrap/glm-bootstrap-playbook.md
 - integrations/ai-pro/bootstrap/bootstrap-manifest.json
 - integrations/ai-pro/global/harness-global.md
@@ -44,10 +49,11 @@ After installation, verify that the global harness can inspect workspace harness
 ```text
 Follow integrations/ai-pro/bootstrap/glm-bootstrap-playbook.md.
 
-Activate the AM project harness for this repository.
+Activate the AM project harness for this workspace.
 
 Use these files:
 - AGENTS.md
+- bootstrap-initial-prompt.md
 - .agents/skills/am-page-modernization/SKILL.md
 - integrations/ai-pro/project/am-page-modernization.md
 - integrations/ai-pro/project/operator-prompts.md
@@ -95,18 +101,21 @@ Do not leave sample paths in place if real paths are available.
 After the update, summarize the configured roots.
 ```
 
+If you want to prove the bundle first with the bundled public sample, do Prompt 6 before this step.
+
 ## Prompt 6: Validate The Whole Stack
 
 ```text
-Validate the AI Pro bootstrap for this repository.
+Validate the AI Pro bootstrap for this workspace.
 
 1. Run /harness or the installed equivalent.
 2. Confirm the project harness is discoverable.
-3. Run stage1 on a known page.
+3. Run stage1 on the bundled sample page or another known page exposed by the configured sourceRoots.
 4. Confirm the tool returns JSON.
 5. Confirm the stage1 result includes key page decisions.
+6. Run stage2 and confirm a Vue page config JSON and PM checklist are emitted if stage1 succeeded.
 
-If the sample form.xml is used, expect:
+If the bundled sample form.xml is used, expect:
 - primaryDatasetId = ds_scorechk
 - mainGridComponentId = Grid0
 - backend trace to sampleDAO.ScoreChk
@@ -123,7 +132,7 @@ Report:
 ## Prompt 7: All-In-One Bootstrap
 
 ```text
-Bootstrap this repository for AI Pro + GLM-4.7 end to end.
+Bootstrap this exported internal workspace for AI Pro + GLM-4.7 end to end.
 
 Use these sources:
 - integrations/ai-pro/bootstrap/glm-bootstrap-playbook.md

@@ -3,24 +3,29 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from am_bridge.config import CliConfig, resolve_input_path
 from am_bridge.backend_trace import trace_backend_dependencies
 from am_bridge.generators import generate_page_conversion_spec
-from am_bridge.models import BackendTraceModel, PageConversionPackage, PageModel
+from am_bridge.models import BackendTraceModel, PageConversionPackage, PageModel, RelatedPageModel
 from am_bridge.pipeline import analyze_file
 
 
 def build_conversion_package(
     input_path: str | Path,
     backend_roots: list[Path] | None = None,
+    source_roots: list[Path] | None = None,
     review_path: Path | None = None,
 ) -> PageConversionPackage:
-    page = analyze_file(input_path)
+    resolved_input = Path(input_path).resolve()
+    page = analyze_file(resolved_input)
     traces = trace_backend_dependencies(page, backend_roots or [])
+    related_pages = _build_related_pages(page, resolved_input, source_roots or [])
     package = PageConversionPackage(
-        packageId=f"{page.pageId or Path(input_path).stem}-package",
+        packageId=f"{page.pageId or resolved_input.stem}-package",
         page=page,
         backendTraces=traces,
-        openQuestions=_build_open_questions(page, traces),
+        relatedPages=related_pages,
+        openQuestions=_build_open_questions(page, traces, related_pages),
         aiHints=_build_ai_hints(page, traces),
         stageNotes=[
             "Treat stage 1 output as evidence plus candidate judgment, not as immutable truth.",
@@ -172,6 +177,23 @@ def generate_package_report(package: PageConversionPackage) -> str:
                 ]
             )
 
+    lines.extend(["## Related Screens", ""])
+    if package.relatedPages:
+        for related in package.relatedPages:
+            lines.extend(
+                [
+                    f"### {related.target or related.navigationId}",
+                    f"- navigationType: {related.navigationType or 'unknown'}",
+                    f"- triggerFunction: {related.triggerFunction or 'unknown'}",
+                    f"- resolutionStatus: {related.resolutionStatus or 'unknown'}",
+                    f"- relatedPageId: {related.pageId or 'unknown'}",
+                    f"- resolvedPath: {related.resolvedPath or 'unknown'}",
+                    "",
+                ]
+            )
+    else:
+        lines.extend(["- No popup/subview target found.", ""])
+
     lines.extend(
         [
             "## AI Review Loop",
@@ -191,7 +213,129 @@ def generate_package_report(package: PageConversionPackage) -> str:
     return "\n".join(lines)
 
 
-def _build_open_questions(page: PageModel, traces: list[BackendTraceModel]) -> list[str]:
+def generate_analysis_report(package: PageConversionPackage) -> str:
+    page = package.page
+    lines = [
+        "# Detailed Legacy Analysis Report",
+        "",
+        "## Page Identity",
+        "",
+        f"- pageId: {page.pageId or 'unknown'}",
+        f"- pageName: {page.pageName or 'unknown'}",
+        f"- pageType: {page.pageType or 'unknown'}",
+        f"- sourceFile: {page.legacy.sourceFile or 'unknown'}",
+        f"- interactionPattern: {page.interactionPattern or 'unknown'}",
+        "",
+        "## Page Boundary",
+        "",
+        f"- primaryDatasetId: {page.primaryDatasetId or 'unknown'}",
+        f"- mainGridComponentId: {page.mainGridComponentId or 'unknown'}",
+        f"- primaryTransactionIds: {_join(page.primaryTransactionIds)}",
+        "",
+        "## Frontend Integrated Analysis",
+        "",
+        "### Datasets",
+        "",
+    ]
+
+    for dataset in sorted(page.datasets, key=lambda item: (-item.salienceScore, item.datasetId)):
+        lines.extend(
+            [
+                f"#### {dataset.datasetId}",
+                f"- role: {dataset.role or 'unknown'}",
+                f"- primaryUsage: {dataset.primaryUsage or 'unknown'}",
+                f"- boundComponents: {_join(dataset.boundComponents)}",
+                f"- columns: {_join([column.name for column in dataset.columns])}",
+                f"- salienceScore: {dataset.salienceScore}",
+                "",
+            ]
+        )
+
+    lines.extend(["### Components", ""])
+    for component in page.components:
+        if component.componentType not in {"Grid", "Combo", "Button", "Div", "Edit", "MaskEdit", "Calendar", "Static"}:
+            continue
+        lines.extend(
+            [
+                f"#### {component.componentId}",
+                f"- componentType: {component.componentType}",
+                f"- layoutGroup: {component.layoutGroup or 'unknown'}",
+                f"- events: {_join(component.events)}",
+                "",
+            ]
+        )
+
+    lines.extend(["### User Actions", ""])
+    for function in page.functions:
+        if function.functionType != "event-handler":
+            continue
+        lines.extend(
+            [
+                f"#### {function.functionName}",
+                f"- transactions: {_join(function.callsTransactions)}",
+                f"- controls: {_join(function.controlsComponents)}",
+                f"- readsDatasets: {_join(function.readsDatasets)}",
+                f"- writesDatasets: {_join(function.writesDatasets)}",
+                "",
+            ]
+        )
+
+    lines.extend(["## Backend Integrated Analysis", ""])
+    if package.backendTraces:
+        for trace in package.backendTraces:
+            lines.extend(
+                [
+                    f"### {trace.transactionId}",
+                    f"- legacyUrl: {trace.url or 'unknown'}",
+                    f"- controller: {_join_nonempty(trace.controllerClass, trace.controllerMethod)}",
+                    f"- service: {_join_nonempty(trace.serviceImplClass or trace.serviceInterface, trace.serviceMethod)}",
+                    f"- dao: {_join_nonempty(trace.daoClass, trace.daoMethod)}",
+                    f"- sqlMapId: {trace.sqlMapId or 'unknown'}",
+                    f"- tables: {_join(trace.tableCandidates)}",
+                    f"- responseFields: {_join(trace.responseFieldCandidates)}",
+                    f"- querySummary: {trace.querySummary or 'unknown'}",
+                    "",
+                ]
+            )
+    else:
+        lines.extend(["- No backend trace resolved.", ""])
+
+    lines.extend(["## Related Screens", ""])
+    if package.relatedPages:
+        for related in package.relatedPages:
+            lines.extend(
+                [
+                    f"### {related.target or related.navigationId}",
+                    f"- relation: {related.navigationType or 'unknown'}",
+                    f"- triggerFunction: {related.triggerFunction or 'unknown'}",
+                    f"- resolutionStatus: {related.resolutionStatus or 'unknown'}",
+                    f"- resolvedPath: {related.resolvedPath or 'unknown'}",
+                    f"- relatedPageId: {related.pageId or 'unknown'}",
+                    f"- relatedPageName: {related.pageName or 'unknown'}",
+                    f"- relatedPageType: {related.pageType or 'unknown'}",
+                    "",
+                ]
+            )
+    else:
+        lines.extend(["- No popup/subview target found.", ""])
+
+    lines.extend(
+        [
+            "## Handoff Notes",
+            "",
+            "- Treat popup or subview targets as separate screens, not as inline sections of the current page.",
+            "- Use stage 2 Vue config JSON as the implementation contract for frontend generation.",
+            "- Keep ambiguous wrapper transactions in open questions until review.json resolves them.",
+        ]
+    )
+    return "\n".join(lines)
+
+
+def _build_open_questions(
+    page: PageModel,
+    traces: list[BackendTraceModel],
+    related_pages: list[RelatedPageModel],
+) -> list[str]:
     questions: list[str] = []
     if not page.primaryDatasetId:
         questions.append("No primaryDatasetId was inferred. Force an AI review on dataset salience.")
@@ -211,6 +355,11 @@ def _build_open_questions(page: PageModel, traces: list[BackendTraceModel]) -> l
         if trace.controllerMethod and not trace.sqlMapId:
             questions.append(
                 f"{trace.transactionId} resolved controller/service layers but still has no SQL map. Review DAO/sql trace manually."
+            )
+    for related in related_pages:
+        if related.resolutionStatus != "resolved":
+            questions.append(
+                f"Related screen target {related.target or related.navigationId} could not be resolved automatically. Confirm whether it should be treated as a separate page."
             )
     return sorted(dict.fromkeys(questions))
 
@@ -246,7 +395,71 @@ def _build_ai_hints(page: PageModel, traces: list[BackendTraceModel]) -> list[st
             hints.append(
                 f"Resolved backend chain begins at {trace.controllerClass}.{trace.controllerMethod}."
             )
+    if page.navigation:
+        hints.append(
+            "Treat popup/subview navigation targets as related screens. Do not merge them into the current page implementation by default."
+        )
     return hints
+
+
+def _build_related_pages(
+    page: PageModel,
+    input_path: Path,
+    source_roots: list[Path],
+) -> list[RelatedPageModel]:
+    config = CliConfig(sourceRoots=source_roots)
+    related_pages: list[RelatedPageModel] = []
+    seen: set[tuple[str, str]] = set()
+
+    for navigation in page.navigation:
+        key = (navigation.navigationType, navigation.target)
+        if key in seen:
+            continue
+        seen.add(key)
+
+        resolved_path = _resolve_navigation_target(navigation.target, input_path, config)
+        related = RelatedPageModel(
+            navigationId=navigation.navigationId,
+            navigationType=navigation.navigationType,
+            triggerFunction=navigation.triggerFunction,
+            target=navigation.target,
+            resolvedPath=str(resolved_path) if resolved_path else "",
+            resolutionStatus="unresolved",
+        )
+
+        if resolved_path is not None:
+            try:
+                related_page = analyze_file(resolved_path)
+                related.pageId = related_page.pageId
+                related.pageName = related_page.pageName
+                related.pageType = related_page.pageType
+                related.resolutionStatus = "resolved"
+            except Exception:
+                related.resolutionStatus = "path-resolved-analysis-failed"
+
+        related_pages.append(related)
+
+    return related_pages
+
+
+def _resolve_navigation_target(target: str, input_path: Path, config: CliConfig) -> Path | None:
+    if not target:
+        return None
+
+    candidates: list[str] = [target]
+    if "::" in target:
+        _prefix, suffix = target.split("::", 1)
+        candidates.append(suffix)
+        candidates.append(target.replace("::", "/"))
+    if target.endswith(".xml"):
+        candidates.append(Path(target).name)
+
+    for candidate in dict.fromkeys(candidates):
+        try:
+            return resolve_input_path(candidate, config, cwd=input_path.parent)
+        except (FileNotFoundError, ValueError):
+            continue
+    return None
 
 
 def _find_primary_trace(page: PageModel, traces: list[BackendTraceModel]) -> BackendTraceModel:

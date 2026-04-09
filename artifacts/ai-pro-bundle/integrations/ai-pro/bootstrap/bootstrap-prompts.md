@@ -105,6 +105,7 @@ Validate the AI Pro bootstrap for this repository.
 3. Run stage1 on a known page.
 4. Confirm the tool returns JSON.
 5. Confirm the stage1 result includes key page decisions.
+6. Run stage2 and confirm a Vue page config JSON and PM checklist are emitted.
 
 If the sample form.xml is used, expect:
 - primaryDatasetId = ds_scorechk

@@ -1,0 +1,229 @@
+{
+  "pageId": "form",
+  "pageName": "New Form",
+  "legacySourceFile": "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml",
+  "pageType": "main",
+  "vuePageName": "FormPage",
+  "route": "/form",
+  "interactionPattern": "grid-page",
+  "primaryDatasetId": "ds_scorechk",
+  "mainGridComponentId": "Grid0",
+  "primaryTransactionIds": [
+    "TX-BUTTON0ONCLICK-1"
+  ],
+  "datasets": [
+    {
+      "datasetId": "ds_scorechk",
+      "role": "response",
+      "primaryUsage": "main-grid",
+      "columns": [
+        "stuno",
+        "stuname",
+        "avgscore",
+        "rank",
+        "denseRank"
+      ],
+      "boundComponents": [
+        "Grid0"
+      ]
+    },
+    {
+      "datasetId": "ds_testCategory",
+      "role": "code",
+      "primaryUsage": "code-lookup",
+      "columns": [
+        "testCategory",
+        "testname"
+      ],
+      "boundComponents": [
+        "Combo0"
+      ]
+    },
+    {
+      "datasetId": "ds_screen",
+      "role": "view-state",
+      "primaryUsage": "view-state",
+      "columns": [
+        "caption",
+        "id",
+        "level"
+      ],
+      "boundComponents": []
+    }
+  ],
+  "grids": [
+    {
+      "componentId": "Grid0",
+      "componentType": "Grid",
+      "layoutGroup": "data-panel",
+      "datasetId": "ds_scorechk",
+      "events": [],
+      "columns": [
+        "stuno",
+        "stuname",
+        "avgscore",
+        "rank",
+        "denseRank"
+      ]
+    }
+  ],
+  "searchControls": [
+    {
+      "componentId": "Button0",
+      "componentType": "Button",
+      "layoutGroup": "search-panel",
+      "datasetId": "",
+      "events": [
+        "OnClick"
+      ]
+    },
+    {
+      "componentId": "Combo0",
+      "componentType": "Combo",
+      "layoutGroup": "search-panel",
+      "datasetId": "ds_testCategory",
+      "events": []
+    },
+    {
+      "componentId": "Button1",
+      "componentType": "Button",
+      "layoutGroup": "search-panel",
+      "datasetId": "",
+      "events": [
+        "OnClick"
+      ]
+    },
+    {
+      "componentId": "Button2",
+      "componentType": "Button",
+      "layoutGroup": "search-panel",
+      "datasetId": "",
+      "events": [
+        "OnClick"
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "functionName": "Button0_OnClick",
+      "transactions": [
+        "TX-BUTTON0ONCLICK-1"
+      ],
+      "controlsComponents": [
+        "Combo0"
+      ],
+      "readsDatasets": [],
+      "writesDatasets": []
+    },
+    {
+      "functionName": "form_OnLoadCompleted",
+      "transactions": [],
+      "controlsComponents": [],
+      "readsDatasets": [],
+      "writesDatasets": []
+    },
+    {
+      "functionName": "Button1_OnClick",
+      "transactions": [],
+      "controlsComponents": [
+        "Div0"
+      ],
+      "readsDatasets": [
+        "ds_screen"
+      ],
+      "writesDatasets": []
+    },
+    {
+      "functionName": "Button2_OnClick",
+      "transactions": [],
+      "controlsComponents": [],
+      "readsDatasets": [],
+      "writesDatasets": []
+    }
+  ],
+  "endpoints": [
+    {
+      "transactionId": "TX-TESTNAMESELECT-1",
+      "url": "http://127.0.0.1:8080/miplatform/testNameList.do",
+      "inputDatasets": [],
+      "outputDatasets": [
+        "ds_testCategory"
+      ],
+      "controller": "EgovSampleController.selectTestList",
+      "service": "EgovSampleServiceImpl.testNameList",
+      "dao": "SampleDAO.testNameList",
+      "sqlMapId": "sampleDAO.testNameList"
+    },
+    {
+      "transactionId": "TX-FNCMTR-1",
+      "url": "\"svc::\" + strController",
+      "inputDatasets": [
+        "\"ds_voInfo",
+        "\"",
+        "+",
+        "inputDs"
+      ],
+      "outputDatasets": [
+        "outputDs"
+      ],
+      "controller": "",
+      "service": "",
+      "dao": "",
+      "sqlMapId": ""
+    },
+    {
+      "transactionId": "TX-BUTTON0ONCLICK-1",
+      "url": "http://127.0.0.1:8080/miplatform/testScoreChk.do",
+      "inputDatasets": [],
+      "outputDatasets": [
+        "ds_scorechk"
+      ],
+      "controller": "EgovSampleController.selectScoreList",
+      "service": "EgovSampleServiceImpl.ScoreChk",
+      "dao": "SampleDAO.ScoreChk",
+      "sqlMapId": "sampleDAO.ScoreChk"
+    }
+  ],
+  "relatedPages": [
+    {
+      "navigationType": "subview",
+      "triggerFunction": "Button1_OnClick",
+      "target": "scurl",
+      "resolvedPath": "",
+      "pageId": "",
+      "pageName": "",
+      "pageType": "",
+      "resolutionStatus": "unresolved"
+    },
+    {
+      "navigationType": "popup",
+      "triggerFunction": "Button2_OnClick",
+      "target": "DefApp::scholarship.xml",
+      "resolvedPath": "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\scholarship.xml",
+      "pageId": "scholarship",
+      "pageName": "New Form",
+      "pageType": "main",
+      "resolutionStatus": "resolved"
+    }
+  ],
+  "frontendFiles": [
+    "frontend/src/pages/form/FormPage.vue",
+    "frontend/src/composables/useFormPage.ts",
+    "frontend/src/api/form.ts"
+  ],
+  "backendFiles": [
+    "backend/src/main/java/com/example/am/form/web/FormPageController.java",
+    "backend/src/main/java/com/example/am/form/service/FormPageService.java",
+    "backend/src/main/java/com/example/am/form/service/impl/FormPageServiceImpl.java",
+    "backend/src/main/java/com/example/am/form/dto/FormPageSearchCondition.java",
+    "backend/src/main/java/com/example/am/form/dto/FormPageRow.java",
+    "backend/src/main/resources/mapper/FormPageMapper.xml"
+  ],
+  "verificationChecks": [
+    "Primary dataset matches the dominant result grid or primary business response.",
+    "Search/code/view-state datasets are not treated as equal peers to the primary result dataset.",
+    "Each primary transaction has a resolved or manually corrected backend route chain.",
+    "Popup/subview targets are treated as separate related screens, not merged silently into the current page.",
+    "No shared platform function is reimplemented locally without explicit approval."
+  ]
+}

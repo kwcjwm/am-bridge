@@ -56,6 +56,22 @@
 - responseFields: avgscore, denseRank, rank, stuname, stuno
 - querySummary: select A.stuno as stuno,B.STUNAME as stuname, To_char(round(avg(score),0)) as avgscore, To_char(Rank() over(order by avg(score) DESC)) as rank, To_char(DENSE_RANK() OVER(order by avg(score) DESC,(select score from sco...
 
+## Related Screens
+
+### scurl
+- navigationType: subview
+- triggerFunction: Button1_OnClick
+- resolutionStatus: unresolved
+- relatedPageId: unknown
+- resolvedPath: unknown
+
+### DefApp::scholarship.xml
+- navigationType: popup
+- triggerFunction: Button2_OnClick
+- resolutionStatus: resolved
+- relatedPageId: scholarship
+- resolvedPath: C:\workspace\am-bridge\samples\ScoreRanking_Proj-master\src\main\resources\egovframework\conf\scoreranking\DefApp\Win32\scholarship.xml
+
 ## AI Review Loop
 
 - Review the primary dataset choice first.
@@ -64,6 +80,7 @@
 
 ## Open Questions
 
+- Related screen target scurl could not be resolved automatically. Confirm whether it should be treated as a separate page.
 - TX-FNCMTR-1 uses a dynamic or wrapper URL. Confirm the final endpoint contract manually.
 
 ## AI Hints
@@ -71,6 +88,7 @@
 - Treat ds_scorechk as the primary business dataset unless review overrides say otherwise.
 - Primary dataset reasons: largest-grid:Grid0, transaction-output:TX-BUTTON0ONCLICK-1, wide-schema:5, default-records:1
 - Resolved backend chain begins at EgovSampleController.selectScoreList.
+- Treat popup/subview navigation targets as related screens. Do not merge them into the current page implementation by default.
 
 ## Legacy Page Spec Snapshot
 

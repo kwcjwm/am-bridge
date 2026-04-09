@@ -19,8 +19,11 @@ from am_bridge.stages import (
     build_conversion_plan,
     build_review_template,
     build_starter_bundle,
+    build_vue_page_config,
+    generate_analysis_report,
     generate_package_report,
     generate_plan_report,
+    generate_pm_test_checklist,
 )
 
 
@@ -81,6 +84,7 @@ def _run_stage1(input_path: Path, config, paths, review_path: Path) -> int:
     package = build_conversion_package(
         input_path=input_path,
         backend_roots=config.backendRoots,
+        source_roots=config.sourceRoots,
         review_path=review_path if review_path.exists() else None,
     )
 
@@ -88,6 +92,7 @@ def _run_stage1(input_path: Path, config, paths, review_path: Path) -> int:
     _write_text(paths.pageSpec, generate_page_conversion_spec(model))
     _write_text(paths.packageJson, package.to_json())
     _write_text(paths.packageReport, generate_package_report(package))
+    _write_text(paths.analysisReport, generate_analysis_report(package))
     _write_json(paths.reviewJson, build_review_template(package))
 
     summary = {
@@ -103,6 +108,16 @@ def _run_stage1(input_path: Path, config, paths, review_path: Path) -> int:
             "interactionPattern": package.page.interactionPattern,
         },
         "backendTraces": [_trace_summary(trace) for trace in package.backendTraces],
+        "relatedPages": [
+            {
+                "navigationType": item.navigationType,
+                "target": item.target,
+                "resolvedPath": item.resolvedPath,
+                "pageId": item.pageId,
+                "resolutionStatus": item.resolutionStatus,
+            }
+            for item in package.relatedPages
+        ],
         "openQuestions": package.openQuestions,
         "aiHints": package.aiHints,
     }
@@ -114,15 +129,21 @@ def _run_stage2(input_path: Path, config, paths, review_path: Path) -> int:
     package = build_conversion_package(
         input_path=input_path,
         backend_roots=config.backendRoots,
+        source_roots=config.sourceRoots,
         review_path=review_path if review_path.exists() else None,
     )
     plan = build_conversion_plan(package)
+    vue_config = build_vue_page_config(package, plan)
+    pm_checklist = generate_pm_test_checklist(package, plan, vue_config)
 
     _write_text(paths.packageJson, package.to_json())
     _write_text(paths.packageReport, generate_package_report(package))
+    _write_text(paths.analysisReport, generate_analysis_report(package))
     _write_json(paths.reviewJson, build_review_template(package), overwrite=False)
     _write_text(paths.planJson, plan.to_json())
     _write_text(paths.planReport, generate_plan_report(plan, package))
+    _write_text(paths.vueConfigJson, vue_config.to_json())
+    _write_text(paths.pmChecklist, pm_checklist)
 
     summary = {
         "stage": "stage2",
@@ -141,6 +162,15 @@ def _run_stage2(input_path: Path, config, paths, review_path: Path) -> int:
             "backendFiles": [item.path for item in plan.backendFiles],
             "verificationChecks": plan.verificationChecks,
         },
+        "vueConfig": {
+            "path": str(paths.vueConfigJson),
+            "primaryDatasetId": vue_config.primaryDatasetId,
+            "mainGridComponentId": vue_config.mainGridComponentId,
+            "relatedPages": vue_config.relatedPages,
+        },
+        "pmChecklist": {
+            "path": str(paths.pmChecklist),
+        },
     }
     print(json.dumps(summary, ensure_ascii=False, indent=2))
     return 0
@@ -150,17 +180,24 @@ def _run_stage3(input_path: Path, config, paths, review_path: Path) -> int:
     package = build_conversion_package(
         input_path=input_path,
         backend_roots=config.backendRoots,
+        source_roots=config.sourceRoots,
         review_path=review_path if review_path.exists() else None,
     )
     plan = build_conversion_plan(package)
+    vue_config = build_vue_page_config(package, plan)
+    pm_checklist = generate_pm_test_checklist(package, plan, vue_config)
     bundle = build_starter_bundle(package, plan)
 
     for starter_file in [*bundle.frontendFiles, *bundle.backendFiles]:
         _write_text(paths.starterDir / starter_file.path, starter_file.content)
     _write_text(paths.planJson, plan.to_json())
     _write_text(paths.planReport, generate_plan_report(plan, package))
+    _write_text(paths.vueConfigJson, vue_config.to_json())
+    _write_text(paths.pmChecklist, pm_checklist)
     _write_text(paths.starterDir / "starter-bundle.json", bundle.to_json())
     _write_json(paths.starterDir / "handoff-prompts.json", bundle.handoffPrompts)
+    _write_text(paths.starterDir / "vue-page-config.json", vue_config.to_json())
+    _write_text(paths.starterDir / "pm-test-checklist.md", pm_checklist)
 
     summary = {
         "stage": "stage3",
@@ -171,6 +208,7 @@ def _run_stage3(input_path: Path, config, paths, review_path: Path) -> int:
             "frontendFiles": [item.path for item in bundle.frontendFiles],
             "backendFiles": [item.path for item in bundle.backendFiles],
             "handoffPromptsFile": str(paths.starterDir / "handoff-prompts.json"),
+            "pmChecklistFile": str(paths.starterDir / "pm-test-checklist.md"),
         },
     }
     print(json.dumps(summary, ensure_ascii=False, indent=2))
@@ -183,9 +221,12 @@ def _artifact_paths(paths) -> dict[str, str]:
         "pageSpec": str(paths.pageSpec),
         "packageJson": str(paths.packageJson),
         "packageReport": str(paths.packageReport),
+        "analysisReport": str(paths.analysisReport),
         "reviewJson": str(paths.reviewJson),
         "planJson": str(paths.planJson),
         "planReport": str(paths.planReport),
+        "vueConfigJson": str(paths.vueConfigJson),
+        "pmChecklist": str(paths.pmChecklist),
         "starterDir": str(paths.starterDir),
     }
 

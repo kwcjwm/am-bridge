@@ -18,8 +18,11 @@ from am_bridge.stages import (
     build_conversion_plan,
     build_review_template,
     build_starter_bundle,
+    build_vue_page_config,
+    generate_analysis_report,
     generate_package_report,
     generate_plan_report,
+    generate_pm_test_checklist,
 )
 
 
@@ -114,6 +117,7 @@ def _run_stage1(args: argparse.Namespace) -> int:
     package = build_conversion_package(
         input_path=input_path,
         backend_roots=config.backendRoots,
+        source_roots=config.sourceRoots,
         review_path=review_path if review_path.exists() else None,
     )
 
@@ -127,6 +131,7 @@ def _run_stage1(args: argparse.Namespace) -> int:
     _write_text(paths.pageSpec, generate_page_conversion_spec(model))
     _write_text(package_output, package.to_json())
     _write_text(package_report_output, generate_package_report(package))
+    _write_text(paths.analysisReport, generate_analysis_report(package))
     if not review_output.exists():
         _write_json(review_output, build_review_template(package))
 
@@ -134,6 +139,7 @@ def _run_stage1(args: argparse.Namespace) -> int:
     print(f"Page spec saved to: {paths.pageSpec}")
     print(f"Stage 1 package saved to: {package_output}")
     print(f"Stage 1 report saved to: {package_report_output}")
+    print(f"Detailed analysis report saved to: {paths.analysisReport}")
     print(f"Review template saved to: {review_output}")
     return 0
 
@@ -147,9 +153,12 @@ def _run_stage2(args: argparse.Namespace) -> int:
     package = build_conversion_package(
         input_path=input_path,
         backend_roots=config.backendRoots,
+        source_roots=config.sourceRoots,
         review_path=review_path if review_path.exists() else None,
     )
     plan = build_conversion_plan(package)
+    vue_config = build_vue_page_config(package, plan)
+    pm_checklist = generate_pm_test_checklist(package, plan, vue_config)
 
     plan_output = Path(args.plan_output).resolve() if args.plan_output else paths.planJson
     plan_report_output = (
@@ -158,13 +167,18 @@ def _run_stage2(args: argparse.Namespace) -> int:
 
     _write_text(paths.packageJson, package.to_json())
     _write_text(paths.packageReport, generate_package_report(package))
+    _write_text(paths.analysisReport, generate_analysis_report(package))
     _write_json(paths.reviewJson, build_review_template(package), overwrite=False)
     _write_text(plan_output, plan.to_json())
     _write_text(plan_report_output, generate_plan_report(plan, package))
+    _write_text(paths.vueConfigJson, vue_config.to_json())
+    _write_text(paths.pmChecklist, pm_checklist)
 
     print(f"Stage 1 package refreshed at: {paths.packageJson}")
     print(f"Stage 2 plan saved to: {plan_output}")
     print(f"Stage 2 report saved to: {plan_report_output}")
+    print(f"Vue page config saved to: {paths.vueConfigJson}")
+    print(f"PM test checklist saved to: {paths.pmChecklist}")
     return 0
 
 
@@ -177,9 +191,12 @@ def _run_stage3(args: argparse.Namespace) -> int:
     package = build_conversion_package(
         input_path=input_path,
         backend_roots=config.backendRoots,
+        source_roots=config.sourceRoots,
         review_path=review_path if review_path.exists() else None,
     )
     plan = build_conversion_plan(package)
+    vue_config = build_vue_page_config(package, plan)
+    pm_checklist = generate_pm_test_checklist(package, plan, vue_config)
     bundle = build_starter_bundle(package, plan)
 
     starter_dir = Path(args.starter_dir).resolve() if args.starter_dir else paths.starterDir
@@ -189,9 +206,15 @@ def _run_stage3(args: argparse.Namespace) -> int:
     _write_json(starter_dir / "handoff-prompts.json", bundle.handoffPrompts)
     _write_text(paths.planJson, plan.to_json())
     _write_text(paths.planReport, generate_plan_report(plan, package))
+    _write_text(paths.vueConfigJson, vue_config.to_json())
+    _write_text(paths.pmChecklist, pm_checklist)
+    _write_text(starter_dir / "vue-page-config.json", vue_config.to_json())
+    _write_text(starter_dir / "pm-test-checklist.md", pm_checklist)
 
     print(f"Starter bundle saved to: {starter_dir}")
     print(f"Stage 2 plan refreshed at: {paths.planJson}")
+    print(f"Vue page config saved to: {paths.vueConfigJson}")
+    print(f"PM test checklist saved to: {paths.pmChecklist}")
     return 0
 
 

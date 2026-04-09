@@ -6,6 +6,18 @@
 이번 저장소의 실제 전제는 "공통 플랫폼은 이미 존재하고, 그 위에 업무 페이지를 `Vue 3`로 전환한다"는 것이다.
 즉 메뉴, 결재, 권한, 인증, 메일 같은 공통 기능을 새로 만드는 저장소가 아니라, 그런 공통 기능을 활용하면서 레거시 업무 화면을 페이지 단위로 현대화하는 프레임이 본체다.
 
+## 워크스페이스 분리 원칙
+
+이 저장소의 루트는 `외부 Codex 지원 워크스페이스`다.
+여기서는 고성능 모델과 서브에이전트를 사용해 내부망 반입용 하네스, 프롬프트, 툴, 검토 체계를 준비한다.
+
+회사 내부 AI에는 이 루트 저장소를 그대로 열지 않는다.
+내부망에는 export된 `내부 단일 모델 작업 워크스페이스`만 반입하고, 그 워크스페이스의 시작 문서는 내부 전용 `AGENTS.md`여야 한다.
+
+현재 내부 반입용 시작 문서 소스는 [deploy/internal-ai/AGENTS.md](/c:/workspace/am-bridge/deploy/internal-ai/AGENTS.md) 이고, export 스크립트는 이 파일을 번들 루트의 `AGENTS.md`로 복사한다.
+운영자가 실제로 따라야 할 최소 절차는 [deploy/internal-ai/operator-script.md](/c:/workspace/am-bridge/deploy/internal-ai/operator-script.md) 에 정리한다.
+예전 `artifacts/ai-pro-bundle` 폴더는 현재 carry-in 기준이 아니므로 사용하지 않는다.
+
 ## 이 저장소가 하는 일
 
 - 레거시 자산을 읽고 구조화하는 기준을 정리한다.
@@ -36,6 +48,7 @@
 - `playbooks/`: 범용 MES 도메인 지도와 레거시 분석 체크리스트
 - `templates/`: 분석 산출물, 타깃 계약서, 보고서 템플릿
 - `artifacts/`: 실제 작업 중 생성되는 분석/타깃/리포트 산출물 보관 위치
+- `deploy/internal-ai/`: 내부망에 반입할 단일 모델 워크스페이스의 시작 문서 소스
 - `samples/`: 공개 샘플 입력셋과 검증용 참고 자료
 
 ## 표준 작업 흐름

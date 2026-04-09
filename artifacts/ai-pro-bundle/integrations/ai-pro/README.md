@@ -52,6 +52,13 @@ Recommended tool registrations:
 Use [tools/tool-registry.example.json](C:/workspace/am-bridge/integrations/ai-pro/tools/tool-registry.example.json) as the registration template.
 
 The runner returns JSON so GLM-4.7 can consume artifact paths and key decisions without parsing human-oriented console output.
+It also produces:
+
+- stage 1 detailed analysis report
+- stage 2 Vue page config JSON
+- stage 2 PM-facing test checklist
+- stage 3 starter bundle plus copied Vue config
+- stage 3 copied PM checklist
 
 ## Deployment Order
 

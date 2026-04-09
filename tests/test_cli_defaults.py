@@ -77,7 +77,10 @@ def test_cli_stage_artifact_paths_preserve_stage_structure() -> None:
 
     assert paths.packageJson == Path("artifacts/packages/DefApp/Win32/form-package.json").resolve()
     assert paths.packageReport == Path("artifacts/packages/DefApp/Win32/form-package.md").resolve()
+    assert paths.analysisReport == Path("artifacts/packages/DefApp/Win32/form-analysis.md").resolve()
     assert paths.planJson == Path("artifacts/plans/DefApp/Win32/form-plan.json").resolve()
     assert paths.planReport == Path("artifacts/plans/DefApp/Win32/form-plan.md").resolve()
+    assert paths.vueConfigJson == Path("artifacts/plans/DefApp/Win32/form-vue-config.json").resolve()
+    assert paths.pmChecklist == Path("artifacts/plans/DefApp/Win32/form-pm-checklist.md").resolve()
     assert paths.reviewJson == Path("artifacts/reviews/DefApp/Win32/form-review.json").resolve()
     assert paths.starterDir == Path("artifacts/starter/DefApp/Win32/form").resolve()

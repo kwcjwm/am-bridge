@@ -15,7 +15,8 @@ Given a legacy page such as `aaa.xml`, drive staged AM work:
 1. build evidence
 2. review and correct weak judgment
 3. lock the conversion plan
-4. generate starter files
+4. emit PM validation outputs
+5. generate starter files
 
 ## Core Rule
 
@@ -56,6 +57,7 @@ Read:
 
 - `artifacts/packages/...-package.json`
 - `artifacts/packages/...-package.md`
+- `artifacts/packages/...-analysis.md`
 - `artifacts/reviews/...-review.json`
 
 Review first:
@@ -64,6 +66,7 @@ Review first:
 - `mainGridComponentId`
 - `primaryTransactionIds`
 - backend trace coverage
+- popup/subview targets as separate related pages
 
 ### Review Loop
 
@@ -85,6 +88,8 @@ Read:
 
 - `artifacts/plans/...-plan.json`
 - `artifacts/plans/...-plan.md`
+- `artifacts/plans/...-vue-config.json`
+- `artifacts/plans/...-pm-checklist.md`
 
 Lock:
 
@@ -92,6 +97,8 @@ Lock:
 - file ownership
 - platform boundary
 - execution order
+- Vue implementation contract JSON
+- PM validation checklist
 
 ### Stage 3
 
@@ -101,6 +108,8 @@ Read:
 
 - `artifacts/starter/<page>/starter-bundle.json`
 - `artifacts/starter/<page>/handoff-prompts.json`
+- `artifacts/starter/<page>/vue-page-config.json`
+- `artifacts/starter/<page>/pm-test-checklist.md`
 
 Treat this as scaffold plus contract, not final production code.
 

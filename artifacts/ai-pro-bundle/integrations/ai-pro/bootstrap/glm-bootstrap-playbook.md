@@ -14,6 +14,9 @@ The final outcome is:
 - the project AM workflow is discoverable
 - `am-bridge-stage1|2|3` can be called by the model
 - the model can run staged AM work against `aaa.xml`
+- stage1 emits a detailed integrated legacy analysis report
+- stage2 emits a Vue page config JSON for implementation
+- stage2 emits a PM-facing test checklist
 
 ## Inputs GLM-4.7 Must Discover
 
@@ -144,7 +147,10 @@ Run these checks:
    - confirm JSON output
    - confirm `primaryDatasetId`
    - confirm backend trace summary exists when possible
-3. if stage1 passes, optionally run stage2 or stage3 on the sample page
+3. `am-bridge-stage2` on a known page
+   - confirm `...-vue-config.json` is created
+   - confirm `...-pm-checklist.md` is created
+4. if stage2 passes, optionally run stage3 on the sample page
 
 ### Expected Sample Validation Result
 

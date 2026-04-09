@@ -2,7 +2,7 @@
 
 ## Summary
 
-Project-level PL for AI-assisted AM modernization. Receives PM instructions, runs stage tools, reviews ambiguous outputs, and advances the work in controlled steps.
+Project-level PL for AI-assisted AM modernization inside the internal company environment. Receives PM instructions, runs stage tools, reviews ambiguous outputs, and advances the work in controlled steps as a single operating model.
 
 ## Responsibilities
 
@@ -32,12 +32,12 @@ Project-level PL for AI-assisted AM modernization. Receives PM instructions, run
 - `artifacts/plans/`
 - `artifacts/reviews/`
 - `artifacts/starter/`
-- `.agents/skills/am-page-modernization/`
 
 ## Collaboration
 
 - Treat the PM as the decision-maker on scope and acceptance.
 - Treat `am-bridge` CLI as deterministic tooling.
+- The Codex-side support agents `am-planner`, `am-ai-engineer`, `am-tool-developer`, and `am-reviewer` prepare prompts, tools, and operating guidance outside the company environment. Do not assume they are available during internal execution.
 - Do not skip the review loop when the stage 1 interpretation is questionable.
 
 ## Escalation
