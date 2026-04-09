@@ -1,0 +1,1039 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://am-bridge.local/schemas/page-model.schema.json",
+  "title": "PageModel",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "pageId",
+    "pageName",
+    "pageType",
+    "legacy",
+    "platform",
+    "layout",
+    "datasets",
+    "components",
+    "bindings",
+    "transactions",
+    "events",
+    "functions",
+    "navigation",
+    "styles",
+    "stateRules",
+    "validationRules",
+    "messages",
+    "realtimeSubscriptions",
+    "charts",
+    "imageVisionViews",
+    "alarmEvents",
+    "commandActions",
+    "reviewWorkflows",
+    "notes"
+  ],
+  "properties": {
+    "pageId": {
+      "type": "string"
+    },
+    "pageName": {
+      "type": "string"
+    },
+    "pageType": {
+      "type": "string",
+      "enum": [
+        "main",
+        "popup",
+        "tab-child",
+        "subview",
+        "dialog",
+        "unknown"
+      ]
+    },
+    "legacy": {
+      "$ref": "#/$defs/LegacyMeta"
+    },
+    "platform": {
+      "$ref": "#/$defs/PlatformMeta"
+    },
+    "layout": {
+      "$ref": "#/$defs/LooseObject"
+    },
+    "datasets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/DatasetModel"
+      }
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ComponentModel"
+      }
+    },
+    "bindings": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/BindingModel"
+      }
+    },
+    "transactions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/TransactionModel"
+      }
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/EventModel"
+      }
+    },
+    "functions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/FunctionModel"
+      }
+    },
+    "navigation": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/NavigationModel"
+      }
+    },
+    "styles": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/StyleModel"
+      }
+    },
+    "stateRules": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/StateRuleModel"
+      }
+    },
+    "validationRules": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ValidationRuleModel"
+      }
+    },
+    "messages": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/MessageModel"
+      }
+    },
+    "realtimeSubscriptions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/RealtimeSubscriptionModel"
+      }
+    },
+    "charts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ChartModel"
+      }
+    },
+    "imageVisionViews": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ImageVisionViewModel"
+      }
+    },
+    "alarmEvents": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/AlarmEventModel"
+      }
+    },
+    "commandActions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/CommandActionModel"
+      }
+    },
+    "reviewWorkflows": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ReviewWorkflowModel"
+      }
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "$defs": {
+    "StringArray": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "LooseObject": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "FlexibleValue": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "integer"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        },
+        {
+          "type": "array",
+          "items": {}
+        },
+        {
+          "type": "object",
+          "additionalProperties": true
+        }
+      ]
+    },
+    "LegacyMeta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sourceFile",
+        "windowId",
+        "formId",
+        "title",
+        "initialEvent",
+        "legacyPageType",
+        "includes"
+      ],
+      "properties": {
+        "sourceFile": {
+          "type": "string"
+        },
+        "windowId": {
+          "type": "string"
+        },
+        "formId": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "initialEvent": {
+          "type": "string"
+        },
+        "legacyPageType": {
+          "type": "string"
+        },
+        "includes": {
+          "$ref": "#/$defs/StringArray"
+        }
+      }
+    },
+    "PlatformMeta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "menuKey",
+        "permissionKey",
+        "approvalRequired",
+        "mailIntegration",
+        "sharedComponentUsage"
+      ],
+      "properties": {
+        "menuKey": {
+          "type": "string"
+        },
+        "permissionKey": {
+          "type": "string"
+        },
+        "approvalRequired": {
+          "type": "boolean"
+        },
+        "mailIntegration": {
+          "type": "boolean"
+        },
+        "sharedComponentUsage": {
+          "$ref": "#/$defs/StringArray"
+        }
+      }
+    },
+    "DatasetColumn": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "type",
+        "size",
+        "required",
+        "semanticType",
+        "notes"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "size": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "required": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "semanticType": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "DatasetModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "datasetId",
+        "role",
+        "columns",
+        "defaultRecords",
+        "usageContexts",
+        "sourceRefs"
+      ],
+      "properties": {
+        "datasetId": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DatasetColumn"
+          }
+        },
+        "defaultRecords": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        },
+        "usageContexts": {
+          "$ref": "#/$defs/StringArray"
+        },
+        "sourceRefs": {
+          "$ref": "#/$defs/StringArray"
+        }
+      }
+    },
+    "ComponentModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "componentId",
+        "componentType",
+        "parentId",
+        "containerPath",
+        "layoutGroup",
+        "styleKey",
+        "properties",
+        "events",
+        "platformDependency",
+        "sourceRefs"
+      ],
+      "properties": {
+        "componentId": {
+          "type": "string"
+        },
+        "componentType": {
+          "type": "string"
+        },
+        "parentId": {
+          "type": "string"
+        },
+        "containerPath": {
+          "type": "string"
+        },
+        "layoutGroup": {
+          "type": "string"
+        },
+        "styleKey": {
+          "type": "string"
+        },
+        "properties": {
+          "$ref": "#/$defs/LooseObject"
+        },
+        "events": {
+          "$ref": "#/$defs/StringArray"
+        },
+        "platformDependency": {
+          "$ref": "#/$defs/StringArray"
+        },
+        "sourceRefs": {
+          "$ref": "#/$defs/StringArray"
+        }
+      }
+    },
+    "BindingModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "bindingId",
+        "componentId",
+        "datasetId",
+        "columnName",
+        "bindingType",
+        "direction",
+        "sourceRefs"
+      ],
+      "properties": {
+        "bindingId": {
+          "type": "string"
+        },
+        "componentId": {
+          "type": "string"
+        },
+        "datasetId": {
+          "type": "string"
+        },
+        "columnName": {
+          "type": "string"
+        },
+        "bindingType": {
+          "type": "string"
+        },
+        "direction": {
+          "type": "string"
+        },
+        "sourceRefs": {
+          "$ref": "#/$defs/StringArray"
+        }
+      }
+    },
+    "TransactionModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "transactionId",
+        "serviceId",
+        "url",
+        "inputDatasets",
+        "outputDatasets",
+        "parameters",
+        "callbackFunction",
+        "wrapperFunction",
+        "apiCandidate",
+        "sourceRefs"
+      ],
+      "properties": {
+        "transactionId": {
+          "type": "string"
+        },
+        "serviceId": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "inputDatasets": {
+          "$ref": "#/$defs/StringArray"
+        },
+        "outputDatasets": {
+          "$ref": "#/$defs/StringArray"
+        },
+        "parameters": {
+          "type": "string"
+        },
+        "callbackFunction": {
+          "type": "string"
+        },
+        "wrapperFunction": {
+          "type": "string"
+        },
+        "apiCandidate": {
+          "type": "string"
+        },
+        "sourceRefs": {
+          "$ref": "#/$defs/StringArray"
+        }
+      }
+    },
+    "EventModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "eventId",
+        "sourceComponentId",
+        "eventName",
+        "handlerFunction",
+        "eventType",
+        "triggerCondition",
+        "effects"
+      ],
+      "properties": {
+        "eventId": {
+          "type": "string"
+        },
+        "sourceComponentId": {
+          "type": "string"
+        },
+        "eventName": {
+          "type": "string"
+        },
+        "handlerFunction": {
+          "type": "string"
+        },
+        "eventType": {
+          "type": "string"
+        },
+        "triggerCondition": {
+          "type": "string"
+        },
+        "effects": {
+          "$ref": "#/$defs/StringArray"
+        }
+      }
+    },
+    "FunctionModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "functionName",
+        "functionType",
+        "parameters",
+        "callsFunctions",
+        "callsTransactions",
+        "readsDatasets",
+        "writesDatasets",
+        "controlsComponents",
+        "platformCalls",
+        "sourceRefs"
+      ],
+      "properties": {
+        "functionName": {
+          "type": "string"
+        },
+        "functionType": {
+          "type": "string"
+        },
+        "parameters": {
+          "$ref": "#/$defs/StringArray"
+        },
+        "callsFunctions": {
+          "$ref": "#/$defs/StringArray"
+        },
+        "callsTransactions": {
+          "$ref": "#/$defs/StringArray"
+        },
+        "readsDatasets": {
+          "$ref": "#/$defs/StringArray"
+        },
+        "writesDatasets": {
+          "$ref": "#/$defs/StringArray"
+        },
+        "controlsComponents": {
+          "$ref": "#/$defs/StringArray"
+        },
+        "platformCalls": {
+          "$ref": "#/$defs/StringArray"
+        },
+        "sourceRefs": {
+          "$ref": "#/$defs/StringArray"
+        }
+      }
+    },
+    "NavigationModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "navigationId",
+        "triggerFunction",
+        "navigationType",
+        "target",
+        "parameterBindings",
+        "returnHandling"
+      ],
+      "properties": {
+        "navigationId": {
+          "type": "string"
+        },
+        "triggerFunction": {
+          "type": "string"
+        },
+        "navigationType": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        },
+        "parameterBindings": {
+          "$ref": "#/$defs/StringArray"
+        },
+        "returnHandling": {
+          "type": "string"
+        }
+      }
+    },
+    "StyleModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "styleId",
+        "componentId",
+        "property",
+        "rawValue",
+        "tokenCandidate",
+        "usageScope"
+      ],
+      "properties": {
+        "styleId": {
+          "type": "string"
+        },
+        "componentId": {
+          "type": "string"
+        },
+        "property": {
+          "type": "string"
+        },
+        "rawValue": {
+          "type": "string"
+        },
+        "tokenCandidate": {
+          "type": "string"
+        },
+        "usageScope": {
+          "type": "string"
+        }
+      }
+    },
+    "StateRuleModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ruleId",
+        "targetComponentId",
+        "stateProperty",
+        "triggerCondition",
+        "sourceFunction",
+        "expression",
+        "targetValue"
+      ],
+      "properties": {
+        "ruleId": {
+          "type": "string"
+        },
+        "targetComponentId": {
+          "type": "string"
+        },
+        "stateProperty": {
+          "type": "string"
+        },
+        "triggerCondition": {
+          "type": "string"
+        },
+        "sourceFunction": {
+          "type": "string"
+        },
+        "expression": {
+          "type": "string"
+        },
+        "targetValue": {
+          "$ref": "#/$defs/FlexibleValue"
+        }
+      }
+    },
+    "ValidationRuleModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ruleId",
+        "targetField",
+        "validationType",
+        "triggerTiming",
+        "sourceFunction",
+        "expression",
+        "message"
+      ],
+      "properties": {
+        "ruleId": {
+          "type": "string"
+        },
+        "targetField": {
+          "type": "string"
+        },
+        "validationType": {
+          "type": "string"
+        },
+        "triggerTiming": {
+          "type": "string"
+        },
+        "sourceFunction": {
+          "type": "string"
+        },
+        "expression": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "MessageModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "messageId",
+        "sourceType",
+        "messageType",
+        "text",
+        "sourceFunction",
+        "targetComponentId",
+        "i18nKeyCandidate",
+        "sourceRefs"
+      ],
+      "properties": {
+        "messageId": {
+          "type": "string"
+        },
+        "sourceType": {
+          "type": "string"
+        },
+        "messageType": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "sourceFunction": {
+          "type": "string"
+        },
+        "targetComponentId": {
+          "type": "string"
+        },
+        "i18nKeyCandidate": {
+          "type": "string"
+        },
+        "sourceRefs": {
+          "$ref": "#/$defs/StringArray"
+        }
+      }
+    },
+    "RealtimeSubscriptionModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "subscriptionId",
+        "sourceType",
+        "sourceName",
+        "trigger",
+        "lifecycleStart",
+        "lifecycleEnd",
+        "refreshIntervalMs",
+        "targetComponents",
+        "targetDatasets",
+        "errorPolicy"
+      ],
+      "properties": {
+        "subscriptionId": {
+          "type": "string"
+        },
+        "sourceType": {
+          "type": "string"
+        },
+        "sourceName": {
+          "type": "string"
+        },
+        "trigger": {
+          "type": "string"
+        },
+        "lifecycleStart": {
+          "type": "string"
+        },
+        "lifecycleEnd": {
+          "type": "string"
+        },
+        "refreshIntervalMs": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "targetComponents": {
+          "$ref": "#/$defs/StringArray"
+        },
+        "targetDatasets": {
+          "$ref": "#/$defs/StringArray"
+        },
+        "errorPolicy": {
+          "type": "string"
+        }
+      }
+    },
+    "ChartSeries": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "valueField",
+        "seriesType"
+      ],
+      "properties": {
+        "valueField": {
+          "type": "string"
+        },
+        "seriesType": {
+          "type": "string"
+        }
+      }
+    },
+    "ChartModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "chartId",
+        "chartType",
+        "title",
+        "datasetId",
+        "series",
+        "refreshMode",
+        "options"
+      ],
+      "properties": {
+        "chartId": {
+          "type": "string"
+        },
+        "chartType": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "datasetId": {
+          "type": "string"
+        },
+        "series": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ChartSeries"
+          }
+        },
+        "refreshMode": {
+          "type": "string"
+        },
+        "options": {
+          "$ref": "#/$defs/LooseObject"
+        }
+      }
+    },
+    "ImageVisionViewModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "viewerId",
+        "viewerType",
+        "imageSource",
+        "overlayEnabled",
+        "overlayTypes",
+        "interactions",
+        "resultDatasetId",
+        "resultFields"
+      ],
+      "properties": {
+        "viewerId": {
+          "type": "string"
+        },
+        "viewerType": {
+          "type": "string"
+        },
+        "imageSource": {
+          "$ref": "#/$defs/LooseObject"
+        },
+        "overlayEnabled": {
+          "type": "boolean"
+        },
+        "overlayTypes": {
+          "$ref": "#/$defs/StringArray"
+        },
+        "interactions": {
+          "$ref": "#/$defs/StringArray"
+        },
+        "resultDatasetId": {
+          "type": "string"
+        },
+        "resultFields": {
+          "$ref": "#/$defs/StringArray"
+        }
+      }
+    },
+    "AlarmEventModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "eventStreamId",
+        "sourceType",
+        "severityField",
+        "statusField",
+        "ackFunction",
+        "clearFunction",
+        "targetComponents",
+        "refreshMode",
+        "colorRuleSet"
+      ],
+      "properties": {
+        "eventStreamId": {
+          "type": "string"
+        },
+        "sourceType": {
+          "type": "string"
+        },
+        "severityField": {
+          "type": "string"
+        },
+        "statusField": {
+          "type": "string"
+        },
+        "ackFunction": {
+          "type": "string"
+        },
+        "clearFunction": {
+          "type": "string"
+        },
+        "targetComponents": {
+          "$ref": "#/$defs/StringArray"
+        },
+        "refreshMode": {
+          "type": "string"
+        },
+        "colorRuleSet": {
+          "type": "string"
+        }
+      }
+    },
+    "CommandActionModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "actionId",
+        "actionName",
+        "triggerComponentId",
+        "commandTarget",
+        "requiredRole",
+        "confirmationRequired",
+        "auditRequired",
+        "successCallback",
+        "failureCallback"
+      ],
+      "properties": {
+        "actionId": {
+          "type": "string"
+        },
+        "actionName": {
+          "type": "string"
+        },
+        "triggerComponentId": {
+          "type": "string"
+        },
+        "commandTarget": {
+          "type": "string"
+        },
+        "requiredRole": {
+          "type": "string"
+        },
+        "confirmationRequired": {
+          "type": "boolean"
+        },
+        "auditRequired": {
+          "type": "boolean"
+        },
+        "successCallback": {
+          "type": "string"
+        },
+        "failureCallback": {
+          "type": "string"
+        }
+      }
+    },
+    "ReviewActionModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "actionName",
+        "actionType",
+        "handlerFunction",
+        "triggerComponentId"
+      ],
+      "properties": {
+        "actionName": {
+          "type": "string"
+        },
+        "actionType": {
+          "type": "string"
+        },
+        "handlerFunction": {
+          "type": "string"
+        },
+        "triggerComponentId": {
+          "type": "string"
+        }
+      }
+    },
+    "ReviewWorkflowModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "workflowId",
+        "workflowType",
+        "sourceDatasetId",
+        "states",
+        "actions",
+        "roles",
+        "approvalIntegration",
+        "auditRequired"
+      ],
+      "properties": {
+        "workflowId": {
+          "type": "string"
+        },
+        "workflowType": {
+          "type": "string"
+        },
+        "sourceDatasetId": {
+          "type": "string"
+        },
+        "states": {
+          "$ref": "#/$defs/StringArray"
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ReviewActionModel"
+          }
+        },
+        "roles": {
+          "$ref": "#/$defs/StringArray"
+        },
+        "approvalIntegration": {
+          "type": "boolean"
+        },
+        "auditRequired": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

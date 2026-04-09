@@ -1,0 +1,4 @@
+page_id,event_id,source_component,event_name,handler_function,event_type,trigger_condition,effect_type,related_transactions,related_datasets,notes
+PAGE-001,EVT-001,Form0,OnLoadCompleted,form_OnLoadCompleted,lifecycle,initial-load,load,TX-LOAD,ds_code,"fill during analysis"
+PAGE-001,EVT-002,Button0,OnClick,fnSearch,user-action,search-click,transaction,TX-SEARCH,ds_search|ds_result,"fill during analysis"
+

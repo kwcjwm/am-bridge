@@ -1,0 +1,39 @@
+openapi: 3.0.3
+info:
+  title: MES Modernization Draft API
+  version: 0.1.0
+paths:
+  /work-orders:
+    get:
+      summary: Search work orders
+      tags:
+        - production-execution
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/WorkOrder"
+components:
+  schemas:
+    WorkOrder:
+      type: object
+      properties:
+        workOrderId:
+          type: string
+        status:
+          type: string
+        itemCode:
+          type: string
+

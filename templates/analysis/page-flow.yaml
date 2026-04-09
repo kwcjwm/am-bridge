@@ -1,0 +1,34 @@
+page_id: PAGE-001
+legacy_screen: path/to/form.xml
+page_type: main
+entry_flow:
+  initial_event: form_OnLoadCompleted
+  initial_actions:
+    - load common codes
+    - initialize search condition
+user_actions:
+  - action_id: ACTION-SEARCH
+    trigger: Button0_OnClick
+    preconditions:
+      - search condition is valid
+    transactions:
+      - TX-SEARCH
+    outputs:
+      - refresh result grid
+  - action_id: ACTION-DETAIL
+    trigger: Grid0_OnCellDblClick
+    preconditions:
+      - selected row exists
+    navigation:
+      type: popup-or-route
+      target: detail-page
+platform_integrations:
+  - feature: menu
+    usage: route and menu metadata
+  - feature: authorization
+    usage: page permission and action control
+review_points:
+  - does this page require new backend api
+  - does this page use shared approval or mail
+  - does this page contain popup/subview coupling
+

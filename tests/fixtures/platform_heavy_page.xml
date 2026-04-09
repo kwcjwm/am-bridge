@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window>
+  <Form
+    Id="PlatformHeavyForm"
+    Title="플랫폼 연계 집중 화면"
+    Left="0"
+    Top="0"
+    Width="1280"
+    Height="760"
+    WorkArea="true"
+    OnLoadCompleted="form_OnLoadCompleted"
+  >
+    <Button Id="ButtonApproval" Left="20" Top="20" Width="120" Height="24" OnClick="fnOpenApproval" Text="결재 요청" />
+    <Button Id="ButtonMail" Left="160" Top="20" Width="120" Height="24" OnClick="fnSendMail" Text="메일 발송" />
+    <Button Id="ButtonPermission" Left="300" Top="20" Width="120" Height="24" OnClick="fnCheckPermission" Text="권한 점검" />
+    <Button Id="ButtonAuth" Left="440" Top="20" Width="120" Height="24" OnClick="fnAuthCheck" Text="인증 재확인" />
+  </Form>
+  <Script><![CDATA[
+function form_OnLoadCompleted(obj)
+{
+    fnCheckPermission();
+}
+
+function fnOpenApproval()
+{
+    approvalOpen("APR-900");
+}
+
+function fnSendMail()
+{
+    mailSend("ops@example.com");
+}
+
+function fnCheckPermission()
+{
+    ensurePermission("PAGE_PLATFORM_HEAVY");
+}
+
+function fnAuthCheck()
+{
+    authRefresh();
+}
+  ]]></Script>
+</Window>

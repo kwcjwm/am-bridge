@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "am-bridge"
+version = "0.1.0"
+description = "Legacy frontend analysis workbench for page-based Vue 3 conversion"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+am-bridge-analyze = "am_bridge.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+

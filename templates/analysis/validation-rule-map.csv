@@ -1,0 +1,4 @@
+page_id,rule_id,target_field,validation_type,trigger_timing,source_function,expression,message_key_or_text,notes
+PAGE-001,VAL-001,startDate,required,search-before,validateSearch,startDate != null,validation.startDate.required,"fill during analysis"
+PAGE-001,VAL-002,lotNo,pattern,save-before,validateSave,lotNo matches LOT_PATTERN,validation.lotNo.pattern,"fill during analysis"
+

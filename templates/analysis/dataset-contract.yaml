@@ -1,0 +1,22 @@
+dataset_id: ds_example
+legacy_source:
+  screen_file: path/to/form.xml
+  transaction_name: search
+  controller_endpoint: /miplatform/example.do
+semantic_role:
+  domain: production-execution
+  use_case: search
+  direction: response
+schema:
+  - name: id
+    type: string
+    required: true
+    description: business identifier
+  - name: status
+    type: string
+    required: false
+    description: normalized state code
+mapping_notes:
+  - rename columns based on business meaning, not UI labels
+  - split mixed request/response datasets when needed
+

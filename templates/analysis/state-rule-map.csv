@@ -1,0 +1,4 @@
+page_id,rule_id,target_component,state_property,trigger_condition,source_function,expression,target_value,notes
+PAGE-001,STATE-001,ButtonSave,Enable,selected-row-exists,updateButtonState,selectedRow != null,true,"fill during analysis"
+PAGE-001,STATE-002,AlarmPanel,Visible,alarm-exists,renderAlarmPanel,alarmCount > 0,true,"fill during analysis"
+

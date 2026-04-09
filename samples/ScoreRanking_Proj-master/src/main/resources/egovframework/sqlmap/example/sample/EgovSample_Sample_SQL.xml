@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="Sample">
+
+	<typeAlias alias="egovMap"
+		type="egovframework.rte.psl.dataaccess.util.EgovMap" />
+	<typeAlias alias="searchVO"
+		type="egovframework.example.sample.service.SampleDefaultVO" />
+	
+	<resultMap id="sample"
+		class="egovframework.example.sample.service.SampleVO">
+		
+		<!-- 2019년 성적조회 쿼리 -->
+		<result property="stuno" column="stuno"/>
+		<result property="stuname" column="stuname"/>
+		
+		<result property="subcode" column="subcode"/>
+		<result property="subname" column="subname"/>
+		<result property="professor" column="professor"/>
+		
+		<result property="year" column="year"/>
+		<result property="testCategory" column="testCategory"/>
+		<result property="testname" column="testname"/>
+		<result property="score" column="score"/>
+	</resultMap>
+	
+	
+	<!--국어 만점자  -->
+	<select id="sampleDAO.korscholar" resultClass="egovMap">
+	select B1.STUNAME
+	from score_jew A1
+	join student_jew B1
+	on A1.STUNO=B1.STUNO
+	where A1.SUBCODE='S003' and A1.Score='100' and testcategory=#testCategory#
+	</select>
+	
+	
+	<!--영어 만점자  -->
+	<select id="sampleDAO.engscholar" resultClass="egovMap">
+	select B1.STUNAME
+	from score_jew A1
+	join student_jew B1
+	on A1.STUNO=B1.STUNO
+	where A1.SUBCODE='S002' and A1.Score='100' and testcategory=#testCategory#
+	</select>
+
+
+	<!--수학만점자 -->
+	<select id="sampleDAO.mathscholar" resultClass="egovMap">
+	select B1.STUNAME
+	from score_jew A1
+	join student_jew B1
+	on A1.STUNO=B1.STUNO
+	where A1.SUBCODE='S001' and A1.Score='100' and testcategory=#testCategory#
+	</select>
+
+	<!-- 2019년 성적조회 쿼리 -->
+	<select id="sampleDAO.ScoreChk" resultClass="egovMap">
+	select A.stuno as stuno,B.STUNAME as stuname, To_char(round(avg(score),0)) as avgscore, To_char(Rank() over(order by avg(score) DESC)) as rank, 
+	To_char(DENSE_RANK() OVER(order by avg(score) DESC,(select score from score_jew where stuno=A.Stuno and subcode='S001' and year='2019' and testcategory=#testCategory#) DESC,
+	(select score from score_jew where stuno=A.Stuno and subcode='S002' and year='2019' and testcategory=#testCategory#) DESC,
+	(select score from score_jew where stuno=A.Stuno and subcode='S003' and year='2019' and testcategory=#testCategory#) DESC)) as denseRank
+    from score_jew A
+    join student_jew B
+    on A.Stuno=B.Stuno
+    where A.YEAR='2019' and A.TESTCATEGORY=#testCategory#
+    group by A.stuno, B.STUNAME
+    union
+    select '' as stuno, '총인원' as stuname, To_char(count(B.STUNO)) as avgscore, '' as rank, '' as denseRank
+    from score_jew A
+    join student_jew B
+    on A.Stuno=B.Stuno
+    where A.YEAR='2019' and A.TESTCATEGORY=#testCategory#
+    group by A.stuno, B.STUNAME
+    union
+    select '' as stuno, '총평균' as stuname, To_char((round(avg(score),0))) as avgscore, '' as rank, '' as denseRank
+    from score_jew A
+    join student_jew B
+    on A.Stuno=B.Stuno
+    where A.YEAR='2019' and A.TESTCATEGORY=#testCategory#
+    order by 4 nulls last ,5 nulls last
+	</select>
+	
+    <select id="sampleDAO.subteacher" resultClass="egovMap">
+	select *
+	from subject_jew
+	where 1=1
+	</select>
+	
+	<select id="sampleDAO.testNameList"
+		parameterClass="searchVO" resultClass="egovMap">
+		SELECT distinct
+		testCategory, testname
+		FROM score_jew
+		WHERE 1=1
+		ORDER BY testCategory ASC
+	</select>
+
+</sqlMap>

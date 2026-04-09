@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window>
+  <Form
+    Id="ValidationHeavyForm"
+    Title="검증 집중 화면"
+    Left="0"
+    Top="0"
+    Width="1280"
+    Height="760"
+    WorkArea="true"
+    OnLoadCompleted="form_OnLoadCompleted"
+  >
+    <Datasets>
+      <Dataset Id="ds_result">
+        <Contents>
+          <colinfo id="lotId" type="STRING" size="32" />
+          <record>
+            <lotId>LOT-001</lotId>
+          </record>
+        </Contents>
+      </Dataset>
+    </Datasets>
+    <Static Id="StaticLotId" Left="20" Top="20" Width="100" Height="24" Text="LOT ID" Color="#222222" Font="Malgun Gothic,9,bold" />
+    <Edit Id="EditLotId" Left="130" Top="20" Width="180" Height="24" OnChanged="EditLotId_OnChanged" BkColor="#ffffff" Border="1 solid #d0d0d0" CssClass="input-required" />
+    <Static Id="StaticQty" Left="20" Top="60" Width="100" Height="24" Text="수량" Color="#222222" Font="Malgun Gothic,9,bold" />
+    <Edit Id="EditQty" Left="130" Top="60" Width="180" Height="24" Align="right" Color="#111111" />
+    <TextArea Id="EditRemark" Left="20" Top="100" Width="290" Height="80" Font="Malgun Gothic,9" />
+    <Static Id="StaticStatus" Left="20" Top="200" Width="160" Height="24" Text="대기" Color="#0055aa" />
+    <Div Id="DivDetail" Left="20" Top="240" Width="400" Height="200" />
+    <Button Id="ButtonSave" Left="20" Top="460" Width="100" Height="28" OnClick="fnSave" Text="저장" Color="#ffffff" BkColor="#007acc" />
+  </Form>
+  <Script><![CDATA[
+function form_OnLoadCompleted(obj)
+{
+    ButtonSave.Enable = false;
+    fnToggleDetail();
+}
+
+function EditLotId_OnChanged(obj)
+{
+    if (obj.Text != "") ButtonSave.Enable = true;
+    if (obj.Text != "") StaticStatus.Text = "입력 완료";
+}
+
+function fnToggleDetail()
+{
+    if (ds_result.getRowCount() == 0) DivDetail.Visible = false;
+}
+
+function fnSave()
+{
+    if (EditLotId.Text == "") {
+        alert("LOT ID는 필수입니다.");
+        return false;
+    }
+
+    if (!isNumber(EditQty.Text)) {
+        alert("수량은 숫자여야 합니다.");
+        return false;
+    }
+
+    if (String(EditRemark.Text).length > 100) {
+        alert("비고는 100자 이하여야 합니다.");
+        return false;
+    }
+
+    if (!confirm("저장하시겠습니까?")) {
+        return false;
+    }
+
+    transaction("saveLot", "/api/lot/save", "", "ds_result=ds_output", "", "fnCallback");
+}
+
+function fnCallback(svcid, errorCode, errorMsg)
+{
+    if (errorCode != 0) {
+        alert(errorMsg);
+    }
+}
+  ]]></Script>
+</Window>

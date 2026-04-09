@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window>
+	<Form Height="408" Id="form" Left="8" OnLoadCompleted="form_OnLoadCompleted" PidAttrib="7" Title="New&#32;Form" TooltipFont="Default,0" Top="8" Ver="1.0" Width="828" WorkArea="true">
+		<Datasets>
+			<Dataset DataSetType="Dataset" Id="ds_scorechk">
+				<Contents>
+					<colinfo id="stuno" size="256" summ="default" type="STRING"/>
+					<colinfo id="stuname" size="256" summ="default" type="STRING"/>
+					<colinfo id="avgscore" size="256" summ="default" type="STRING"/>
+					<colinfo id="rank" size="256" summ="default" type="STRING"/>
+					<colinfo id="denseRank" size="256" summ="default" type="STRING"/>
+					<record>
+						<avgscore></avgscore>
+						<denseRank></denseRank>
+						<rank></rank>
+						<stuname></stuname>
+						<stuno></stuno>
+					</record>
+				</Contents>
+			</Dataset>
+			<Dataset DataSetType="Dataset" Id="ds_testCategory">
+				<Contents>
+					<colinfo id="testCategory" size="256" summ="default" type="STRING"/>
+					<colinfo id="testname" size="256" summ="default" type="STRING"/>
+				</Contents>
+			</Dataset>
+			<Dataset DataSetType="Dataset" Id="ds_screen">
+				<Contents>
+					<colinfo id="caption" size="256" summ="default" type="STRING"/>
+					<colinfo id="id" size="256" summ="default" type="STRING"/>
+					<colinfo id="level" size="256" summ="default" type="STRING"/>
+					<record>
+						<caption>화면</caption>
+						<id>DefApp::graph.xml</id>
+						<level>0</level>
+					</record>
+				</Contents>
+			</Dataset>
+		</Datasets>
+		<Grid BindDataset="ds_scorechk" BkColor2="default" BoldHead="true" Bottom="384" Enable="true" EndLineColor="default" Height="240" Id="Grid0" InputPanel="FALSE" Left="8" LineColor="default" Right="448" TabOrder="1" TabStop="true" Top="144" UseDBuff="true" UsePopupMenu="true" UseSelColor="true" Visible="true" VLineColor="default" WheelScrollRow="1" Width="440">
+			<contents>
+				<format id="Default">
+					<columns>
+						<col width="80"/>
+						<col width="101"/>
+						<col width="95"/>
+						<col width="80"/>
+						<col width="80"/>
+					</columns>
+					<head>
+						<cell col="0" display="text" text="학생번호"/>
+						<cell col="1" display="text" text="학생명"/>
+						<cell col="2" display="text" text="평균점수"/>
+						<cell col="3" display="text" text="등수"/>
+						<cell col="4" display="text" text="석차"/>
+					</head>
+					<body>
+						<cell col="0" colid="stuno" display="text"/>
+						<cell col="1" colid="stuname" display="text"/>
+						<cell col="2" colid="avgscore" display="text"/>
+						<cell col="3" colid="rank" display="text"/>
+						<cell col="4" colid="denseRank" display="text"/>
+					</body>
+				</format>
+			</contents>
+		</Grid>
+		<Static Align="Center" BKColor="azure" Font="Tahoma,14" Height="30" Id="Static5" Left="208" TabOrder="2" Text="디와이정보기술&#32;2019학년도&#32;성적조회" Top="48" VAlign="Middle" Width="376"></Static>
+		<Button Height="28" Id="Button0" Left="212" OnClick="Button0_OnClick" TabOrder="3" Text="성적조회" Top="100" Width="79"></Button>
+		<Combo CodeColumn="testCategory" DataColumn="testname" Height="21" Id="Combo0" InnerDataset="ds_testCategory" Left="88" TabOrder="4" Top="104" Width="119"></Combo>
+		<Static Align="Center" BKColor="aliceblue" Border="None" Font="Tahoma,11" Height="25" Id="Static4" Left="8" TabOrder="5" Text="시험" Top="104" VAlign="Middle" Width="65"></Static>
+		<Button Height="27" Id="Button1" Left="296" OnClick="Button1_OnClick" TabOrder="6" Text="과목&#32;담당교수" Top="100" Width="80"></Button>
+		<Div Height="241" Id="Div0" Left="457" TabOrder="7" Text="Div0" Top="145" Width="356">
+			<Contents></Contents>
+		</Div>
+		<Button Height="27" Id="Button2" Left="380" OnClick="Button2_OnClick" TabOrder="8" Text="장학금대상" Top="100" Width="81"></Button>
+	</Form>
+	<Script><![CDATA[function fnSetVoInfo(objFrm, strVoClass)
+{
+	objFrm.ds_voInfo.clearData();
+	var row = objFrm.ds_voInfo.addrow();
+	objFrm.ds_voInfo.setcolumn(row, "voClass", strVoClass);
+}
+
+function testNameSelect(obj){
+	transaction("list", "http://127.0.0.1:8080/miplatform/testNameList.do", "", "ds_testCategory=ds_output", "", "fnCallback");
+	
+}
+
+function fnCmTr(objFrm, svcid, strController, strVoClass, inputDs, outputDs, params, callbackFnc)
+{
+
+	fnSetVoInfo(objFrm, strVoClass);
+
+	//strParam = "voClass='egovframework.rte.sample.service.SampleVO'";
+	
+	transaction(svcid, 
+				"svc::" + strController, 
+				"ds_voInfo=ds_voInfo " + inputDs, 
+				outputDs,
+				params,
+				"fnCallback");
+}
+
+function Button0_OnClick(obj)
+{
+	if(Combo0.Value==null){
+		alert('어떤 시험입니까? 콤보박스에서 확인해주세요');
+	}else{
+		strParam = "testCategory=" + Quote(Combo0.Value);
+		transaction("list", "http://127.0.0.1:8080/miplatform/testScoreChk.do", "", "ds_scorechk=ds_output", strParam, "fnCallback");
+	}	
+}
+
+function form_OnLoadCompleted(obj)
+{
+	testNameSelect(obj);
+}
+
+function Button1_OnClick(obj)
+{	
+	var scurl;
+	scurl=ds_screen.GetColumn(ds_screen.row,"id");
+	alert(scurl);
+	Div0.Url=scurl;
+	
+}
+
+function Button2_OnClick(obj)
+{
+    var param=combo0.Value;
+	var reg=Dialog("DefApp::scholarship.xml","param="+Quote(param),600,300,"AutoSize=false resize=false");
+	alert(param);
+	if(reg=="0"){
+   
+	}
+}
+]]></Script>
+</Window>

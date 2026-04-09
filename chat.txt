@@ -1,0 +1,186 @@
+miplatform + spring 을 컨버팅하는 am과제 pl을 맡게 되었어. 해당환경은 gpt oss 120b or qwen 3.8인가 정도의 로컬 모델ai로 내부 code assistant tool로 분석정도의 지원은 가능해. 그래서 사전에 내가  codex 5.4 이상의 고성능 모델로 레거시소스 f/e b/e 각각 분석 -> vue3, spring boot 기본 서비스 구조 형태로 컨버팅을 도와줄 툴을 먼저 만들어서 대비하고자해. 일단 프로젝트 이름부터 니가 추천좀해줘  . 컨버팅 툴을 만드는 스몰 git소스 스몰프로젝트 이름을 말하는거야 am과제자체는 말그대로 am이라고 명명되어있고, 투자가 들어와있는 과제야. pl이라서 툴을 만들어서 도움받고자 하는거고. 그냥 codex 5.4 써서 시작부터 하면 혼자서도 할건데 ㅋㅋㅋㅋ
+
+Thought for 18s
+
+좋아. 이건 AM 본과제 이름이 아니라,
+PL이 사전 준비용으로 만드는 “레거시 분석·컨버팅 보조 툴”의 git 프로젝트명이면 이런 쪽이 제일 잘 맞아.
+
+바로 추천하는 상위 후보
+1. am-bridge
+
+가장 무난하고 실무적이야.
+레거시(MiPlatform/Spring)에서 신구조(Vue3/Spring Boot)로 다리를 놓는 느낌이라 설명도 쉽고, 보고할 때도 덜 오글거림.
+
+2. am-forge
+
+“변환 툴”보다 재구성/단조(鍛造) 느낌이 있어서 좋음.
+단순 치환이 아니라 분석 → 구조화 → 변환 초안 생성까지 하는 툴이면 잘 어울림.
+
+3. am-scaffold
+
+최종 코드 전체를 완성해주는 느낌보다,
+기본 서비스 구조/골격을 생성해주는 보조툴 이미지가 강해서 네 용도랑 잘 맞음.
+
+4. legacy-bridge
+
+AM 종속 느낌을 조금 빼고 싶으면 이게 깔끔함.
+나중에 다른 과제에도 재사용하기 좋은 이름.
+
+5. convertor-am
+
+조금 직설적이지만 내부 프로젝트에서는 오히려 이해가 빠름.
+다만 브랜드감은 약함.
+
+내가 보기엔 특히 괜찮은 이름
+실무 보고/저장소용으로 제일 무난
+am-bridge
+am-scaffold
+legacy-bridge
+약간 더 “툴답고 멋있는” 느낌
+am-forge
+code-bridge-am
+legacy-forge
+기능이 바로 드러나는 직관형
+mp-converter
+mp-modernizer
+miplatform-migrator
+vue-sb-starter-gen
+네 상황에 제일 맞는 톤으로 고르면
+1) PL이 만든 내부 실전 보조툴 느낌
+am-bridge
+am-forge
+am-scaffold
+2) “레거시 분석 → 신구조 변환”이 바로 느껴지게
+legacy-bridge
+legacy-modernizer
+migration-forge
+3) MiPlatform 흔적을 이름에 남기고 싶을 때
+mp-bridge
+mp-modernizer
+miplatform-to-vue
+내 추천 순위
+가장 추천
+
+am-bridge
+
+이유:
+
+짧음
+보고할 때 자연스러움
+내부 git repo명으로 깔끔함
+툴 역할이 “컨버터”보다 넓어도 다 커버됨
+두 번째
+
+am-scaffold
+
+이유:
+
+네가 말한 목적이 “완전 자동 변환기”보단
+분석 후 Vue3/Spring Boot 기본 구조를 잡아주는 툴에 가까워서 가장 정확함
+세 번째
+
+am-forge
+
+이유:
+
+좀 더 강한 브랜드 느낌
+나중에 문서/프롬프트/템플릿/규칙 엔진까지 붙여도 어색하지 않음
+바로 써먹기 좋은 repo 이름 형태
+am-bridge
+am-scaffold
+am-forge
+legacy-bridge
+mp-modernizer
+하나만 딱 정하면
+
+am-bridge 추천.
+
+너 역할이 AM 과제 PL이고,
+이 툴은 본과제를 대신하는 제품이 아니라 전환을 돕는 보조 툴이니까
+너무 거창하지 않으면서도 가장 설명이 잘 된다.
+
+원하면 다음으로
+README 첫 문장, repo 설명(description), 폴더 구조 이름까지 바로 붙여서 정리해줄게.
+
+응 그리고 내 상황을 설명했어. 이걸 니가 풀어서, git에 적당한 public miplatform + spring 소스 레포지토리 하나 검색해서, 추천좀 해줘 그걸 샘플 프로젝트로 해서 vue3+spring boot 컨버팅 샘플로 잡게. 
+
+공개 레포 몇 개를 먼저 훑어서, MiPlatform 흔적이 실제로 보이고 Spring도 같이 있는지 기준으로 골라볼게. 재현성 있는 샘플로 쓰기 좋은지까지 같이 보겠다.
+
+후보가 몇 개 잡혔고, 지금은 실제로 화면 정의 파일과 Spring 컨트롤러가 같이 보이는지 확인 중이야. 지금까지는 학습용 템플릿보다 작은 업무형 샘플 쪽이 더 유력하다.
+
+Thought for 1m 16s
+
+추천 1순위는 **ewjang/ScoreRanking_Proj**야.
+이유는 이 레포가 README에서 MiPlatform + plsql + eGov(Java Spring) 조합을 명시하고, Tomcat 7 / JDK 1.8, MiPlatform 화면 파일(form.xml, graph.xml, scholarship.xml), Spring 컨트롤러, service / impl / DAO, iBATIS SQL 위치까지 바로 드러내서, 네가 만들려는 “레거시 분석 → Vue3 + Spring Boot 변환 보조 툴”의 샘플 케이스로 가장 다루기 좋기 때문이야. 즉, 너무 크지 않으면서도 화면·컨트롤러·서비스·쿼리가 한 세트로 잡혀 있다.
+
+왜 이걸 샘플 프로젝트로 잡는 게 좋냐
+1. 변환 범위가 명확함
+
+이 레포는 MiPlatform 화면 정의가 form.xml, graph.xml, scholarship.xml처럼 드러나 있고, 백엔드도 web 컨트롤러, service, service/impl, SQL 맵으로 나뉘어 있어서 F/E 분석기와 B/E 분석기를 따로 설계하기 좋다.
+즉 네 툴이 아래 흐름을 검증하기에 적당해:
+
+MiPlatform 화면 XML 파싱
+화면별 이벤트/조회/저장 패턴 추출
+Spring Controller ↔ Service ↔ DAO ↔ SQL 매핑 추적
+Vue3 페이지/컴포저블/API 명세 초안 생성
+Spring Boot Controller/Service/Mapper 골격 생성
+2. 업무형인데 과하게 크지 않음
+
+레포 설명상 기능이 성적 조회, 석차, 장학금 대상자 조회라서 도메인이 단순하다.
+ERP 전체처럼 모듈이 너무 많지 않아서, 네가 보조 툴의 첫 번째 샘플로 쓰기에 적당하다. 큰 ERP형 샘플은 범위가 너무 넓어서 초기에 룰셋이 퍼질 가능성이 크다.
+
+3. “컨버팅 룰” 만들기에 딱 좋은 구조
+
+이 레포는 오래된 전형적인 구조인 eGov/Spring + iBATIS + MiPlatform 흔적이 비교적 선명해서,
+네가 만들 툴의 핵심 산출물을 다음처럼 정의하기 쉽다:
+
+화면 XML → 화면명 / dataset / transaction / 이벤트 목록
+Controller → endpoint / input-output DTO 후보
+SQL Map → CRUD 유형 / 파라미터 / result 구조
+변환 결과 → Vue3 페이지 + Spring Boot REST 기본 골격
+비교 후보도 같이 보면
+후보 2: ewjang/Pjt_Mng
+
+이것도 README/소개상 Miplatform, plsql, Egov(Java Spring) 프로젝트라 후보로는 괜찮다. 다만 검색으로 확인되는 정보가 프로젝트 소개와 기본 폴더 수준이라, 지금 보이는 정보만 기준으로는 ScoreRanking_Proj보다 샘플 구조 파악이 덜 명확하다.
+
+후보 3: minhyukwang/erp-system
+
+이건 README에 Spring Framework, Java, JSP, MiPlatform, Xplatform, Nexacro까지 섞여 있고 물류/인사/회계 모듈을 가진 ERP라고 적혀 있다. 샘플로는 오히려 기술이 너무 섞여 있어서 네 툴의 첫 번째 기준 프로젝트로는 부적합할 가능성이 크다. MiPlatform 순수 변환 규칙을 잡기보다 예외가 많아질 수 있다.
+
+참고용 보조 레포: TerryChang/xplatform-spring
+
+이건 XPlatform + Spring 연동 학습용 템플릿이고, Controller에서 XPlatform 전용 타입 대신 POJO 스타일로 받도록 설계한 점이 특징이다.
+네 목적이 MiPlatform/XPlatform 요청·응답 데이터를 표준 DTO/REST 구조로 치환하는 규칙을 만드는 거라면, 이 레포는 주 샘플보다는 어댑터/추상화 아이디어 참고용으로 매우 좋다.
+
+내 최종 추천
+샘플 프로젝트 본체
+
+ewjang/ScoreRanking_Proj
+
+참고용 서브 레퍼런스
+
+TerryChang/xplatform-spring
+이건 변환 대상이라기보다, 입력 파라미터 해석기 / ViewResolver / ArgumentResolver 스타일 참고용.
+
+네 툴의 1차 PoC 범위도 이렇게 잡으면 좋음
+PoC-1
+
+ScoreRanking_Proj 기준으로 아래만 자동화:
+
+MiPlatform XML 화면 목록 추출
+화면별 transaction / dataset / event 추출
+연결된 Spring Controller / Service / SQLMap 추적
+Vue3 화면 골격 생성
+Spring Boot REST 골격 생성
+Legacy ↔ Target 매핑 리포트 생성
+산출물 예시
+legacy-screen-map.json
+api-contract-draft.yaml
+vue3-page-scaffold/
+springboot-module-scaffold/
+conversion-report.md
+
+이렇게 하면 네가 말한 고성능 모델로 선행 분석하고, 내부 로컬 모델은 후속 보조로 태우는 구조가 가장 깔끔해.
+
+원하면 다음 답변에서 내가 바로
+ScoreRanking_Proj 기준 PoC 설계서 목차 + 폴더 구조 + 분석 프롬프트 템플릿까지 이어서 잡아줄게.

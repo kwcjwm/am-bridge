@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window>
+  <Form
+    Id="ComplexGridForm"
+    Title="복합 그리드"
+    Left="0"
+    Top="0"
+    Width="1400"
+    Height="820"
+    WorkArea="true"
+    OnLoadCompleted="form_OnLoadCompleted"
+  >
+    <Datasets>
+      <Dataset Id="ds_result">
+        <Contents>
+          <colinfo id="selected" type="STRING" size="1" />
+          <colinfo id="equipmentId" type="STRING" size="32" />
+          <colinfo id="qty" type="INT" size="8" />
+          <record>
+            <selected>0</selected>
+            <equipmentId>EQ-201</equipmentId>
+            <qty>30</qty>
+          </record>
+        </Contents>
+      </Dataset>
+    </Datasets>
+    <Grid Id="GridMain" BindDataset="ds_result" Left="20" Top="40" Width="960" Height="420">
+      <contents>
+        <format id="Default">
+          <head>
+            <cell col="0" display="text" text="선택" />
+            <cell col="1" display="text" text="설비 ID" />
+            <cell col="2" display="text" text="수량" />
+          </head>
+          <body>
+            <cell col="0" colid="selected" display="checkboxcontrol" />
+            <cell col="1" colid="equipmentId" display="text" />
+            <cell col="2" colid="qty" display="number" />
+          </body>
+          <summary>
+            <cell col="1" display="text" text="합계" />
+            <cell col="2" colid="qty" display="sum" />
+          </summary>
+        </format>
+      </contents>
+    </Grid>
+  </Form>
+  <Script><![CDATA[
+function form_OnLoadCompleted(obj)
+{
+    fnSearch();
+}
+
+function fnSearch()
+{
+    transaction("searchGrid", "/api/grid/search", "", "ds_result=ds_output", "", "fnCallback");
+}
+
+function fnCallback(svcid, errorCode, errorMsg)
+{
+    if (errorCode != 0) {
+        alert(errorMsg);
+    }
+}
+  ]]></Script>
+</Window>

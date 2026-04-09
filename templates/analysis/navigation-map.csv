@@ -1,0 +1,4 @@
+page_id,navigation_id,trigger_function,navigation_type,target_page_or_popup,parameter_source,return_handling,route_strategy,notes
+PAGE-001,NAV-001,openDetail,popup,detailPopup,selectedRow,refresh-on-close,modal,"fill during analysis"
+PAGE-001,NAV-002,goHistory,route,/history/{id},selectedRow,no-return,router-push,"fill during analysis"
+

@@ -1,0 +1,64 @@
+project:
+  name: sample-or-customer-project
+  alias: short-name
+  domain: smart-factory-mes
+  source_access_mode: public-sample-or-redacted
+  notes: >
+    Do not store customer source code here. Keep only metadata, redacted extracts,
+    and analysis artifacts allowed by policy.
+
+source_stack:
+  ui:
+    technology: MiPlatform
+    asset_paths:
+      - samples/ScoreRanking_Proj-master/src/main/resources/egovframework/conf/scoreranking/DefApp/Win32
+  backend:
+    technology: Spring MVC
+    controller_style: annotation-based
+    asset_paths:
+      - samples/ScoreRanking_Proj-master/src/main/java
+  persistence:
+    technology: iBATIS
+    asset_paths:
+      - samples/ScoreRanking_Proj-master/src/main/resources/egovframework/sqlmap
+  database:
+    engine: unknown
+    modeling_assets:
+      - samples/ScoreRanking_Proj-master/src/main/resources/db
+
+shared_platform:
+  exists: true
+  provided_capabilities:
+    - menu
+    - approval
+    - authorization
+    - authentication
+    - mail
+  integration_assets:
+    - platform guide
+    - common ui components
+    - common api contracts
+  notes: >
+    These common capabilities are out of scope for reimplementation.
+    The AM target is business-page conversion on top of the shared platform.
+
+target_stack:
+  frontend: Vue 3 business pages on shared platform
+  backend: business api only when needed
+  api_style: REST or platform-defined
+  contract_style: OpenAPI or platform-defined contract
+
+analysis_scope:
+  include:
+    - platform-boundary-definition
+    - page-conversion-spec
+    - screen-inventory
+    - dataset-contract
+    - transaction-map
+    - controller-service-sql-trace
+    - canonical-domain-map
+  exclude:
+    - customer-source-export
+    - one-shot-full-conversion
+    - shared-platform-reimplementation
+

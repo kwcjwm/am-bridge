@@ -1,0 +1,4 @@
+page_id,function_name,function_type,trigger_source,calls_transactions,calls_functions,reads_datasets,writes_datasets,controls_components,platform_calls,notes
+PAGE-001,form_OnLoadCompleted,event-handler,OnLoadCompleted,TX-LOAD,initFilters,ds_code,ds_code,Combo0,,fill during analysis
+PAGE-001,fnSearch,page-action,Button0_OnClick,TX-SEARCH,validateSearch,ds_search,ds_result,Grid0,,fill during analysis
+

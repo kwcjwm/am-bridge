@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window>
+  <Form
+    Id="VisionDashboard"
+    Title="비전 리뷰 대시보드"
+    Left="0"
+    Top="0"
+    Width="1600"
+    Height="900"
+    WorkArea="true"
+    OnLoadCompleted="form_OnLoadCompleted"
+    OnClose="form_OnClose"
+  >
+    <Datasets>
+      <Dataset Id="ds_alarm">
+        <Contents>
+          <colinfo id="alarmId" type="STRING" size="32" />
+          <colinfo id="severity" type="STRING" size="16" />
+          <colinfo id="alarmStatus" type="STRING" size="16" />
+          <colinfo id="equipmentId" type="STRING" size="32" />
+          <record>
+            <alarmId>ALM-001</alarmId>
+            <severity>critical</severity>
+            <alarmStatus>OPEN</alarmStatus>
+            <equipmentId>EQ-101</equipmentId>
+          </record>
+        </Contents>
+      </Dataset>
+      <Dataset Id="ds_chart">
+        <Contents>
+          <colinfo id="eventTime" type="STRING" size="32" />
+          <colinfo id="goodCnt" type="INT" size="8" />
+          <colinfo id="ngCnt" type="INT" size="8" />
+        </Contents>
+      </Dataset>
+      <Dataset Id="ds_reviewQueue">
+        <Contents>
+          <colinfo id="lotId" type="STRING" size="32" />
+          <colinfo id="defectCode" type="STRING" size="32" />
+          <colinfo id="judgeResult" type="STRING" size="16" />
+          <colinfo id="reviewStatus" type="STRING" size="16" />
+          <colinfo id="confidenceScore" type="DECIMAL" size="8" />
+          <colinfo id="imageUrl" type="STRING" size="256" />
+          <colinfo id="x" type="INT" size="8" />
+          <colinfo id="y" type="INT" size="8" />
+          <colinfo id="width" type="INT" size="8" />
+          <colinfo id="height" type="INT" size="8" />
+          <record>
+            <lotId>LOT-001</lotId>
+            <defectCode>SCRATCH</defectCode>
+            <judgeResult>WAIT</judgeResult>
+            <reviewStatus>PENDING</reviewStatus>
+            <confidenceScore>0.92</confidenceScore>
+            <imageUrl>/images/lot-001.png</imageUrl>
+            <x>10</x>
+            <y>20</y>
+            <width>100</width>
+            <height>80</height>
+          </record>
+        </Contents>
+      </Dataset>
+    </Datasets>
+    <Chart
+      Id="ChartTrend"
+      BindDataset="ds_chart"
+      ChartType="line"
+      Title="불량 추이"
+      CategoryColumn="eventTime"
+      Series="goodCnt:line,ngCnt:line"
+      Left="20"
+      Top="20"
+      Width="500"
+      Height="260"
+    />
+    <ImageViewer
+      Id="ImageViewerMain"
+      Left="540"
+      Top="20"
+      Width="600"
+      Height="420"
+      ImageDataset="ds_reviewQueue"
+      ResultDataset="ds_reviewQueue"
+      ImageUrlField="imageUrl"
+      Overlay="bbox,label"
+      InteractionMode="zoom,pan,roi"
+    />
+    <Grid Id="GridAlarm" BindDataset="ds_alarm" Left="20" Top="300" Width="500" Height="220">
+      <contents>
+        <format id="Default">
+          <body>
+            <cell col="0" colid="alarmId" display="text" />
+            <cell col="1" colid="severity" display="text" />
+            <cell col="2" colid="alarmStatus" display="text" />
+          </body>
+        </format>
+      </contents>
+    </Grid>
+    <Grid Id="GridReview" BindDataset="ds_reviewQueue" Left="20" Top="540" Width="1120" Height="240">
+      <contents>
+        <format id="Default">
+          <body>
+            <cell col="0" colid="lotId" display="text" />
+            <cell col="1" colid="defectCode" display="text" />
+            <cell col="2" colid="reviewStatus" display="text" />
+          </body>
+        </format>
+      </contents>
+    </Grid>
+    <Button Id="ButtonAckAlarm" Left="20" Top="530" Width="100" Height="24" OnClick="fnAckAlarm" Text="알람 확인" />
+    <Button Id="ButtonClearAlarm" Left="130" Top="530" Width="100" Height="24" OnClick="fnClearAlarm" Text="알람 해제" />
+    <Button Id="ButtonStartEquipment" Left="240" Top="530" Width="110" Height="24" OnClick="fnStartEquipment" Text="설비 시작" />
+    <Button Id="ButtonJudgeOk" Left="950" Top="450" Width="90" Height="24" OnClick="fnJudgeOk" Text="판정 승인" />
+    <Button Id="ButtonJudgeNg" Left="1050" Top="450" Width="90" Height="24" OnClick="fnJudgeNg" Text="판정 반려" />
+  </Form>
+  <Script><![CDATA[
+function form_OnLoadCompleted(obj)
+{
+    fnInitRealtime();
+    fnLoadTrend();
+    fnLoadReviewQueue();
+}
+
+function form_OnClose(obj)
+{
+    fnDisposeRealtime();
+}
+
+function fnInitRealtime()
+{
+    setInterval(fnPollAlarm, 5000);
+    mqttSubscribe("/topic/alarm", "fnOnAlarmMessage");
+    mqttSubscribe("/topic/vision/review", "fnOnReviewMessage");
+}
+
+function fnDisposeRealtime()
+{
+    unsubscribe("/topic/alarm");
+    unsubscribe("/topic/vision/review");
+    clearInterval(timerRealtime);
+}
+
+function fnPollAlarm()
+{
+    transaction("pollAlarm", "/api/alarm/stream", "", "ds_alarm=ds_output", "", "fnRealtimeCallback");
+}
+
+function fnOnAlarmMessage(payload)
+{
+    ds_alarm.copyData(payload);
+    GridAlarm.Refresh();
+}
+
+function fnOnReviewMessage(payload)
+{
+    ds_reviewQueue.copyData(payload);
+    ChartTrend.setSeries("ngCnt");
+    ImageViewerMain.loadImage(payload.imageUrl);
+    ImageViewerMain.enableRoi("bbox");
+    ImageViewerMain.zoomFit();
+}
+
+function fnLoadTrend()
+{
+    transaction("loadTrend", "/api/vision/chart/trend", "", "ds_chart=ds_output", "", "fnCallback");
+}
+
+function fnLoadReviewQueue()
+{
+    transaction("loadReviewQueue", "/api/vision/review/queue", "", "ds_reviewQueue=ds_output", "", "fnCallback");
+}
+
+function fnAckAlarm()
+{
+    if (!confirm("알람 확인 처리하시겠습니까?")) {
+        return;
+    }
+    alarmAck(ds_alarm.getColumn(0, "alarmId"));
+}
+
+function fnClearAlarm()
+{
+    alarmClear(ds_alarm.getColumn(0, "alarmId"));
+}
+
+function fnStartEquipment()
+{
+    if (!confirm("설비를 시작하시겠습니까?")) {
+        return;
+    }
+    commandExecute("equipment.start", "ROLE_OPERATOR", "fnCommandSuccess", "fnCommandFailure");
+}
+
+function fnJudgeOk()
+{
+    ensureRole("ROLE_REVIEWER");
+    reviewApprove("APPROVED");
+    ds_reviewQueue.setColumn(0, "reviewStatus", "APPROVED");
+    approvalOpen("APR-VISION-01");
+}
+
+function fnJudgeNg()
+{
+    ensureRole("ROLE_REVIEWER");
+    reviewReject("REJECTED");
+    ds_reviewQueue.setColumn(0, "reviewStatus", "REJECTED");
+}
+
+function fnRealtimeCallback(svcid, errorCode, errorMsg)
+{
+    if (errorCode != 0) {
+        alert(errorMsg);
+    }
+}
+
+function fnCommandSuccess()
+{
+    alert("success");
+}
+
+function fnCommandFailure()
+{
+    alert("failure");
+}
+
+function fnCallback(svcid, errorCode, errorMsg)
+{
+    if (errorCode != 0) {
+        alert(errorMsg);
+    }
+}
+  ]]></Script>
+</Window>

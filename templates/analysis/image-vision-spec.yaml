@@ -1,0 +1,28 @@
+page_id: PAGE-001
+viewer_id: VIEW-001
+viewer_type: image-review
+image_source:
+  type: binary-or-url
+  endpoint: /api/images/{imageId}
+overlay:
+  enabled: true
+  overlay_types:
+    - bbox
+    - polygon
+    - marker
+interactions:
+  - zoom
+  - pan
+  - select-defect
+  - toggle-overlay
+result_binding:
+  dataset_id: ds_inspection_result
+  fields:
+    - defectClass
+    - confidence
+    - judge
+review_points:
+  - does this page need roi editing
+  - does this page need side-by-side compare
+  - does this page require operator relabel
+

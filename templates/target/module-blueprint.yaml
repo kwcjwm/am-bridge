@@ -1,0 +1,54 @@
+module: production-execution
+delivery_unit: page-based-conversion-on-shared-platform
+shared_platform_dependencies:
+  - menu
+  - authorization
+  - authentication
+  - approval
+  - mail
+frontend:
+  pages:
+    - name: WorkOrderListPage
+      route: /work-orders
+      purpose: search and review work orders
+      platform_integrations:
+        - menu
+        - authorization
+    - name: WorkOrderDetailPage
+      route: /work-orders/:workOrderId
+      purpose: inspect work order detail and related execution history
+      platform_integrations:
+        - authorization
+        - approval
+  components:
+    - SearchFilterPanel
+    - WorkOrderGrid
+    - WorkOrderSummaryCard
+backend:
+  strategy: create or adapt business api only when page conversion requires it
+  api:
+    - path: /work-orders
+      method: GET
+      purpose: search work orders
+    - path: /work-orders/{workOrderId}
+      method: GET
+      purpose: fetch work order detail
+  services:
+    - WorkOrderQueryService
+    - WorkOrderApplicationService
+  repositories:
+    - WorkOrderRepository
+  schemas:
+    - WorkOrderSearchCondition
+    - WorkOrderSummary
+    - WorkOrderDetail
+traceability:
+  source_artifacts:
+    - screen inventory row ids
+    - transaction ids
+    - service/sql trace ids
+    - platform dependency rows
+  mapping_policy:
+    - keep links between legacy transaction and target endpoint
+    - keep links between dataset columns and target DTO fields
+    - keep links between page features and shared platform dependencies

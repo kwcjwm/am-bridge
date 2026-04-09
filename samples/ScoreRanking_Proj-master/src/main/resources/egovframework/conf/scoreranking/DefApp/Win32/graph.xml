@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window>
+	<Form Height="272" Id="form" Left="8" OnLoadCompleted="form_OnLoadCompleted" PidAttrib="7" Title="Base::graph" TooltipFont="Default,0" Top="8" Ver="1.0" Width="392" WorkArea="true">
+		<Datasets>
+			<Dataset DataSetType="Dataset" Id="ds_subteacher">
+				<Contents>
+					<colinfo id="subname" size="256" summ="default" type="STRING"/>
+					<colinfo id="professor" size="256" summ="default" type="STRING"/>
+				</Contents>
+			</Dataset>
+		</Datasets>
+		<Static Align="Center" BKColor="BTNTEXT" Border="Flat" Color="WINDOW" Font="Tahoma,14" Height="40" Id="Static0" Left="52" TabOrder="1" Text="과목별&#32;담당교수" Top="16" VAlign="Middle" Width="244"></Static>
+		<Grid BindDataset="ds_subteacher" BoldHead="true" Bottom="176" Enable="true" EndLineColor="default" Height="108" Id="Grid0" InputPanel="FALSE" Left="20" LineColor="default" Right="344" TabOrder="2" TabStop="true" Top="68" UseDBuff="true" UsePopupMenu="true" UseSelColor="true" Visible="true" VLineColor="default" WheelScrollRow="1" Width="324">
+			<contents>
+				<format id="Default">
+					<columns>
+						<col width="149"/>
+						<col width="170"/>
+					</columns>
+					<head>
+						<cell col="0" display="text" text="과목"/>
+						<cell col="1" display="text" text="담당교수"/>
+					</head>
+					<body>
+						<cell col="0" colid="subname" display="text"/>
+						<cell col="1" colid="professor" display="text"/>
+					</body>
+				</format>
+			</contents>
+		</Grid>
+	</Form>
+	<Script><![CDATA[function fnSetVoInfo(objFrm, strVoClass)
+{
+	objFrm.ds_voInfo.clearData();
+	var row = objFrm.ds_voInfo.addrow();
+	objFrm.ds_voInfo.setcolumn(row, "voClass", strVoClass);
+}
+
+
+function fnCmTr(objFrm, svcid, strController, strVoClass, inputDs, outputDs, params, callbackFnc)
+{
+
+	fnSetVoInfo(objFrm, strVoClass);
+
+	//strParam = "voClass='egovframework.rte.sample.service.SampleVO'";
+	
+	transaction(svcid, 
+				"svc::" + strController, 
+				"ds_voInfo=ds_voInfo " + inputDs, 
+				outputDs,
+				params,
+				"fnCallback");
+}
+
+function form_OnLoadCompleted(obj)
+{
+	transaction("list", "http://127.0.0.1:8080/miplatform/subteacher.do", "", "ds_subteacher=ds_output", "", "fnCallback");
+}
+]]></Script>
+</Window>

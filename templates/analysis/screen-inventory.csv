@@ -1,0 +1,3 @@
+screen_id,screen_name,source_file,datasets,transactions,events,linked_endpoints,canonical_domain,use_case,notes
+FORM-001,Example Screen,path/to/form.xml,"ds_input|ds_output","search|save","onload|onclick","/api/example/search|/api/example/save",production-execution,search,"fill during analysis"
+

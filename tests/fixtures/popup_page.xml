@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window>
+  <Form
+    Id="LotHistoryPopup"
+    Title="LOT 이력 팝업"
+    Left="120"
+    Top="80"
+    Width="900"
+    Height="600"
+    OnLoadCompleted="form_OnLoadCompleted"
+  >
+    <Datasets>
+      <Dataset Id="ds_param">
+        <Contents>
+          <colinfo id="lotId" type="STRING" size="32" />
+        </Contents>
+      </Dataset>
+      <Dataset Id="ds_history">
+        <Contents>
+          <colinfo id="lotId" type="STRING" size="32" />
+          <colinfo id="eventTime" type="STRING" size="32" />
+          <colinfo id="status" type="STRING" size="16" />
+        </Contents>
+      </Dataset>
+    </Datasets>
+    <Static Id="StaticLotId" Left="20" Top="20" Width="100" Height="24" Text="LOT ID" />
+    <Edit Id="EditLotId" Left="130" Top="20" Width="180" Height="24" ReadOnly="true" />
+    <Grid Id="GridHistory" BindDataset="ds_history" Left="20" Top="60" Width="840" Height="300">
+      <contents>
+        <format id="Default">
+          <head>
+            <cell col="0" display="text" text="LOT ID" />
+            <cell col="1" display="text" text="이벤트 시각" />
+            <cell col="2" display="text" text="상태" />
+          </head>
+          <body>
+            <cell col="0" colid="lotId" display="text" />
+            <cell col="1" colid="eventTime" display="text" />
+            <cell col="2" colid="status" display="text" />
+          </body>
+        </format>
+      </contents>
+    </Grid>
+    <Div Id="DivSubView" Left="20" Top="380" Width="840" Height="140" />
+    <Button Id="ButtonClose" Left="760" Top="540" Width="100" Height="24" OnClick="fnClose" Text="닫기" />
+  </Form>
+  <Script><![CDATA[
+function form_OnLoadCompleted(obj)
+{
+    fnLoadHistory();
+    DivSubView.Url = "Frame::history-detail.xml";
+}
+
+function fnLoadHistory()
+{
+    transaction("loadLotHistory", "/api/lot/history", "ds_param=ds_input", "ds_history=ds_output", "", "fnCallback");
+}
+
+function fnClose()
+{
+    close();
+}
+
+function fnCallback(svcid, errorCode, errorMsg)
+{
+    if (errorCode != 0) {
+        alert(errorMsg);
+    }
+}
+  ]]></Script>
+</Window>

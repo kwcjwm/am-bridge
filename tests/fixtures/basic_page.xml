@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window>
+  <Form
+    Id="MainForm"
+    Title="설비 현황"
+    Left="0"
+    Top="0"
+    Width="1200"
+    Height="800"
+    WorkArea="true"
+    OnLoadCompleted="form_OnLoadCompleted"
+  >
+    <Datasets>
+      <Dataset Id="ds_search">
+        <Contents>
+          <colinfo id="equipmentId" type="STRING" size="64" />
+          <colinfo id="status" type="STRING" size="16" />
+        </Contents>
+      </Dataset>
+      <Dataset Id="ds_result">
+        <Contents>
+          <colinfo id="equipmentId" type="STRING" size="64" />
+          <colinfo id="status" type="STRING" size="16" />
+          <record>
+            <equipmentId>EQ-001</equipmentId>
+            <status>RUN</status>
+          </record>
+        </Contents>
+      </Dataset>
+      <Dataset Id="ds_code">
+        <Contents>
+          <colinfo id="code" type="STRING" size="16" />
+          <colinfo id="name" type="STRING" size="64" />
+        </Contents>
+      </Dataset>
+    </Datasets>
+    <Combo
+      Id="ComboStatus"
+      InnerDataset="ds_code"
+      CodeColumn="code"
+      DataColumn="name"
+      Left="10"
+      Top="10"
+      Width="120"
+      Height="24"
+      OnChanged="ComboStatus_OnChanged"
+    />
+    <Button Id="ButtonSearch" Left="140" Top="10" Width="80" Height="24" OnClick="fnSearch" Text="조회" />
+    <Button Id="ButtonApproval" Left="230" Top="10" Width="80" Height="24" OnClick="fnOpenApproval" Text="결재" />
+    <Grid Id="Grid0" BindDataset="ds_result" Left="10" Top="50" Width="600" Height="300">
+      <contents>
+        <format id="Default">
+          <head>
+            <cell col="0" display="text" text="설비 ID" />
+            <cell col="1" display="text" text="상태" />
+          </head>
+          <body>
+            <cell col="0" colid="equipmentId" display="text" />
+            <cell col="1" colid="status" display="text" />
+          </body>
+        </format>
+      </contents>
+    </Grid>
+  </Form>
+  <Script><![CDATA[
+function form_OnLoadCompleted(obj)
+{
+    fnLoadCodes();
+    fnSearch();
+}
+
+function fnLoadCodes()
+{
+    transaction("loadCodes", "/api/common/codes", "", "ds_code=ds_output", "", "fnCallback");
+}
+
+function fnSearch()
+{
+    var param = "status=" + Quote(ComboStatus.Value);
+    transaction("searchEquipment", "/api/equipment/status", "ds_search=ds_search", "ds_result=ds_output", param, "fnCallback");
+}
+
+function ComboStatus_OnChanged(obj)
+{
+    ds_search.setColumn(0, "status", obj.Value);
+}
+
+function fnOpenApproval()
+{
+    approvalOpen("APR-001");
+    Dialog("DefApp::approval.xml", "equipmentId=" + Quote(ds_result.getColumn(0, "equipmentId")), 800, 600, "AutoSize=false");
+}
+
+function fnCallback(svcid, errorCode, errorMsg)
+{
+    if (errorCode != 0) {
+        alert(errorMsg);
+    }
+}
+  ]]></Script>
+</Window>

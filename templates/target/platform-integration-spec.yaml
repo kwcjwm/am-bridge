@@ -1,0 +1,113 @@
+page:
+  page_id: EQP_STATUS_001
+  page_name: EquipmentStatusPage
+  route: /equipment/status
+
+menu:
+  required: true
+  menu_key: MENU:EQP_STATUS_001
+  menu_path:
+    - MES
+    - Equipment
+    - Status
+  breadcrumb_label: 설비 현황
+
+authorization:
+  required: true
+  permission_key: PAGE:EQP_STATUS_001
+  roles:
+    view:
+      - ROLE_OPERATOR
+      - ROLE_ENGINEER
+    edit:
+      - ROLE_ENGINEER
+    command:
+      - ROLE_OPERATOR
+  unauthorized_behavior: hide-action-and-block-api
+
+authentication:
+  session_required: true
+  user_context_fields:
+    - userId
+    - userName
+    - plantId
+    - language
+  page_bootstrap_dependencies:
+    - authStore
+    - tenantContext
+
+approval:
+  required: false
+  approval_key: ""
+  trigger_actions: []
+  callback_contract:
+    open_function: ""
+    result_handler: ""
+    required_fields: []
+
+mail:
+  required: false
+  templates: []
+  trigger_actions: []
+
+common_ui:
+  layout:
+    shell_component: SharedPlatformPage
+    content_slot: default
+  reused_components:
+    - CommonPageHeader
+    - CommonSearchBar
+    - CommonGridToolbar
+  common_dialogs:
+    - ConfirmDialog
+    - ErrorDialog
+  notifications:
+    success_channel: global-toast
+    error_channel: global-toast
+
+api_bridge:
+  request_headers:
+    - Authorization
+    - X-Plant-Id
+    - X-Language
+  error_handling:
+    session_expired: redirect-login
+    authorization_failed: show-forbidden
+    business_error: show-message
+  audit_fields:
+    - userId
+    - timestamp
+    - pageId
+
+navigation:
+  route_guard: auth-and-permission-check
+  popup_contracts: []
+  subview_contracts: []
+
+oi_vision:
+  realtime:
+    required: true
+    connection_owner: page-composable
+    cleanup_owner: onUnmounted
+  alarm_bridge:
+    required: true
+    ack_role: ROLE_OPERATOR
+  command_bridge:
+    required: true
+    confirmation_provider: ConfirmDialog
+    audit_required: true
+  review_bridge:
+    required: false
+    reviewer_role: ""
+
+traceability:
+  source_to_platform_mapping:
+    - legacy_signal: ButtonStartEquipment.OnClick
+      platform_contract: authorization.roles.command
+    - legacy_signal: form_OnLoadCompleted
+      platform_contract: authentication.page_bootstrap_dependencies
+  review_checkpoints:
+    - menu registration completed
+    - permission mapping completed
+    - shared component reuse confirmed
+    - no duplicated common feature implementation

@@ -1,0 +1,157 @@
+page:
+  page_id: EQP_STATUS_001
+  page_name: EquipmentStatusPage
+  route: /equipment/status
+  page_type: main
+  domain: resource-equipment
+  use_cases:
+    - search
+    - monitor
+  layout:
+    shell: shared-platform-page
+    content_pattern: search-grid-detail
+    responsive_notes:
+      - search filter area collapses on narrow width
+      - data grid keeps horizontal scroll
+
+platform:
+  menu_key: MENU:EQP_STATUS_001
+  permission_key: PAGE:EQP_STATUS_001
+  uses_shared_layout: true
+  shared_components:
+    - page-header
+    - common-search-bar
+  integrations:
+    approval: false
+    mail: false
+    auth_guard: true
+    breadcrumb: true
+
+frontend:
+  vue_component:
+    file_path: src/pages/equipment/EquipmentStatusPage.vue
+    script_setup: true
+    child_components:
+      - EquipmentSearchPanel
+      - EquipmentStatusGrid
+      - EquipmentStatusChart
+  composables:
+    - useEquipmentStatusPage
+    - useEquipmentRealtime
+  stores:
+    local_state:
+      - searchForm
+      - selectedRow
+      - loading
+    shared_store:
+      - authStore
+      - menuStore
+  lifecycle:
+    on_mounted:
+      - loadCodeData
+      - fetchInitialData
+      - startRealtime
+    on_unmounted:
+      - stopRealtime
+  ui_blocks:
+    - block_id: search-panel
+      purpose: search condition input
+      components:
+        - type: select
+          field: status
+        - type: input
+          field: equipmentId
+        - type: button
+          action: search
+    - block_id: main-grid
+      purpose: equipment list and current status
+      components:
+        - type: data-grid
+          id: equipment-grid
+    - block_id: side-summary
+      purpose: status chart and summary cards
+      components:
+        - type: line-chart
+          id: status-trend-chart
+        - type: kpi-card
+          id: alarm-kpi
+
+data_contract:
+  page_state_model:
+    search_form:
+      equipmentId: string
+      status: string
+    selected_row:
+      equipmentId: string
+      status: string
+      alarmLevel: string
+  datasets:
+    - legacy_dataset_id: ds_search
+      target_model: EquipmentSearchCondition
+      usage: request
+    - legacy_dataset_id: ds_result
+      target_model: EquipmentStatusRow
+      usage: response
+  computed:
+    - active_alarm_count
+    - selected_equipment_label
+
+api:
+  reuse:
+    - method: GET
+      path: /api/equipment/status
+      used_by: fetchInitialData
+  adapt:
+    - legacy_transaction_id: TX-FNSEARCH-1
+      target_method: getEquipmentStatusList
+      adjustment:
+        - rename response fields to camelCase
+        - normalize paging envelope
+  create_if_needed:
+    - purpose: realtime status aggregation
+      path: /api/equipment/status/realtime
+
+events:
+  user_actions:
+    - action: search
+      trigger: search button click
+      handler: fetchInitialData
+    - action: row-select
+      trigger: grid row click
+      handler: updateSelectedRow
+  business_actions:
+    - action: acknowledge-alarm
+      trigger: alarm action button
+      handler: ackAlarm
+      requires_confirm: true
+      requires_role: ROLE_OPERATOR
+
+oi_vision:
+  realtime:
+    enabled: true
+    source_type: mqtt
+    source_name: /topic/equipment/status
+    target_datasets:
+      - ds_result
+  charts:
+    - chart_id: status-trend-chart
+      chart_type: line
+      dataset: ds_result
+  image_vision_views: []
+  alarms:
+    enabled: true
+    severity_field: alarmLevel
+    status_field: alarmStatus
+  commands:
+    - action_name: equipment.start
+      trigger_component: start button
+  review_workflows: []
+
+acceptance:
+  functional:
+    - legacy search and grid refresh flow is preserved
+    - shared platform auth/menu contract is satisfied
+  technical:
+    - page uses Vue 3 script setup
+    - realtime resources are cleaned up on unmount
+    - no shared platform feature is reimplemented locally

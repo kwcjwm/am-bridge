@@ -1,0 +1,4 @@
+page_id,component_id,component_type,parent_id,container_path,binding_dataset,binding_column,events,layout_group,style_key,platform_dependency,notes
+PAGE-001,Grid0,Grid,Form0,Form0,ds_result,,OnCellClick|OnRowPosChanged,result-grid,grid-primary,,fill during analysis
+PAGE-001,Combo0,Combo,Form0,Form0,ds_code,code_value,OnChanged,search-panel,field-code,common-code,"code/display column mapping required"
+

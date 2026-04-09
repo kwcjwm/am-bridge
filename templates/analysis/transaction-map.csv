@@ -1,0 +1,3 @@
+transaction_id,screen_id,legacy_endpoint,input_datasets,output_datasets,service_method,sql_ids,canonical_domain,use_case,notes
+TX-001,FORM-001,/miplatform/exampleSearch.do,ds_input,ds_output,ExampleService.search,"Sample.selectList",production-execution,search,"fill during analysis"
+

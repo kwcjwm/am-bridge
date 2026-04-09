@@ -1,0 +1,7 @@
+{
+  "sourceRoots": [
+    "samples/ScoreRanking_Proj-master/src/main/resources/egovframework/conf/scoreranking"
+  ],
+  "analysisRoot": "artifacts/analysis",
+  "pageSpecRoot": "artifacts/target"
+}

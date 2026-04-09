@@ -1,0 +1,4 @@
+page_id,style_id,source_component,style_property,raw_value,token_candidate,usage_scope,notes
+PAGE-001,STYLE-001,StaticTitle,Font,"Tahoma,14",font-title,page-header,"fill during analysis"
+PAGE-001,STYLE-002,AlarmBanner,BkColor,"red",color-alarm-critical,alarm,"fill during analysis"
+

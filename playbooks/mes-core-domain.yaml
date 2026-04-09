@@ -1,0 +1,137 @@
+version: 0.1
+focus: data-centric-smart-factory-mes
+domains:
+  - id: master-data
+    description: Core reference data used across execution, quality, and inventory flows.
+    entities:
+      - plant
+      - site
+      - area
+      - line
+      - work-center
+      - equipment
+      - operation
+      - route
+      - process-spec
+      - item
+      - bom
+      - unit
+      - shift
+      - calendar
+      - common-code
+    common_use_cases:
+      - register
+      - change
+      - retire
+      - synchronize
+      - search
+  - id: production-execution
+    description: Execution of production orders, lot progress, and work results.
+    entities:
+      - production-order
+      - work-order
+      - dispatch
+      - lot
+      - serial
+      - wip
+      - work-result
+      - process-result
+    common_use_cases:
+      - plan
+      - release
+      - dispatch
+      - start
+      - complete
+      - hold
+      - resume
+      - cancel
+      - summarize
+  - id: material-inventory
+    description: Material movement and stock visibility.
+    entities:
+      - material
+      - raw-material
+      - semi-finished
+      - finished-good
+      - warehouse
+      - location
+      - stock
+      - stock-transaction
+    common_use_cases:
+      - receive
+      - issue
+      - return
+      - move
+      - consume
+      - adjust
+      - trace
+  - id: quality
+    description: Inspection and nonconformance management.
+    entities:
+      - inspection-plan
+      - inspection-result
+      - defect
+      - nonconformance
+      - spc-rule
+      - rework
+      - scrap
+    common_use_cases:
+      - inspect
+      - judge
+      - release
+      - reject
+      - rework
+      - scrap
+      - summarize
+  - id: traceability
+    description: Product and material genealogy across processes.
+    entities:
+      - genealogy
+      - lot-history
+      - serial-history
+      - process-history
+      - material-trace
+    common_use_cases:
+      - trace
+      - reconstruct
+      - summarize
+  - id: resource-equipment
+    description: Equipment, tool, recipe, and state management.
+    entities:
+      - equipment-state
+      - recipe
+      - parameter-set
+      - tooling
+      - maintenance-request
+      - downtime
+      - alarm
+      - event-log
+    common_use_cases:
+      - monitor
+      - change
+      - calibrate
+      - maintain
+      - acknowledge
+      - analyze
+  - id: integration
+    description: Data exchange with enterprise and shop-floor systems.
+    entities:
+      - erp-interface
+      - pop-interface
+      - plc-interface
+      - sensor-event
+      - batch-job
+      - external-master-sync
+    common_use_cases:
+      - synchronize
+      - publish
+      - consume
+      - reconcile
+      - retry
+cross_cutting:
+  - user-role-authorization
+  - audit-trail
+  - attachment-document
+  - approval-exception
+  - common-code-localization
+

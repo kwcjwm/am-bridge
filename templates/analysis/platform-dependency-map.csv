@@ -1,0 +1,5 @@
+page_id,legacy_screen,platform_feature,usage_type,required_action,notes
+PAGE-001,form.xml,menu,provided,integrate,"map route and menu metadata only"
+PAGE-001,form.xml,authorization,provided,integrate,"connect page permission key"
+PAGE-001,form.xml,approval,not-used,none,"leave blank when not required"
+

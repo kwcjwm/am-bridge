@@ -1,0 +1,24 @@
+page_id: PAGE-001
+chart_id: CHART-001
+chart_type: trend-line
+title: Equipment Trend
+data_source:
+  dataset_id: ds_trend
+  refresh_mode: realtime-or-batch
+series:
+  - name: throughput
+    x_field: time
+    y_field: throughput
+  - name: yield
+    x_field: time
+    y_field: yield
+options:
+  stacked: false
+  show_legend: true
+  show_tooltip: true
+  zoom: false
+review_points:
+  - is this chart realtime
+  - what is the aggregation interval
+  - does the shared platform already provide a chart wrapper
+

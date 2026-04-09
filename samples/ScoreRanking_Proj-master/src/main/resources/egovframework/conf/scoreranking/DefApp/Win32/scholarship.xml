@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window>
+	<Form Height="296" Id="form" Left="8" OnLoadCompleted="form_OnLoadCompleted" PidAttrib="7" Title="New&#32;Form" TooltipFont="Default,0" Top="8" Ver="1.0" Width="572" WorkArea="true">
+		<Datasets>
+			<Dataset DataSetType="Dataset" Id="ds_mathscholar">
+				<Contents>
+					<colinfo id="stuname" size="256" summ="default" type="STRING"/>
+				</Contents>
+			</Dataset>
+			<Dataset DataSetType="Dataset" Id="ds_engscholar">
+				<Contents>
+					<colinfo id="stuname" size="256" summ="default" type="STRING"/>
+				</Contents>
+			</Dataset>
+			<Dataset DataSetType="Dataset" Id="ds_korscholar">
+				<Contents>
+					<colinfo id="stuname" size="256" summ="default" type="STRING"/>
+				</Contents>
+			</Dataset>
+		</Datasets>
+		<Static Align="Center" Font="Tahoma,14" Height="35" Id="Static0" Left="152" TabOrder="1" Text="2019학년도&#32;장학금&#32;대상자" Top="12" VAlign="Middle" VClip="None" Width="261"></Static>
+		<Grid BindDataset="ds_mathscholar" BoldHead="true" Bottom="264" Enable="true" EndLineColor="default" Height="144" Id="Grid0" InputPanel="FALSE" Left="20" LineColor="default" Right="144" TabOrder="2" TabStop="true" Top="120" UseDBuff="true" UsePopupMenu="true" UseSelColor="true" Visible="true" VLineColor="default" WheelScrollRow="1" Width="124">
+			<contents>
+				<format id="Default">
+					<columns>
+						<col width="119"/>
+					</columns>
+					<head>
+						<cell col="0" display="text" text="대상자"/>
+					</head>
+					<body>
+						<cell col="0" colid="stuname" display="text"/>
+					</body>
+				</format>
+			</contents>
+		</Grid>
+		<Static Align="Center" Height="22" Id="Static1" Left="424" TabOrder="3" Text="(대상기준&#32;:&#32;각&#32;과목&#32;만점자)" Top="57" VAlign="Middle" Width="133"></Static>
+		<Static Align="Center" BKColor="INFOBK" Height="19" Id="Static2" Left="36" TabOrder="4" Text="수&#32;학" Top="96" VAlign="Middle" Width="93"></Static>
+		<Static Align="Center" BKColor="INFOBK" Height="19" Id="Static3" Left="228" TabOrder="5" Text="영&#32;어" Top="100" VAlign="Middle" Width="93"></Static>
+		<Static Align="Center" BKColor="INFOBK" Height="19" Id="Static4" Left="432" TabOrder="6" Text="국&#32;어" Top="100" VAlign="Middle" Width="93"></Static>
+		<Grid BindDataset="ds_engscholar" BkColor2="default" BoldHead="true" Bottom="268" Enable="true" EndLineColor="default" Height="144" Id="Grid1" InputPanel="FALSE" Left="212" LineColor="default" Right="336" TabOrder="7" TabStop="true" Top="124" UseDBuff="true" UsePopupMenu="true" UseSelColor="true" Visible="true" VLineColor="default" WheelScrollRow="1" Width="124">
+			<contents>
+				<format id="Default">
+					<columns>
+						<col width="120"/>
+					</columns>
+					<head>
+						<cell col="0" display="text" text="대상자"/>
+					</head>
+					<body>
+						<cell col="0" colid="stuname" display="text"/>
+					</body>
+				</format>
+			</contents>
+		</Grid>
+		<Grid BindDataset="ds_korscholar" BkColor2="default" BoldHead="true" Bottom="268" Enable="true" EndLineColor="default" Height="144" Id="Grid2" InputPanel="FALSE" Left="416" LineColor="default" Right="540" TabOrder="8" TabStop="true" Top="124" UseDBuff="true" UsePopupMenu="true" UseSelColor="true" Visible="true" VLineColor="default" WheelScrollRow="1" Width="124">
+			<contents>
+				<format id="Default">
+					<columns>
+						<col width="119"/>
+					</columns>
+					<head>
+						<cell col="0" display="text" text="대상자"/>
+					</head>
+					<body>
+						<cell col="0" colid="stuname" display="text"/>
+					</body>
+				</format>
+			</contents>
+		</Grid>
+	</Form>
+	<Script><![CDATA[
+function form_OnLoadCompleted(obj)
+{
+		strParam = "testCategory=" + Quote(param);
+		var i;
+		for(int i=0;i<6;i++){
+		if(i==1)
+			//alert('으아1');
+			transaction("list", "http://127.0.0.1:8080/miplatform/mathscholar.do", "", "ds_mathscholar=ds_output", strParam, "fnCallback");
+		if(i==3)
+			//alert('으아3');
+			transaction("list", "http://127.0.0.1:8080/miplatform/engscholar.do", "", "ds_engscholar=ds_output", strParam, "fnCallback");
+		if(i==4)
+			//alert('으아5');
+			transaction("list", "http://127.0.0.1:8080/miplatform/korscholar.do", "", "ds_korscholar=ds_output", strParam, "fnCallback");
+
+		}
+}
+]]></Script>
+</Window>

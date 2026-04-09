@@ -1,0 +1,27 @@
+page_id: PAGE-001
+workflow_id: REVIEW-001
+workflow_type: vision-review
+source_dataset:
+  dataset_id: ds_review_queue
+states:
+  - queued
+  - in-review
+  - confirmed-ok
+  - confirmed-ng
+  - relabeled
+actions:
+  - action: open-image
+    trigger: GridReview_OnCellDblClick
+  - action: relabel-defect
+    trigger: ButtonRelabel_OnClick
+  - action: confirm-result
+    trigger: ButtonConfirm_OnClick
+roles:
+  - operator
+  - reviewer
+  - supervisor
+review_points:
+  - does this workflow require audit trail
+  - does this workflow require approval integration
+  - does this workflow update original judge result
+
