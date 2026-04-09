@@ -2,7 +2,7 @@ artifacts/raw/*
 !artifacts/raw/README.md
 artifacts/analysis/*
 !artifacts/analysis/README.md
-artifacts/target/*
+!artifacts/target/*
 !artifacts/target/README.md
 artifacts/reports/*
 !artifacts/reports/README.md
