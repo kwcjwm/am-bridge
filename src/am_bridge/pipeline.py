@@ -14,6 +14,7 @@ from am_bridge.analyzers import (
     ImageVisionAnalyzer,
     MessageAnalyzer,
     NavigationAnalyzer,
+    PageSemanticsAnalyzer,
     PlatformDependencyAnalyzer,
     RealtimeAnalyzer,
     ReviewWorkflowAnalyzer,
@@ -51,6 +52,7 @@ def analyze_file(path: str | Path) -> PageModel:
         StateRuleAnalyzer(),
         ValidationRuleAnalyzer(),
         MessageAnalyzer(),
+        PageSemanticsAnalyzer(),
     ]
 
     for analyzer in analyzers:

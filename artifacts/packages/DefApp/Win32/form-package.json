@@ -1,0 +1,1167 @@
+{
+  "packageId": "form-package",
+  "page": {
+    "pageId": "form",
+    "pageName": "New Form",
+    "pageType": "main",
+    "primaryDatasetId": "ds_scorechk",
+    "secondaryDatasetIds": [
+      "ds_testCategory"
+    ],
+    "primaryTransactionIds": [
+      "TX-BUTTON0ONCLICK-1"
+    ],
+    "mainGridComponentId": "Grid0",
+    "interactionPattern": "grid-page",
+    "legacy": {
+      "sourceFile": "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml",
+      "windowId": "",
+      "formId": "form",
+      "title": "New Form",
+      "initialEvent": "form_OnLoadCompleted",
+      "legacyPageType": "Form",
+      "includes": []
+    },
+    "platform": {
+      "menuKey": "",
+      "permissionKey": "",
+      "approvalRequired": false,
+      "mailIntegration": false,
+      "sharedComponentUsage": []
+    },
+    "layout": {
+      "left": "8",
+      "top": "8",
+      "width": "828",
+      "height": "408",
+      "workArea": "true"
+    },
+    "datasets": [
+      {
+        "datasetId": "ds_scorechk",
+        "role": "response",
+        "primaryUsage": "main-grid",
+        "columns": [
+          {
+            "name": "stuno",
+            "type": "STRING",
+            "size": 256,
+            "required": null,
+            "semanticType": "id",
+            "notes": ""
+          },
+          {
+            "name": "stuname",
+            "type": "STRING",
+            "size": 256,
+            "required": null,
+            "semanticType": "name",
+            "notes": ""
+          },
+          {
+            "name": "avgscore",
+            "type": "STRING",
+            "size": 256,
+            "required": null,
+            "semanticType": "",
+            "notes": ""
+          },
+          {
+            "name": "rank",
+            "type": "STRING",
+            "size": 256,
+            "required": null,
+            "semanticType": "",
+            "notes": ""
+          },
+          {
+            "name": "denseRank",
+            "type": "STRING",
+            "size": 256,
+            "required": null,
+            "semanticType": "",
+            "notes": ""
+          }
+        ],
+        "defaultRecords": [
+          {
+            "avgscore": "",
+            "denseRank": "",
+            "rank": "",
+            "stuname": "",
+            "stuno": ""
+          }
+        ],
+        "usageContexts": [
+          "component",
+          "script"
+        ],
+        "boundComponents": [
+          "Grid0"
+        ],
+        "salienceScore": 171,
+        "salienceReasons": [
+          "largest-grid:Grid0",
+          "transaction-output:TX-BUTTON0ONCLICK-1",
+          "wide-schema:5",
+          "default-records:1"
+        ],
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml:Dataset#ds_scorechk"
+        ]
+      },
+      {
+        "datasetId": "ds_testCategory",
+        "role": "code",
+        "primaryUsage": "code-lookup",
+        "columns": [
+          {
+            "name": "testCategory",
+            "type": "STRING",
+            "size": 256,
+            "required": null,
+            "semanticType": "",
+            "notes": ""
+          },
+          {
+            "name": "testname",
+            "type": "STRING",
+            "size": 256,
+            "required": null,
+            "semanticType": "name",
+            "notes": ""
+          }
+        ],
+        "defaultRecords": [],
+        "usageContexts": [
+          "component",
+          "script"
+        ],
+        "boundComponents": [
+          "Combo0"
+        ],
+        "salienceScore": 25,
+        "salienceReasons": [
+          "transaction-output:TX-TESTNAMESELECT-1",
+          "input-bound:Combo0,Combo0,Combo0",
+          "schema:2",
+          "code-lookup-signal"
+        ],
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml:Dataset#ds_testCategory"
+        ]
+      },
+      {
+        "datasetId": "ds_screen",
+        "role": "view-state",
+        "primaryUsage": "view-state",
+        "columns": [
+          {
+            "name": "caption",
+            "type": "STRING",
+            "size": 256,
+            "required": null,
+            "semanticType": "",
+            "notes": ""
+          },
+          {
+            "name": "id",
+            "type": "STRING",
+            "size": 256,
+            "required": null,
+            "semanticType": "id",
+            "notes": ""
+          },
+          {
+            "name": "level",
+            "type": "STRING",
+            "size": 256,
+            "required": null,
+            "semanticType": "",
+            "notes": ""
+          }
+        ],
+        "defaultRecords": [
+          {
+            "caption": "화면",
+            "id": "DefApp::graph.xml",
+            "level": "0"
+          }
+        ],
+        "usageContexts": [
+          "component",
+          "script"
+        ],
+        "boundComponents": [],
+        "salienceScore": 0,
+        "salienceReasons": [
+          "script-read:1",
+          "schema:3",
+          "default-records:1",
+          "view-state-signal"
+        ],
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml:Dataset#ds_screen"
+        ]
+      }
+    ],
+    "components": [
+      {
+        "componentId": "Grid0",
+        "componentType": "Grid",
+        "parentId": "form",
+        "containerPath": "form",
+        "layoutGroup": "data-panel",
+        "styleKey": "",
+        "properties": {
+          "BindDataset": "ds_scorechk",
+          "BkColor2": "default",
+          "BoldHead": "true",
+          "Bottom": "384",
+          "Enable": "true",
+          "EndLineColor": "default",
+          "Height": "240",
+          "Id": "Grid0",
+          "InputPanel": "FALSE",
+          "Left": "8",
+          "LineColor": "default",
+          "Right": "448",
+          "TabOrder": "1",
+          "TabStop": "true",
+          "Top": "144",
+          "UseDBuff": "true",
+          "UsePopupMenu": "true",
+          "UseSelColor": "true",
+          "Visible": "true",
+          "VLineColor": "default",
+          "WheelScrollRow": "1",
+          "Width": "440",
+          "gridMeta": {
+            "bodyColumns": [
+              {
+                "band": "body",
+                "col": "0",
+                "columnName": "stuno",
+                "display": "text",
+                "text": ""
+              },
+              {
+                "band": "body",
+                "col": "1",
+                "columnName": "stuname",
+                "display": "text",
+                "text": ""
+              },
+              {
+                "band": "body",
+                "col": "2",
+                "columnName": "avgscore",
+                "display": "text",
+                "text": ""
+              },
+              {
+                "band": "body",
+                "col": "3",
+                "columnName": "rank",
+                "display": "text",
+                "text": ""
+              },
+              {
+                "band": "body",
+                "col": "4",
+                "columnName": "denseRank",
+                "display": "text",
+                "text": ""
+              }
+            ],
+            "headColumns": [
+              {
+                "band": "head",
+                "col": "0",
+                "columnName": "",
+                "display": "text",
+                "text": "학생번호"
+              },
+              {
+                "band": "head",
+                "col": "1",
+                "columnName": "",
+                "display": "text",
+                "text": "학생명"
+              },
+              {
+                "band": "head",
+                "col": "2",
+                "columnName": "",
+                "display": "text",
+                "text": "평균점수"
+              },
+              {
+                "band": "head",
+                "col": "3",
+                "columnName": "",
+                "display": "text",
+                "text": "등수"
+              },
+              {
+                "band": "head",
+                "col": "4",
+                "columnName": "",
+                "display": "text",
+                "text": "석차"
+              }
+            ],
+            "summaryColumns": [],
+            "columnCount": 5,
+            "hasSummary": false,
+            "editable": false
+          }
+        },
+        "events": [],
+        "platformDependency": [],
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml:Grid#Grid0"
+        ]
+      },
+      {
+        "componentId": "Static5",
+        "componentType": "Static",
+        "parentId": "form",
+        "containerPath": "form",
+        "layoutGroup": "content-panel",
+        "styleKey": "align-center",
+        "properties": {
+          "Align": "Center",
+          "BKColor": "azure",
+          "Font": "Tahoma,14",
+          "Height": "30",
+          "Id": "Static5",
+          "Left": "208",
+          "TabOrder": "2",
+          "Text": "디와이정보기술 2019학년도 성적조회",
+          "Top": "48",
+          "VAlign": "Middle",
+          "Width": "376"
+        },
+        "events": [],
+        "platformDependency": [],
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml:Static#Static5"
+        ]
+      },
+      {
+        "componentId": "Button0",
+        "componentType": "Button",
+        "parentId": "form",
+        "containerPath": "form",
+        "layoutGroup": "search-panel",
+        "styleKey": "",
+        "properties": {
+          "Height": "28",
+          "Id": "Button0",
+          "Left": "212",
+          "OnClick": "Button0_OnClick",
+          "TabOrder": "3",
+          "Text": "성적조회",
+          "Top": "100",
+          "Width": "79"
+        },
+        "events": [
+          "OnClick"
+        ],
+        "platformDependency": [],
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml:Button#Button0"
+        ]
+      },
+      {
+        "componentId": "Combo0",
+        "componentType": "Combo",
+        "parentId": "form",
+        "containerPath": "form",
+        "layoutGroup": "search-panel",
+        "styleKey": "",
+        "properties": {
+          "CodeColumn": "testCategory",
+          "DataColumn": "testname",
+          "Height": "21",
+          "Id": "Combo0",
+          "InnerDataset": "ds_testCategory",
+          "Left": "88",
+          "TabOrder": "4",
+          "Top": "104",
+          "Width": "119"
+        },
+        "events": [],
+        "platformDependency": [],
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml:Combo#Combo0"
+        ]
+      },
+      {
+        "componentId": "Static4",
+        "componentType": "Static",
+        "parentId": "form",
+        "containerPath": "form",
+        "layoutGroup": "content-panel",
+        "styleKey": "align-center",
+        "properties": {
+          "Align": "Center",
+          "BKColor": "aliceblue",
+          "Border": "None",
+          "Font": "Tahoma,11",
+          "Height": "25",
+          "Id": "Static4",
+          "Left": "8",
+          "TabOrder": "5",
+          "Text": "시험",
+          "Top": "104",
+          "VAlign": "Middle",
+          "Width": "65"
+        },
+        "events": [],
+        "platformDependency": [],
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml:Static#Static4"
+        ]
+      },
+      {
+        "componentId": "Button1",
+        "componentType": "Button",
+        "parentId": "form",
+        "containerPath": "form",
+        "layoutGroup": "search-panel",
+        "styleKey": "",
+        "properties": {
+          "Height": "27",
+          "Id": "Button1",
+          "Left": "296",
+          "OnClick": "Button1_OnClick",
+          "TabOrder": "6",
+          "Text": "과목 담당교수",
+          "Top": "100",
+          "Width": "80"
+        },
+        "events": [
+          "OnClick"
+        ],
+        "platformDependency": [],
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml:Button#Button1"
+        ]
+      },
+      {
+        "componentId": "Div0",
+        "componentType": "Div",
+        "parentId": "form",
+        "containerPath": "form",
+        "layoutGroup": "container-panel",
+        "styleKey": "",
+        "properties": {
+          "Height": "241",
+          "Id": "Div0",
+          "Left": "457",
+          "TabOrder": "7",
+          "Text": "Div0",
+          "Top": "145",
+          "Width": "356"
+        },
+        "events": [],
+        "platformDependency": [],
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml:Div#Div0"
+        ]
+      },
+      {
+        "componentId": "Button2",
+        "componentType": "Button",
+        "parentId": "form",
+        "containerPath": "form",
+        "layoutGroup": "search-panel",
+        "styleKey": "",
+        "properties": {
+          "Height": "27",
+          "Id": "Button2",
+          "Left": "380",
+          "OnClick": "Button2_OnClick",
+          "TabOrder": "8",
+          "Text": "장학금대상",
+          "Top": "100",
+          "Width": "81"
+        },
+        "events": [
+          "OnClick"
+        ],
+        "platformDependency": [],
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml:Button#Button2"
+        ]
+      }
+    ],
+    "bindings": [
+      {
+        "bindingId": "BIND-0001",
+        "componentId": "Grid0",
+        "datasetId": "ds_scorechk",
+        "columnName": "",
+        "bindingType": "component-dataset",
+        "direction": "display-only",
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml:Grid#Grid0"
+        ]
+      },
+      {
+        "bindingId": "BIND-0002",
+        "componentId": "Grid0",
+        "datasetId": "ds_scorechk",
+        "columnName": "stuno",
+        "bindingType": "grid-cell",
+        "direction": "display-only",
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml:cell"
+        ]
+      },
+      {
+        "bindingId": "BIND-0003",
+        "componentId": "Grid0",
+        "datasetId": "ds_scorechk",
+        "columnName": "stuname",
+        "bindingType": "grid-cell",
+        "direction": "display-only",
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml:cell"
+        ]
+      },
+      {
+        "bindingId": "BIND-0004",
+        "componentId": "Grid0",
+        "datasetId": "ds_scorechk",
+        "columnName": "avgscore",
+        "bindingType": "grid-cell",
+        "direction": "display-only",
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml:cell"
+        ]
+      },
+      {
+        "bindingId": "BIND-0005",
+        "componentId": "Grid0",
+        "datasetId": "ds_scorechk",
+        "columnName": "rank",
+        "bindingType": "grid-cell",
+        "direction": "display-only",
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml:cell"
+        ]
+      },
+      {
+        "bindingId": "BIND-0006",
+        "componentId": "Grid0",
+        "datasetId": "ds_scorechk",
+        "columnName": "denseRank",
+        "bindingType": "grid-cell",
+        "direction": "display-only",
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml:cell"
+        ]
+      },
+      {
+        "bindingId": "BIND-0007",
+        "componentId": "Combo0",
+        "datasetId": "ds_testCategory",
+        "columnName": "",
+        "bindingType": "inner-dataset",
+        "direction": "display-only",
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml:Combo#Combo0"
+        ]
+      },
+      {
+        "bindingId": "BIND-0008",
+        "componentId": "Combo0",
+        "datasetId": "ds_testCategory",
+        "columnName": "testCategory",
+        "bindingType": "code-data",
+        "direction": "display-only",
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml:Combo#Combo0"
+        ]
+      },
+      {
+        "bindingId": "BIND-0009",
+        "componentId": "Combo0",
+        "datasetId": "ds_testCategory",
+        "columnName": "testname",
+        "bindingType": "display-data",
+        "direction": "display-only",
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml:Combo#Combo0"
+        ]
+      },
+      {
+        "bindingId": "BIND-0010",
+        "componentId": "",
+        "datasetId": "ds_voInfo",
+        "columnName": "voClass",
+        "bindingType": "script-setcolumn",
+        "direction": "two-way",
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml"
+        ]
+      },
+      {
+        "bindingId": "BIND-0011",
+        "componentId": "",
+        "datasetId": "ds_screen",
+        "columnName": "id",
+        "bindingType": "script-getcolumn",
+        "direction": "display-only",
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml"
+        ]
+      }
+    ],
+    "transactions": [
+      {
+        "transactionId": "TX-TESTNAMESELECT-1",
+        "serviceId": "list",
+        "url": "http://127.0.0.1:8080/miplatform/testNameList.do",
+        "inputDatasets": [],
+        "outputDatasets": [
+          "ds_testCategory"
+        ],
+        "parameters": "",
+        "callbackFunction": "fnCallback",
+        "wrapperFunction": "",
+        "apiCandidate": "http://127.0.0.1:8080/miplatform/testNameList.do",
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml"
+        ]
+      },
+      {
+        "transactionId": "TX-FNCMTR-1",
+        "serviceId": "svcid",
+        "url": "\"svc::\" + strController",
+        "inputDatasets": [
+          "\"ds_voInfo",
+          "\"",
+          "+",
+          "inputDs"
+        ],
+        "outputDatasets": [
+          "outputDs"
+        ],
+        "parameters": "params",
+        "callbackFunction": "fnCallback",
+        "wrapperFunction": "fnCmTr",
+        "apiCandidate": "\"svc::\" + strController",
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml"
+        ]
+      },
+      {
+        "transactionId": "TX-BUTTON0ONCLICK-1",
+        "serviceId": "list",
+        "url": "http://127.0.0.1:8080/miplatform/testScoreChk.do",
+        "inputDatasets": [],
+        "outputDatasets": [
+          "ds_scorechk"
+        ],
+        "parameters": "strParam",
+        "callbackFunction": "fnCallback",
+        "wrapperFunction": "",
+        "apiCandidate": "http://127.0.0.1:8080/miplatform/testScoreChk.do",
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml"
+        ]
+      }
+    ],
+    "events": [
+      {
+        "eventId": "EVT-0001",
+        "sourceComponentId": "form",
+        "eventName": "OnLoadCompleted",
+        "handlerFunction": "form_OnLoadCompleted",
+        "eventType": "lifecycle",
+        "triggerCondition": "",
+        "effects": []
+      },
+      {
+        "eventId": "EVT-0002",
+        "sourceComponentId": "Button0",
+        "eventName": "OnClick",
+        "handlerFunction": "Button0_OnClick",
+        "eventType": "user-action",
+        "triggerCondition": "",
+        "effects": [
+          "TX-BUTTON0ONCLICK-1",
+          "message:alert"
+        ]
+      },
+      {
+        "eventId": "EVT-0003",
+        "sourceComponentId": "Button1",
+        "eventName": "OnClick",
+        "handlerFunction": "Button1_OnClick",
+        "eventType": "user-action",
+        "triggerCondition": "",
+        "effects": [
+          "navigation:subview",
+          "message:alert"
+        ]
+      },
+      {
+        "eventId": "EVT-0004",
+        "sourceComponentId": "Button2",
+        "eventName": "OnClick",
+        "handlerFunction": "Button2_OnClick",
+        "eventType": "user-action",
+        "triggerCondition": "",
+        "effects": [
+          "navigation:popup",
+          "message:alert"
+        ]
+      }
+    ],
+    "functions": [
+      {
+        "functionName": "fnSetVoInfo",
+        "functionType": "helper",
+        "parameters": [
+          "objFrm",
+          "strVoClass"
+        ],
+        "callsFunctions": [],
+        "callsTransactions": [],
+        "readsDatasets": [],
+        "writesDatasets": [
+          "ds_voInfo"
+        ],
+        "controlsComponents": [],
+        "platformCalls": [],
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml"
+        ]
+      },
+      {
+        "functionName": "testNameSelect",
+        "functionType": "helper",
+        "parameters": [
+          "obj"
+        ],
+        "callsFunctions": [],
+        "callsTransactions": [
+          "TX-TESTNAMESELECT-1"
+        ],
+        "readsDatasets": [],
+        "writesDatasets": [],
+        "controlsComponents": [],
+        "platformCalls": [],
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml"
+        ]
+      },
+      {
+        "functionName": "fnCmTr",
+        "functionType": "helper",
+        "parameters": [
+          "objFrm",
+          "svcid",
+          "strController",
+          "strVoClass",
+          "inputDs",
+          "outputDs",
+          "params",
+          "callbackFnc"
+        ],
+        "callsFunctions": [
+          "fnSetVoInfo"
+        ],
+        "callsTransactions": [
+          "TX-FNCMTR-1"
+        ],
+        "readsDatasets": [],
+        "writesDatasets": [],
+        "controlsComponents": [],
+        "platformCalls": [],
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml"
+        ]
+      },
+      {
+        "functionName": "Button0_OnClick",
+        "functionType": "event-handler",
+        "parameters": [
+          "obj"
+        ],
+        "callsFunctions": [],
+        "callsTransactions": [
+          "TX-BUTTON0ONCLICK-1"
+        ],
+        "readsDatasets": [],
+        "writesDatasets": [],
+        "controlsComponents": [
+          "Combo0"
+        ],
+        "platformCalls": [],
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml"
+        ]
+      },
+      {
+        "functionName": "form_OnLoadCompleted",
+        "functionType": "event-handler",
+        "parameters": [
+          "obj"
+        ],
+        "callsFunctions": [
+          "testNameSelect"
+        ],
+        "callsTransactions": [],
+        "readsDatasets": [],
+        "writesDatasets": [],
+        "controlsComponents": [],
+        "platformCalls": [],
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml"
+        ]
+      },
+      {
+        "functionName": "Button1_OnClick",
+        "functionType": "event-handler",
+        "parameters": [
+          "obj"
+        ],
+        "callsFunctions": [],
+        "callsTransactions": [],
+        "readsDatasets": [
+          "ds_screen"
+        ],
+        "writesDatasets": [],
+        "controlsComponents": [
+          "Div0"
+        ],
+        "platformCalls": [],
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml"
+        ]
+      },
+      {
+        "functionName": "Button2_OnClick",
+        "functionType": "event-handler",
+        "parameters": [
+          "obj"
+        ],
+        "callsFunctions": [],
+        "callsTransactions": [],
+        "readsDatasets": [],
+        "writesDatasets": [],
+        "controlsComponents": [],
+        "platformCalls": [],
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml"
+        ]
+      }
+    ],
+    "navigation": [
+      {
+        "navigationId": "NAV-0001",
+        "triggerFunction": "Button1_OnClick",
+        "navigationType": "subview",
+        "target": "scurl",
+        "parameterBindings": [],
+        "returnHandling": "none"
+      },
+      {
+        "navigationId": "NAV-0002",
+        "triggerFunction": "Button2_OnClick",
+        "navigationType": "popup",
+        "target": "DefApp::scholarship.xml",
+        "parameterBindings": [
+          "\"param=\"+Quote(param)",
+          "600",
+          "300",
+          "AutoSize=false resize=false"
+        ],
+        "returnHandling": "callback-or-close"
+      }
+    ],
+    "styles": [
+      {
+        "styleId": "STYLE-0001",
+        "componentId": "Static5",
+        "property": "text-align",
+        "rawValue": "Center",
+        "tokenCandidate": "align-center",
+        "usageScope": "shared"
+      },
+      {
+        "styleId": "STYLE-0002",
+        "componentId": "Static5",
+        "property": "background-color",
+        "rawValue": "azure",
+        "tokenCandidate": "bg-azure",
+        "usageScope": "component"
+      },
+      {
+        "styleId": "STYLE-0003",
+        "componentId": "Static5",
+        "property": "font",
+        "rawValue": "Tahoma,14",
+        "tokenCandidate": "font-tahoma-14",
+        "usageScope": "component"
+      },
+      {
+        "styleId": "STYLE-0004",
+        "componentId": "Static4",
+        "property": "text-align",
+        "rawValue": "Center",
+        "tokenCandidate": "align-center",
+        "usageScope": "shared"
+      },
+      {
+        "styleId": "STYLE-0005",
+        "componentId": "Static4",
+        "property": "background-color",
+        "rawValue": "aliceblue",
+        "tokenCandidate": "bg-aliceblue",
+        "usageScope": "component"
+      },
+      {
+        "styleId": "STYLE-0006",
+        "componentId": "Static4",
+        "property": "border",
+        "rawValue": "None",
+        "tokenCandidate": "border-none",
+        "usageScope": "component"
+      },
+      {
+        "styleId": "STYLE-0007",
+        "componentId": "Static4",
+        "property": "font",
+        "rawValue": "Tahoma,11",
+        "tokenCandidate": "font-tahoma-11",
+        "usageScope": "component"
+      }
+    ],
+    "stateRules": [
+      {
+        "ruleId": "STATE-0001",
+        "targetComponentId": "Grid0",
+        "stateProperty": "Enable",
+        "triggerCondition": "",
+        "sourceFunction": "__initial__",
+        "expression": "true",
+        "targetValue": true
+      },
+      {
+        "ruleId": "STATE-0002",
+        "targetComponentId": "Grid0",
+        "stateProperty": "Visible",
+        "triggerCondition": "",
+        "sourceFunction": "__initial__",
+        "expression": "true",
+        "targetValue": true
+      },
+      {
+        "ruleId": "STATE-0003",
+        "targetComponentId": "Grid0",
+        "stateProperty": "TabStop",
+        "triggerCondition": "",
+        "sourceFunction": "__initial__",
+        "expression": "true",
+        "targetValue": true
+      }
+    ],
+    "validationRules": [
+      {
+        "ruleId": "VAL-0001",
+        "targetField": "Combo0",
+        "validationType": "custom",
+        "triggerTiming": "search",
+        "sourceFunction": "Button0_OnClick",
+        "expression": "Combo0.Value==null",
+        "message": "어떤 시험입니까? 콤보박스에서 확인해주세요"
+      }
+    ],
+    "messages": [
+      {
+        "messageId": "MSG-0001",
+        "sourceType": "xml-property",
+        "messageType": "label",
+        "text": "디와이정보기술 2019학년도 성적조회",
+        "sourceFunction": "",
+        "targetComponentId": "Static5",
+        "i18nKeyCandidate": "form.label.2019",
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml:Static#Static5"
+        ]
+      },
+      {
+        "messageId": "MSG-0002",
+        "sourceType": "xml-property",
+        "messageType": "action-label",
+        "text": "성적조회",
+        "sourceFunction": "",
+        "targetComponentId": "Button0",
+        "i18nKeyCandidate": "form.action-label.msg-37419704",
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml:Button#Button0"
+        ]
+      },
+      {
+        "messageId": "MSG-0003",
+        "sourceType": "xml-property",
+        "messageType": "label",
+        "text": "시험",
+        "sourceFunction": "",
+        "targetComponentId": "Static4",
+        "i18nKeyCandidate": "form.label.msg-800ae19d",
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml:Static#Static4"
+        ]
+      },
+      {
+        "messageId": "MSG-0004",
+        "sourceType": "xml-property",
+        "messageType": "action-label",
+        "text": "과목 담당교수",
+        "sourceFunction": "",
+        "targetComponentId": "Button1",
+        "i18nKeyCandidate": "form.action-label.msg-2c305092",
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml:Button#Button1"
+        ]
+      },
+      {
+        "messageId": "MSG-0005",
+        "sourceType": "xml-property",
+        "messageType": "component-text",
+        "text": "Div0",
+        "sourceFunction": "",
+        "targetComponentId": "Div0",
+        "i18nKeyCandidate": "form.component-text.div0",
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml:Div#Div0"
+        ]
+      },
+      {
+        "messageId": "MSG-0006",
+        "sourceType": "xml-property",
+        "messageType": "action-label",
+        "text": "장학금대상",
+        "sourceFunction": "",
+        "targetComponentId": "Button2",
+        "i18nKeyCandidate": "form.action-label.msg-23ed8b76",
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml:Button#Button2"
+        ]
+      },
+      {
+        "messageId": "MSG-0007",
+        "sourceType": "script-call",
+        "messageType": "alert",
+        "text": "어떤 시험입니까? 콤보박스에서 확인해주세요",
+        "sourceFunction": "Button0_OnClick",
+        "targetComponentId": "",
+        "i18nKeyCandidate": "form.alert.msg-0400254a",
+        "sourceRefs": [
+          "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\conf\\scoreranking\\DefApp\\Win32\\form.xml"
+        ]
+      }
+    ],
+    "realtimeSubscriptions": [],
+    "charts": [],
+    "imageVisionViews": [],
+    "alarmEvents": [],
+    "commandActions": [],
+    "reviewWorkflows": [],
+    "notes": "Div0, 과목 담당교수, 디와이정보기술 2019학년도 성적조회, 성적조회, 시험, 어떤 시험입니까? 콤보박스에서 확인해주세요, 장학금대상"
+  },
+  "backendTraces": [
+    {
+      "transactionId": "TX-TESTNAMESELECT-1",
+      "url": "http://127.0.0.1:8080/miplatform/testNameList.do",
+      "requestMapping": "/miplatform/testNameList.do",
+      "controllerClass": "EgovSampleController",
+      "controllerMethod": "selectTestList",
+      "controllerMethodSignature": "ModelAndView selectTestList(@ModelAttribute(\"searchVO\") SampleDefaultVO udDtoVO)",
+      "requestDtoType": "SampleDefaultVO",
+      "responseCarrierType": "ModelAndView",
+      "serviceBeanName": "sampleService",
+      "serviceInterface": "EgovSampleService",
+      "serviceImplClass": "EgovSampleServiceImpl",
+      "serviceMethod": "testNameList",
+      "daoClass": "SampleDAO",
+      "daoMethod": "testNameList",
+      "sqlMapId": "sampleDAO.testNameList",
+      "sqlMapFile": "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\sqlmap\\example\\sample\\EgovSample_Sample_SQL.xml",
+      "sqlOperation": "list",
+      "tableCandidates": [
+        "score_jew"
+      ],
+      "responseFieldCandidates": [
+        "testCategory",
+        "testname"
+      ],
+      "querySummary": "SELECT distinct testCategory, testname FROM score_jew WHERE 1=1 ORDER BY testCategory ASC",
+      "sourceRefs": [
+        "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\java\\egovframework\\example\\sample\\service\\impl\\EgovSampleServiceImpl.java",
+        "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\java\\egovframework\\example\\sample\\service\\impl\\SampleDAO.java",
+        "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\java\\egovframework\\example\\sample\\web\\EgovSampleController.java",
+        "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\sqlmap\\example\\sample\\EgovSample_Sample_SQL.xml"
+      ]
+    },
+    {
+      "transactionId": "TX-BUTTON0ONCLICK-1",
+      "url": "http://127.0.0.1:8080/miplatform/testScoreChk.do",
+      "requestMapping": "/miplatform/testScoreChk.do",
+      "controllerClass": "EgovSampleController",
+      "controllerMethod": "selectScoreList",
+      "controllerMethodSignature": "ModelAndView selectScoreList(UdDTO midto)",
+      "requestDtoType": "UdDTO",
+      "responseCarrierType": "ModelAndView",
+      "serviceBeanName": "sampleService",
+      "serviceInterface": "EgovSampleService",
+      "serviceImplClass": "EgovSampleServiceImpl",
+      "serviceMethod": "ScoreChk",
+      "daoClass": "SampleDAO",
+      "daoMethod": "ScoreChk",
+      "sqlMapId": "sampleDAO.ScoreChk",
+      "sqlMapFile": "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\sqlmap\\example\\sample\\EgovSample_Sample_SQL.xml",
+      "sqlOperation": "list",
+      "tableCandidates": [
+        "score_jew",
+        "student_jew"
+      ],
+      "responseFieldCandidates": [
+        "avgscore",
+        "denseRank",
+        "rank",
+        "stuname",
+        "stuno"
+      ],
+      "querySummary": "select A.stuno as stuno,B.STUNAME as stuname, To_char(round(avg(score),0)) as avgscore, To_char(Rank() over(order by avg(score) DESC)) as rank, To_char(DENSE_RANK() OVER(order by avg(score) DESC,(select score from sco...",
+      "sourceRefs": [
+        "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\java\\egovframework\\example\\sample\\service\\impl\\EgovSampleServiceImpl.java",
+        "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\java\\egovframework\\example\\sample\\service\\impl\\SampleDAO.java",
+        "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\java\\egovframework\\example\\sample\\web\\EgovSampleController.java",
+        "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\sqlmap\\example\\sample\\EgovSample_Sample_SQL.xml"
+      ]
+    }
+  ],
+  "openQuestions": [
+    "TX-FNCMTR-1 uses a dynamic or wrapper URL. Confirm the final endpoint contract manually."
+  ],
+  "aiHints": [
+    "Treat ds_scorechk as the primary business dataset unless review overrides say otherwise.",
+    "Primary dataset reasons: largest-grid:Grid0, transaction-output:TX-BUTTON0ONCLICK-1, wide-schema:5, default-records:1",
+    "Resolved backend chain begins at EgovSampleController.selectScoreList."
+  ],
+  "stageNotes": [
+    "Treat stage 1 output as evidence plus candidate judgment, not as immutable truth.",
+    "Run AI review before stage 2 whenever the page has a dominant grid, dynamic transaction wrappers, or ambiguous backend traces.",
+    "review-note: If the dominant result dataset is wrong, update primaryDatasetId and dataset.primaryUsage before stage 2.",
+    "review-note: If AI found a better backend chain, override the affected backendTraces entry and rerun stage 1 or continue into stage 2 with that review file."
+  ]
+}

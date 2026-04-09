@@ -11,9 +11,26 @@ DEFAULT_CONFIG_NAME = "am-bridge.config.json"
 @dataclass
 class CliConfig:
     sourceRoots: list[Path] = field(default_factory=list)
+    backendRoots: list[Path] = field(default_factory=list)
     analysisRoot: Path = Path("artifacts/analysis")
     pageSpecRoot: Path = Path("artifacts/target")
+    packageRoot: Path = Path("artifacts/packages")
+    planRoot: Path = Path("artifacts/plans")
+    starterRoot: Path = Path("artifacts/starter")
+    reviewRoot: Path = Path("artifacts/reviews")
     configPath: Path | None = None
+
+
+@dataclass
+class StageArtifactPaths:
+    analysisJson: Path
+    pageSpec: Path
+    packageJson: Path
+    packageReport: Path
+    planJson: Path
+    planReport: Path
+    starterDir: Path
+    reviewJson: Path
 
 
 def load_cli_config(config_path: str | Path | None = None, cwd: Path | None = None) -> CliConfig:
@@ -29,12 +46,31 @@ def load_cli_config(config_path: str | Path | None = None, cwd: Path | None = No
         sourceRoots=[
             _resolve_config_path(Path(item), base_dir) for item in raw.get("sourceRoots", [])
         ],
+        backendRoots=[
+            _resolve_config_path(Path(item), base_dir) for item in raw.get("backendRoots", [])
+        ],
         analysisRoot=_resolve_config_path(
             Path(raw.get("analysisRoot", "artifacts/analysis")),
             base_dir,
         ),
         pageSpecRoot=_resolve_config_path(
             Path(raw.get("pageSpecRoot", "artifacts/target")),
+            base_dir,
+        ),
+        packageRoot=_resolve_config_path(
+            Path(raw.get("packageRoot", "artifacts/packages")),
+            base_dir,
+        ),
+        planRoot=_resolve_config_path(
+            Path(raw.get("planRoot", "artifacts/plans")),
+            base_dir,
+        ),
+        starterRoot=_resolve_config_path(
+            Path(raw.get("starterRoot", "artifacts/starter")),
+            base_dir,
+        ),
+        reviewRoot=_resolve_config_path(
+            Path(raw.get("reviewRoot", "artifacts/reviews")),
             base_dir,
         ),
         configPath=resolved_path,
@@ -65,6 +101,11 @@ def resolve_input_path(input_value: str, config: CliConfig, cwd: Path | None = N
 
 
 def derive_default_output_paths(input_path: Path, config: CliConfig) -> tuple[Path, Path]:
+    paths = derive_stage_artifact_paths(input_path, config)
+    return paths.analysisJson, paths.pageSpec
+
+
+def derive_stage_artifact_paths(input_path: Path, config: CliConfig) -> StageArtifactPaths:
     resolved_input = input_path.resolve()
     source_root = _find_best_source_root(resolved_input, config.sourceRoots)
 
@@ -73,10 +114,26 @@ def derive_default_output_paths(input_path: Path, config: CliConfig) -> tuple[Pa
     else:
         relative_path = resolved_input.relative_to(source_root)
 
-    json_path = (config.analysisRoot / relative_path).with_suffix(".json")
-    page_spec_name = relative_path.with_name(f"{relative_path.stem}-spec.md")
-    page_spec_path = config.pageSpecRoot / page_spec_name
-    return json_path, page_spec_path
+    relative_stem = relative_path.with_suffix("")
+    analysis_json = (config.analysisRoot / relative_path).with_suffix(".json")
+    page_spec = config.pageSpecRoot / relative_path.with_name(f"{relative_stem.name}-spec.md")
+    package_json = config.packageRoot / relative_path.with_name(f"{relative_stem.name}-package.json")
+    package_report = config.packageRoot / relative_path.with_name(f"{relative_stem.name}-package.md")
+    plan_json = config.planRoot / relative_path.with_name(f"{relative_stem.name}-plan.json")
+    plan_report = config.planRoot / relative_path.with_name(f"{relative_stem.name}-plan.md")
+    starter_dir = config.starterRoot / relative_stem
+    review_json = config.reviewRoot / relative_path.with_name(f"{relative_stem.name}-review.json")
+
+    return StageArtifactPaths(
+        analysisJson=analysis_json,
+        pageSpec=page_spec,
+        packageJson=package_json,
+        packageReport=package_report,
+        planJson=plan_json,
+        planReport=plan_report,
+        starterDir=starter_dir,
+        reviewJson=review_json,
+    )
 
 
 def _find_config_path(config_path: str | Path | None, working_dir: Path) -> Path | None:

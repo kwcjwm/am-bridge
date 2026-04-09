@@ -1,0 +1,7 @@
+interface:
+  display_name: "AM Page Modernization"
+  short_description: "PL harness for staged AM work"
+  default_prompt: "Use $am-page-modernization to run staged AM work for a legacy page with am-bridge."
+
+policy:
+  allow_implicit_invocation: true

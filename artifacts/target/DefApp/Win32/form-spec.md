@@ -91,7 +91,7 @@
 ### Dataset
 
 #### ds_scorechk
-- 역할: unknown
+- 역할: response
 - 컬럼: stuno(STRING) size=256, stuname(STRING) size=256, avgscore(STRING) size=256, rank(STRING) size=256, denseRank(STRING) size=256
 - 기본 레코드 수: 1
 - 사용 컨텍스트: component, script
@@ -102,7 +102,7 @@
 - 쓰는 함수: 없음
 
 #### ds_testCategory
-- 역할: unknown
+- 역할: code
 - 컬럼: testCategory(STRING) size=256, testname(STRING) size=256
 - 기본 레코드 수: 0
 - 사용 컨텍스트: component, script
@@ -113,7 +113,7 @@
 - 쓰는 함수: 없음
 
 #### ds_screen
-- 역할: unknown
+- 역할: view-state
 - 컬럼: caption(STRING) size=256, id(STRING) size=256, level(STRING) size=256
 - 기본 레코드 수: 1
 - 사용 컨텍스트: component, script

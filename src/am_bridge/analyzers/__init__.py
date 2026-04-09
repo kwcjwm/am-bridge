@@ -7,6 +7,7 @@ from .datasets import DatasetAnalyzer
 from .grid import GridAnalyzer
 from .messages import MessageAnalyzer
 from .navigation import NavigationAnalyzer
+from .page_semantics import PageSemanticsAnalyzer
 from .platform import PlatformDependencyAnalyzer
 from .realtime import RealtimeAnalyzer
 from .review import ReviewWorkflowAnalyzer
@@ -29,6 +30,7 @@ __all__ = [
     "ImageVisionAnalyzer",
     "MessageAnalyzer",
     "NavigationAnalyzer",
+    "PageSemanticsAnalyzer",
     "PlatformDependencyAnalyzer",
     "RealtimeAnalyzer",
     "ReviewWorkflowAnalyzer",

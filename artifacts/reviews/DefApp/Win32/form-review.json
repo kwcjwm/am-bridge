@@ -1,0 +1,103 @@
+{
+  "primaryDatasetId": "ds_scorechk",
+  "secondaryDatasetIds": [
+    "ds_testCategory"
+  ],
+  "primaryTransactionIds": [
+    "TX-BUTTON0ONCLICK-1"
+  ],
+  "interactionPattern": "grid-page",
+  "mainGridComponentId": "Grid0",
+  "datasets": {
+    "ds_scorechk": {
+      "role": "response",
+      "primaryUsage": "main-grid",
+      "salienceScore": 171,
+      "boundComponents": [
+        "Grid0"
+      ],
+      "salienceReasons": [
+        "largest-grid:Grid0",
+        "transaction-output:TX-BUTTON0ONCLICK-1",
+        "wide-schema:5",
+        "default-records:1"
+      ]
+    },
+    "ds_testCategory": {
+      "role": "code",
+      "primaryUsage": "code-lookup",
+      "salienceScore": 25,
+      "boundComponents": [
+        "Combo0"
+      ],
+      "salienceReasons": [
+        "transaction-output:TX-TESTNAMESELECT-1",
+        "input-bound:Combo0,Combo0,Combo0",
+        "schema:2",
+        "code-lookup-signal"
+      ]
+    },
+    "ds_screen": {
+      "role": "view-state",
+      "primaryUsage": "view-state",
+      "salienceScore": 0,
+      "boundComponents": [],
+      "salienceReasons": [
+        "script-read:1",
+        "schema:3",
+        "default-records:1",
+        "view-state-signal"
+      ]
+    }
+  },
+  "backendTraces": {
+    "TX-TESTNAMESELECT-1": {
+      "controllerClass": "EgovSampleController",
+      "controllerMethod": "selectTestList",
+      "serviceInterface": "EgovSampleService",
+      "serviceImplClass": "EgovSampleServiceImpl",
+      "serviceMethod": "testNameList",
+      "daoClass": "SampleDAO",
+      "daoMethod": "testNameList",
+      "sqlMapId": "sampleDAO.testNameList",
+      "sqlMapFile": "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\sqlmap\\example\\sample\\EgovSample_Sample_SQL.xml",
+      "sqlOperation": "list",
+      "tableCandidates": [
+        "score_jew"
+      ],
+      "responseFieldCandidates": [
+        "testCategory",
+        "testname"
+      ],
+      "querySummary": "SELECT distinct testCategory, testname FROM score_jew WHERE 1=1 ORDER BY testCategory ASC"
+    },
+    "TX-BUTTON0ONCLICK-1": {
+      "controllerClass": "EgovSampleController",
+      "controllerMethod": "selectScoreList",
+      "serviceInterface": "EgovSampleService",
+      "serviceImplClass": "EgovSampleServiceImpl",
+      "serviceMethod": "ScoreChk",
+      "daoClass": "SampleDAO",
+      "daoMethod": "ScoreChk",
+      "sqlMapId": "sampleDAO.ScoreChk",
+      "sqlMapFile": "C:\\workspace\\am-bridge\\samples\\ScoreRanking_Proj-master\\src\\main\\resources\\egovframework\\sqlmap\\example\\sample\\EgovSample_Sample_SQL.xml",
+      "sqlOperation": "list",
+      "tableCandidates": [
+        "score_jew",
+        "student_jew"
+      ],
+      "responseFieldCandidates": [
+        "avgscore",
+        "denseRank",
+        "rank",
+        "stuname",
+        "stuno"
+      ],
+      "querySummary": "select A.stuno as stuno,B.STUNAME as stuname, To_char(round(avg(score),0)) as avgscore, To_char(Rank() over(order by avg(score) DESC)) as rank, To_char(DENSE_RANK() OVER(order by avg(score) DESC,(select score from sco..."
+    }
+  },
+  "reviewNotes": [
+    "If the dominant result dataset is wrong, update primaryDatasetId and dataset.primaryUsage before stage 2.",
+    "If AI found a better backend chain, override the affected backendTraces entry and rerun stage 1 or continue into stage 2 with that review file."
+  ]
+}

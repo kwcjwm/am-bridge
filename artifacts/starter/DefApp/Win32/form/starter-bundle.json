@@ -1,0 +1,56 @@
+{
+  "pageId": "form",
+  "frontendFiles": [
+    {
+      "path": "frontend/src/pages/form/FormPage.vue",
+      "content": "<template>\n  <section class=\"page-shell\">\n    <header>\n      <h1>New Form</h1>\n      <p>Legacy page: form</p>\n    </header>\n\n    <form @submit.prevent=\"actions.search()\">\n      <!-- TODO: replace with real search controls -->\n      <pre>{{ state.searchForm }}</pre>\n      <button type=\"submit\">Search</button>\n    </form>\n\n    <section>\n      <!-- TODO: replace with real grid/detail blocks -->\n      <pre>{{ state.rows }}</pre>\n    </section>\n  </section>\n</template>\n\n<script setup lang=\"ts\">\nimport { useFormPage } from '../../composables/useFormPage';\n\nconst { state, actions } = useFormPage();\n</script>\n",
+      "purpose": "vue page shell"
+    },
+    {
+      "path": "frontend/src/composables/useFormPage.ts",
+      "content": "import { reactive } from 'vue';\nimport { fetchFormPageRows } from '../api/form';\n\nexport function useFormPage() {\n  const state = reactive({\n    searchForm: {},\n    rows: [],\n    loading: false,\n  });\n\n  async function search() {\n    state.loading = true;\n    try {\n      state.rows = await fetchFormPageRows(state.searchForm);\n    } finally {\n      state.loading = false;\n    }\n  }\n\n  return {\n    state,\n    actions: { search },\n    meta: {\n      primaryDatasetId: 'ds_scorechk',\n      searchDatasetId: '',\n    },\n  };\n}\n\nexport default useFormPage;\n",
+      "purpose": "page composable"
+    },
+    {
+      "path": "frontend/src/api/form.ts",
+      "content": "export async function fetchFormPageRows(searchForm: Record<string, unknown>) {\n  const response = await fetch('/api/form/search', {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify(searchForm),\n  });\n\n  if (!response.ok) {\n    throw new Error('Failed to fetch data for form');\n  }\n\n  return response.json();\n}\n\nexport const targetRoute = '/form';\n",
+      "purpose": "typed api client"
+    }
+  ],
+  "backendFiles": [
+    {
+      "path": "backend/src/main/java/com/example/am/form/web/FormPageController.java",
+      "content": "package com.example.am.form.web;\n\nimport java.util.List;\nimport org.springframework.web.bind.annotation.PostMapping;\nimport org.springframework.web.bind.annotation.RequestBody;\nimport org.springframework.web.bind.annotation.RequestMapping;\nimport org.springframework.web.bind.annotation.RestController;\nimport com.example.am.form.dto.FormPageRow;\nimport com.example.am.form.dto.FormPageSearchCondition;\nimport com.example.am.form.service.FormPageService;\n\n@RestController\n@RequestMapping(\"/api/form\")\npublic class FormPageController {\n\n    private final FormPageService service;\n\n    public FormPageController(FormPageService service) {\n        this.service = service;\n    }\n\n    @PostMapping(\"/search\")\n    public List<FormPageRow> search(@RequestBody FormPageSearchCondition request) {\n        // Legacy URL hint: http://127.0.0.1:8080/miplatform/testScoreChk.do\n        return service.search(request);\n    }\n}\n",
+      "purpose": "spring controller"
+    },
+    {
+      "path": "backend/src/main/java/com/example/am/form/service/FormPageService.java",
+      "content": "package com.example.am.form.service;\n\nimport java.util.List;\nimport com.example.am.form.dto.FormPageRow;\nimport com.example.am.form.dto.FormPageSearchCondition;\n\npublic interface FormPageService {\n    List<FormPageRow> search(FormPageSearchCondition request);\n}\n",
+      "purpose": "service interface"
+    },
+    {
+      "path": "backend/src/main/java/com/example/am/form/service/impl/FormPageServiceImpl.java",
+      "content": "package com.example.am.form.service.impl;\n\nimport java.util.Collections;\nimport java.util.List;\nimport org.springframework.stereotype.Service;\nimport com.example.am.form.dto.FormPageRow;\nimport com.example.am.form.dto.FormPageSearchCondition;\nimport com.example.am.form.service.FormPageService;\n\n@Service\npublic class FormPageServiceImpl implements FormPageService {\n\n    @Override\n    public List<FormPageRow> search(FormPageSearchCondition request) {\n        // TODO: port legacy business logic\n        // Query hint: select A.stuno as stuno,B.STUNAME as stuname, To_char(round(avg(score),0)) as avgscore, To_char(Rank() over(order by avg(score) DESC)) as rank, To_char(DENSE_RANK() OVER(order by avg(score) DESC,(select score from sco...\n        return Collections.emptyList();\n    }\n}\n",
+      "purpose": "service implementation"
+    },
+    {
+      "path": "backend/src/main/java/com/example/am/form/dto/FormPageSearchCondition.java",
+      "content": "package com.example.am.form.dto;\n\npublic class FormPageSearchCondition {\n    // TODO: add fields\n}\n",
+      "purpose": "request dto"
+    },
+    {
+      "path": "backend/src/main/java/com/example/am/form/dto/FormPageRow.java",
+      "content": "package com.example.am.form.dto;\n\npublic class FormPageRow {\n    private String stuno;\n    private String stuname;\n    private String avgscore;\n    private String rank;\n    private String denseRank;\n}\n",
+      "purpose": "response dto"
+    },
+    {
+      "path": "backend/src/main/resources/mapper/FormPageMapper.xml",
+      "content": "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<!DOCTYPE mapper\n  PUBLIC \"-//mybatis.org//DTD Mapper 3.0//EN\"\n  \"http://mybatis.org/dtd/mybatis-3-mapper.dtd\">\n<mapper namespace=\"FormPageMapper\">\n\n  <!-- Legacy SQL map: sampleDAO.ScoreChk -->\n  <!-- Query hint: select A.stuno as stuno,B.STUNAME as stuname, To_char(round(avg(score),0)) as avgscore, To_char(Rank() over(order by avg(score) DESC)) as rank, To_char(DENSE_RANK() OVER(order by avg(score) DESC,(select score from sco... -->\n  <select id=\"search\" parameterType=\"FormPageSearchCondition\" resultType=\"FormPageRow\">\n    <!-- TODO: migrate legacy SQL here -->\n    select 1\n  </select>\n</mapper>\n",
+      "purpose": "query placeholder"
+    }
+  ],
+  "handoffPrompts": {
+    "stage3-frontend": "Using the stage 1 package and stage 2 plan for form, implement the frontend files (frontend/src/pages/form/FormPage.vue, frontend/src/composables/useFormPage.ts, frontend/src/api/form.ts). Preserve the interaction pattern grid-page, treat ds_scorechk as the main business result, and keep platform features out of local reimplementation.",
+    "stage3-backend": "Using the stage 1 package and stage 2 plan for form, implement the backend files (backend/src/main/java/com/example/am/form/web/FormPageController.java, backend/src/main/java/com/example/am/form/service/FormPageService.java, backend/src/main/java/com/example/am/form/service/impl/FormPageServiceImpl.java, backend/src/main/java/com/example/am/form/dto/FormPageSearchCondition.java, backend/src/main/java/com/example/am/form/dto/FormPageRow.java, backend/src/main/resources/mapper/FormPageMapper.xml). Map the legacy route http://127.0.0.1:8080/miplatform/testScoreChk.do through EgovSampleController.selectScoreList. Preserve business behavior, but expose cleaner Spring Boot request/response DTOs."
+  }
+}

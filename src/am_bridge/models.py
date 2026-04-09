@@ -5,6 +5,14 @@ from dataclasses import asdict, dataclass, field
 from typing import Any
 
 
+class JsonDataclassMixin:
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+    def to_json(self, indent: int = 2) -> str:
+        return json.dumps(self.to_dict(), ensure_ascii=False, indent=indent)
+
+
 @dataclass
 class LegacyMeta:
     sourceFile: str = ""
@@ -39,9 +47,13 @@ class DatasetColumn:
 class DatasetModel:
     datasetId: str
     role: str = ""
+    primaryUsage: str = ""
     columns: list[DatasetColumn] = field(default_factory=list)
     defaultRecords: list[dict[str, Any]] = field(default_factory=list)
     usageContexts: list[str] = field(default_factory=list)
+    boundComponents: list[str] = field(default_factory=list)
+    salienceScore: int = 0
+    salienceReasons: list[str] = field(default_factory=list)
     sourceRefs: list[str] = field(default_factory=list)
 
 
@@ -239,10 +251,15 @@ class ReviewWorkflowModel:
 
 
 @dataclass
-class PageModel:
+class PageModel(JsonDataclassMixin):
     pageId: str = ""
     pageName: str = ""
     pageType: str = "unknown"
+    primaryDatasetId: str = ""
+    secondaryDatasetIds: list[str] = field(default_factory=list)
+    primaryTransactionIds: list[str] = field(default_factory=list)
+    mainGridComponentId: str = ""
+    interactionPattern: str = ""
     legacy: LegacyMeta = field(default_factory=LegacyMeta)
     platform: PlatformMeta = field(default_factory=PlatformMeta)
     layout: dict[str, Any] = field(default_factory=dict)
@@ -265,8 +282,73 @@ class PageModel:
     reviewWorkflows: list[ReviewWorkflowModel] = field(default_factory=list)
     notes: str = ""
 
-    def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
 
-    def to_json(self, indent: int = 2) -> str:
-        return json.dumps(self.to_dict(), ensure_ascii=False, indent=indent)
+@dataclass
+class BackendTraceModel:
+    transactionId: str
+    url: str = ""
+    requestMapping: str = ""
+    controllerClass: str = ""
+    controllerMethod: str = ""
+    controllerMethodSignature: str = ""
+    requestDtoType: str = ""
+    responseCarrierType: str = ""
+    serviceBeanName: str = ""
+    serviceInterface: str = ""
+    serviceImplClass: str = ""
+    serviceMethod: str = ""
+    daoClass: str = ""
+    daoMethod: str = ""
+    sqlMapId: str = ""
+    sqlMapFile: str = ""
+    sqlOperation: str = ""
+    tableCandidates: list[str] = field(default_factory=list)
+    responseFieldCandidates: list[str] = field(default_factory=list)
+    querySummary: str = ""
+    sourceRefs: list[str] = field(default_factory=list)
+
+
+@dataclass
+class PageConversionPackage(JsonDataclassMixin):
+    packageId: str
+    page: PageModel
+    backendTraces: list[BackendTraceModel] = field(default_factory=list)
+    openQuestions: list[str] = field(default_factory=list)
+    aiHints: list[str] = field(default_factory=list)
+    stageNotes: list[str] = field(default_factory=list)
+
+
+@dataclass
+class FileBlueprintModel:
+    path: str
+    purpose: str = ""
+    summary: str = ""
+
+
+@dataclass
+class ConversionPlanModel(JsonDataclassMixin):
+    packageId: str
+    pageId: str
+    route: str = ""
+    vuePageName: str = ""
+    interactionPattern: str = ""
+    frontendFiles: list[FileBlueprintModel] = field(default_factory=list)
+    backendFiles: list[FileBlueprintModel] = field(default_factory=list)
+    executionSteps: list[str] = field(default_factory=list)
+    verificationChecks: list[str] = field(default_factory=list)
+    aiPrompts: dict[str, str] = field(default_factory=dict)
+
+
+@dataclass
+class StarterFileModel:
+    path: str
+    content: str = ""
+    purpose: str = ""
+
+
+@dataclass
+class StarterBundleModel(JsonDataclassMixin):
+    pageId: str
+    frontendFiles: list[StarterFileModel] = field(default_factory=list)
+    backendFiles: list[StarterFileModel] = field(default_factory=list)
+    handoffPrompts: dict[str, str] = field(default_factory=dict)
