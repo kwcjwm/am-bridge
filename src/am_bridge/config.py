@@ -17,6 +17,7 @@ class CliConfig:
     packageRoot: Path = Path("artifacts/packages")
     planRoot: Path = Path("artifacts/plans")
     starterRoot: Path = Path("artifacts/starter")
+    reportRoot: Path = Path("artifacts/reports")
     reviewRoot: Path = Path("artifacts/reviews")
     configPath: Path | None = None
 
@@ -33,6 +34,9 @@ class StageArtifactPaths:
     vueConfigJson: Path
     pmChecklist: Path
     starterDir: Path
+    reportDir: Path
+    stage1ReportDir: Path
+    stage2ReportDir: Path
     reviewJson: Path
 
 
@@ -70,6 +74,10 @@ def load_cli_config(config_path: str | Path | None = None, cwd: Path | None = No
         ),
         starterRoot=_resolve_config_path(
             Path(raw.get("starterRoot", "artifacts/starter")),
+            base_dir,
+        ),
+        reportRoot=_resolve_config_path(
+            Path(raw.get("reportRoot", "artifacts/reports")),
             base_dir,
         ),
         reviewRoot=_resolve_config_path(
@@ -128,6 +136,9 @@ def derive_stage_artifact_paths(input_path: Path, config: CliConfig) -> StageArt
     vue_config_json = config.planRoot / relative_path.with_name(f"{relative_stem.name}-vue-config.json")
     pm_checklist = config.planRoot / relative_path.with_name(f"{relative_stem.name}-pm-checklist.md")
     starter_dir = config.starterRoot / relative_stem
+    report_dir = config.reportRoot / relative_stem
+    stage1_report_dir = report_dir / "stage1"
+    stage2_report_dir = report_dir / "stage2"
     review_json = config.reviewRoot / relative_path.with_name(f"{relative_stem.name}-review.json")
 
     return StageArtifactPaths(
@@ -141,6 +152,9 @@ def derive_stage_artifact_paths(input_path: Path, config: CliConfig) -> StageArt
         vueConfigJson=vue_config_json,
         pmChecklist=pm_checklist,
         starterDir=starter_dir,
+        reportDir=report_dir,
+        stage1ReportDir=stage1_report_dir,
+        stage2ReportDir=stage2_report_dir,
         reviewJson=review_json,
     )
 

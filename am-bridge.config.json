@@ -11,5 +11,6 @@
   "packageRoot": "artifacts/packages",
   "planRoot": "artifacts/plans",
   "starterRoot": "artifacts/starter",
+  "reportRoot": "artifacts/reports",
   "reviewRoot": "artifacts/reviews"
 }

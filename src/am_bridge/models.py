@@ -358,6 +358,8 @@ class VuePageConfigModel(JsonDataclassMixin):
     pageId: str
     pageName: str = ""
     legacySourceFile: str = ""
+    legacyTitle: str = ""
+    initialEvent: str = ""
     pageType: str = ""
     vuePageName: str = ""
     route: str = ""
@@ -366,11 +368,18 @@ class VuePageConfigModel(JsonDataclassMixin):
     mainGridComponentId: str = ""
     primaryTransactionIds: list[str] = field(default_factory=list)
     datasets: list[dict[str, Any]] = field(default_factory=list)
+    bindings: list[dict[str, Any]] = field(default_factory=list)
     grids: list[dict[str, Any]] = field(default_factory=list)
     searchControls: list[dict[str, Any]] = field(default_factory=list)
     actions: list[dict[str, Any]] = field(default_factory=list)
     endpoints: list[dict[str, Any]] = field(default_factory=list)
+    primaryEndpoint: dict[str, Any] = field(default_factory=dict)
+    backendTraces: list[dict[str, Any]] = field(default_factory=list)
+    navigation: list[dict[str, Any]] = field(default_factory=list)
     relatedPages: list[dict[str, Any]] = field(default_factory=list)
+    stateRules: list[dict[str, Any]] = field(default_factory=list)
+    validationRules: list[dict[str, Any]] = field(default_factory=list)
+    messages: list[dict[str, Any]] = field(default_factory=list)
     frontendFiles: list[str] = field(default_factory=list)
     backendFiles: list[str] = field(default_factory=list)
     verificationChecks: list[str] = field(default_factory=list)

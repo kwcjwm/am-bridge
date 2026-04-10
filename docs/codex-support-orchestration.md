@@ -10,6 +10,10 @@ The following role definitions are persistent project assets:
 - `.agents/agents/am-ai-engineer.md`
 - `.agents/agents/am-tool-developer.md`
 - `.agents/agents/am-reviewer.md`
+- `.agents/agents/reporting-artifact-explorer.md`
+- `.agents/agents/reporting-structure-architect.md`
+- `.agents/agents/reporting-sidecar-engineer.md`
+- `.agents/agents/reporting-reviewer.md`
 
 These files do not disappear.
 They define the long-lived support roles for the external Codex workspace.
@@ -36,6 +40,17 @@ Use the four support roles like this:
   Use for runner, exporter, registry, and code-level tool concerns.
 - `am-reviewer`
   Use for independent criticism, drift detection, and readiness gates.
+
+Use the reporting TF roles like this when the task is about artifact readability rather than AM logic:
+
+- `reporting-artifact-explorer`
+  Use for locating the cleanest runtime insertion points.
+- `reporting-structure-architect`
+  Use for section design, reading order, and summary-vs-sidecar decisions.
+- `reporting-sidecar-engineer`
+  Use for implementing CSV/JSON sidecars and report directory wiring.
+- `reporting-reviewer`
+  Use for human readability, consistency, and operator-utility review.
 
 Do not keep them running continuously.
 Spawn them when a concrete side task is worth parallelizing, integrate the result, then close them.

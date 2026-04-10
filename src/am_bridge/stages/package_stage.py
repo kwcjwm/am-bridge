@@ -2,12 +2,20 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any
 
 from am_bridge.config import CliConfig, resolve_input_path
 from am_bridge.backend_trace import trace_backend_dependencies
-from am_bridge.generators import generate_page_conversion_spec
 from am_bridge.models import BackendTraceModel, PageConversionPackage, PageModel, RelatedPageModel
 from am_bridge.pipeline import analyze_file
+from am_bridge.reporting import (
+    join_values,
+    limit_text,
+    markdown_link,
+    render_contents,
+    render_csv,
+    render_markdown_table,
+)
 
 
 def build_conversion_package(
@@ -124,211 +132,743 @@ def build_review_template(package: PageConversionPackage) -> dict:
     }
 
 
-def generate_package_report(package: PageConversionPackage) -> str:
+def generate_package_report(
+    package: PageConversionPackage,
+    registry_dir: str = "",
+    artifact_links: dict[str, str] | None = None,
+) -> str:
+    return _generate_package_report_v2(package, registry_dir=registry_dir, artifact_links=artifact_links)
+
+
+def generate_analysis_report(
+    package: PageConversionPackage,
+    registry_dir: str = "",
+    artifact_links: dict[str, str] | None = None,
+) -> str:
+    return _generate_analysis_report_v2(package, registry_dir=registry_dir, artifact_links=artifact_links)
+
+
+def generate_stage1_registries(package: PageConversionPackage) -> dict[str, str]:
     page = package.page
-    lines = [
-        "# Stage 1 - Conversion Package",
-        "",
-        "## Page Summary",
-        "",
-        f"- pageId: {page.pageId or 'unknown'}",
-        f"- pageName: {page.pageName or 'unknown'}",
-        f"- interactionPattern: {page.interactionPattern or 'unknown'}",
-        f"- mainGridComponentId: {page.mainGridComponentId or 'unknown'}",
-        f"- primaryDatasetId: {page.primaryDatasetId or 'unknown'}",
-        f"- primaryTransactionIds: {_join(page.primaryTransactionIds)}",
-        "",
-        "## Dataset Salience",
-        "",
+    return {
+        "datasets.csv": render_csv(_dataset_rows(page)),
+        "dataset-columns.csv": render_csv(_dataset_column_rows(page)),
+        "components.csv": render_csv(_component_rows(page)),
+        "bindings.csv": render_csv(_binding_rows(page)),
+        "functions.csv": render_csv(_function_rows(page)),
+        "events.csv": render_csv(_event_rows(page)),
+        "transactions.csv": render_csv(_transaction_rows(page)),
+        "backend-traces.csv": render_csv(_backend_trace_rows(package)),
+        "navigation.csv": render_csv(_navigation_rows(page)),
+        "validation-rules.csv": render_csv(_validation_rows(page)),
+        "state-rules.csv": render_csv(_state_rule_rows(page)),
+        "messages.csv": render_csv(_message_rows(page)),
+        "grid-columns.csv": render_csv(_grid_column_rows(page)),
+    }
+
+
+def _generate_package_report_v2(
+    package: PageConversionPackage,
+    registry_dir: str = "",
+    artifact_links: dict[str, str] | None = None,
+) -> str:
+    page = package.page
+    sections: list[tuple[str, list[str]]] = [
+        (
+            "Executive Summary",
+            [
+                f"- Page: `{page.pageId or 'unknown'}` / `{page.pageName or 'unknown'}`",
+                f"- Interaction pattern: `{page.interactionPattern or 'unknown'}`",
+                f"- Primary business result: dataset `{page.primaryDatasetId or 'unknown'}` on grid `{page.mainGridComponentId or 'unknown'}`",
+                f"- Primary transaction: `{join_values(page.primaryTransactionIds, 'none locked')}`",
+                f"- Related screens: `{len(package.relatedPages)}` detected, `{sum(1 for item in package.relatedPages if item.resolutionStatus != 'resolved')}` unresolved",
+            ],
+        ),
+        (
+            "Key Decisions",
+            [
+                f"- Treat `{page.primaryDatasetId or 'unknown'}` as the main result dataset unless review overrides change it.",
+                f"- Keep interaction pattern as `{page.interactionPattern or 'unknown'}` and preserve the dominant result flow before UI redesign.",
+                "- Treat popup/subview targets as separate screens, not inline fragments of the current page.",
+                "- Use `review.json` for corrections; do not carry technical fixes only in chat.",
+            ],
+        ),
     ]
 
-    for dataset in sorted(page.datasets, key=lambda item: (-item.salienceScore, item.datasetId)):
-        marker = "PRIMARY" if dataset.datasetId == page.primaryDatasetId else "secondary"
-        lines.extend(
-            [
-                f"### {dataset.datasetId} [{marker}]",
-                f"- role: {dataset.role or 'unknown'}",
-                f"- primaryUsage: {dataset.primaryUsage or 'unknown'}",
-                f"- salienceScore: {dataset.salienceScore}",
-                f"- boundComponents: {_join(dataset.boundComponents)}",
-                f"- reasons: {_join(dataset.salienceReasons)}",
-                "",
-            ]
+    flow_rows = _main_flow_rows(package)
+    if flow_rows:
+        sections.append(
+            (
+                f"Main User Flows ({len(flow_rows)})",
+                render_markdown_table(
+                    [
+                        ("Flow", "flow"),
+                        ("Trigger", "trigger"),
+                        ("Transaction", "transactions"),
+                        ("Navigation", "navigation"),
+                        ("Summary", "summary"),
+                    ],
+                    flow_rows,
+                ),
+            )
         )
 
-    lines.extend(["## Backend Trace", ""])
-    if not package.backendTraces:
-        lines.extend(["- No backend trace resolved from configured backendRoots.", ""])
-    else:
-        for trace in package.backendTraces:
-            lines.extend(
-                [
-                    f"### {trace.transactionId}",
-                    f"- url: {trace.url or 'unknown'}",
-                    f"- controller: {_join_nonempty(trace.controllerClass, trace.controllerMethod)}",
-                    f"- service: {_join_nonempty(trace.serviceImplClass or trace.serviceInterface, trace.serviceMethod)}",
-                    f"- dao: {_join_nonempty(trace.daoClass, trace.daoMethod)}",
-                    f"- sqlMapId: {trace.sqlMapId or 'unknown'}",
-                    f"- sqlMapFile: {trace.sqlMapFile or 'unknown'}",
-                    f"- tables: {_join(trace.tableCandidates)}",
-                    f"- responseFields: {_join(trace.responseFieldCandidates)}",
-                    f"- querySummary: {trace.querySummary or 'unknown'}",
-                    "",
-                ]
+    trace_rows = _backend_trace_summary_rows(package)
+    if trace_rows:
+        sections.append(
+            (
+                f"Backend Trace Summary ({len(trace_rows)})",
+                render_markdown_table(
+                    [
+                        ("Transaction", "transactionId"),
+                        ("Route", "url"),
+                        ("Controller", "controller"),
+                        ("SQL Map", "sqlMapId"),
+                        ("Tables", "tables"),
+                    ],
+                    trace_rows,
+                ),
             )
+        )
 
-    lines.extend(["## Related Screens", ""])
-    if package.relatedPages:
-        for related in package.relatedPages:
-            lines.extend(
-                [
-                    f"### {related.target or related.navigationId}",
-                    f"- navigationType: {related.navigationType or 'unknown'}",
-                    f"- triggerFunction: {related.triggerFunction or 'unknown'}",
-                    f"- resolutionStatus: {related.resolutionStatus or 'unknown'}",
-                    f"- relatedPageId: {related.pageId or 'unknown'}",
-                    f"- resolvedPath: {related.resolvedPath or 'unknown'}",
-                    "",
-                ]
-            )
-    else:
-        lines.extend(["- No popup/subview target found.", ""])
-
-    lines.extend(
-        [
-            "## AI Review Loop",
-            "",
-            "- Review the primary dataset choice first.",
-            "- If a large result grid exists, its bound dataset should usually dominate search/code/view-state datasets.",
-            "- Save corrections into the review JSON, then rerun stage 1 or continue to stage 2 with the override file.",
-            "",
-            "## Open Questions",
-            "",
-        ]
+    sections.append(
+        (
+            f"Risks / Open Questions ({len(package.openQuestions)})",
+            [f"- {item}" for item in package.openQuestions] or ["- None"],
+        )
     )
-    lines.extend([f"- {item}" for item in package.openQuestions] if package.openQuestions else ["- None"])
-    lines.extend(["", "## AI Hints", ""])
-    lines.extend([f"- {item}" for item in package.aiHints] if package.aiHints else ["- None"])
-    lines.extend(["", "## Legacy Page Spec Snapshot", "", generate_page_conversion_spec(page)])
-    return "\n".join(lines)
+    sections.append(
+        (
+            "Artifact Index",
+            _artifact_index_lines(
+                registry_dir=registry_dir,
+                registry_files=list(generate_stage1_registries(package).keys()),
+                artifact_links=artifact_links,
+            ),
+        )
+    )
+    sections.append(
+        (
+            "Review Guidance",
+            [
+                "- Validate the primary dataset and dominant grid before downstream generation.",
+                "- Resolve unresolved related screens and dynamic wrapper transactions before treating stage 1 as stable.",
+                "- Keep technical corrections in `review.json` so the next run can reuse them.",
+            ],
+        )
+    )
+    return _compose_report("Stage 1 - Conversion Package", sections)
 
 
-def generate_analysis_report(package: PageConversionPackage) -> str:
+def _generate_analysis_report_v2(
+    package: PageConversionPackage,
+    registry_dir: str = "",
+    artifact_links: dict[str, str] | None = None,
+) -> str:
     page = package.page
-    lines = [
-        "# Detailed Legacy Analysis Report",
-        "",
-        "## Page Identity",
-        "",
-        f"- pageId: {page.pageId or 'unknown'}",
-        f"- pageName: {page.pageName or 'unknown'}",
-        f"- pageType: {page.pageType or 'unknown'}",
-        f"- sourceFile: {page.legacy.sourceFile or 'unknown'}",
-        f"- interactionPattern: {page.interactionPattern or 'unknown'}",
-        "",
-        "## Page Boundary",
-        "",
-        f"- primaryDatasetId: {page.primaryDatasetId or 'unknown'}",
-        f"- mainGridComponentId: {page.mainGridComponentId or 'unknown'}",
-        f"- primaryTransactionIds: {_join(page.primaryTransactionIds)}",
-        "",
-        "## Frontend Integrated Analysis",
-        "",
-        "### Datasets",
-        "",
+    unresolved_related = [item for item in package.relatedPages if item.resolutionStatus != "resolved"]
+    sections: list[tuple[str, list[str]]] = [
+        (
+            "Executive Summary",
+            [
+                f"- This page behaves as a `{page.interactionPattern or 'unknown'}` centered on `{page.primaryDatasetId or 'unknown'}`.",
+                f"- Main visible result area is `{page.mainGridComponentId or 'unknown'}` and primary transaction is `{join_values(page.primaryTransactionIds, 'none inferred')}`.",
+                f"- Backend traces resolved: `{len(package.backendTraces)}` / unresolved related screens: `{len(unresolved_related)}`.",
+                f"- Source file: `{page.legacy.sourceFile or 'unknown'}`.",
+            ],
+        ),
+        ("Screen Story", _screen_story_lines(package)),
     ]
 
-    for dataset in sorted(page.datasets, key=lambda item: (-item.salienceScore, item.datasetId)):
-        lines.extend(
-            [
-                f"#### {dataset.datasetId}",
-                f"- role: {dataset.role or 'unknown'}",
-                f"- primaryUsage: {dataset.primaryUsage or 'unknown'}",
-                f"- boundComponents: {_join(dataset.boundComponents)}",
-                f"- columns: {_join([column.name for column in dataset.columns])}",
-                f"- salienceScore: {dataset.salienceScore}",
-                "",
-            ]
+    dataset_rows = _dataset_summary_rows(page)
+    if dataset_rows:
+        sections.append(
+            (
+                f"Primary Data Model ({len(dataset_rows)})",
+                render_markdown_table(
+                    [
+                        ("Dataset", "datasetId"),
+                        ("Role", "role"),
+                        ("Usage", "primaryUsage"),
+                        ("Columns", "columnCount"),
+                        ("Bound Components", "boundComponents"),
+                        ("Salience", "salienceScore"),
+                    ],
+                    dataset_rows,
+                ),
+            )
         )
 
-    lines.extend(["### Components", ""])
+    action_rows = _action_summary_rows(package)
+    if action_rows:
+        sections.append(
+            (
+                f"Action And Event Flow ({len(action_rows)})",
+                render_markdown_table(
+                    [
+                        ("Handler", "functionName"),
+                        ("Trigger", "trigger"),
+                        ("Transactions", "transactions"),
+                        ("Reads", "readsDatasets"),
+                        ("Writes", "writesDatasets"),
+                        ("Summary", "summary"),
+                    ],
+                    action_rows,
+                ),
+            )
+        )
+
+    trace_rows = _backend_trace_summary_rows(package)
+    if trace_rows:
+        sections.append(
+            (
+                f"Backend Trace Summary ({len(trace_rows)})",
+                render_markdown_table(
+                    [
+                        ("Transaction", "transactionId"),
+                        ("Controller", "controller"),
+                        ("Service", "service"),
+                        ("DAO", "dao"),
+                        ("SQL Map", "sqlMapId"),
+                        ("Tables", "tables"),
+                    ],
+                    trace_rows,
+                ),
+            )
+        )
+
+    if package.relatedPages:
+        sections.append(
+            (
+                f"Related Screens ({len(package.relatedPages)})",
+                render_markdown_table(
+                    [
+                        ("Type", "navigationType"),
+                        ("Target", "target"),
+                        ("Trigger", "triggerFunction"),
+                        ("Status", "resolutionStatus"),
+                        ("Resolved Page", "pageId"),
+                    ],
+                    _related_screen_rows(package),
+                ),
+            )
+        )
+
+    implication_lines = [f"- {item}" for item in package.aiHints]
+    implication_lines.extend(f"- {item}" for item in package.stageNotes if item)
+    sections.append(("Migration Implications", implication_lines or ["- None"]))
+    sections.append(
+        (
+            "Evidence Registry Links",
+            _artifact_index_lines(
+                registry_dir=registry_dir,
+                registry_files=list(generate_stage1_registries(package).keys()),
+                artifact_links=artifact_links,
+            ),
+        )
+    )
+    return _compose_report("Detailed Legacy Analysis Report", sections)
+
+
+def _compose_report(title: str, sections: list[tuple[str, list[str]]]) -> str:
+    lines = [f"# {title}", ""]
+    lines.extend(render_contents([section_title for section_title, _body in sections]))
+    for section_title, body in sections:
+        lines.append(f"## {section_title}")
+        lines.append("")
+        lines.extend(body or ["- None"])
+        lines.append("")
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def _artifact_index_lines(
+    registry_dir: str,
+    registry_files: list[str],
+    artifact_links: dict[str, str] | None = None,
+) -> list[str]:
+    lines: list[str] = []
+    for label, target in (artifact_links or {}).items():
+        lines.append(f"- {label}: {markdown_link(label, target)}")
+    if registry_dir:
+        lines.append(f"- Registry directory: {markdown_link(registry_dir, registry_dir)}")
+        for file_name in registry_files:
+            lines.append(f"- Registry: {markdown_link(file_name, f'{registry_dir}/{file_name}')}")
+    return lines or ["- No sidecar artifacts recorded."]
+
+
+def _dataset_rows(page: PageModel) -> list[dict[str, Any]]:
+    return [
+        {
+            "datasetId": dataset.datasetId,
+            "role": dataset.role,
+            "primaryUsage": dataset.primaryUsage,
+            "salienceScore": dataset.salienceScore,
+            "boundComponents": join_values(dataset.boundComponents),
+            "columnCount": len(dataset.columns),
+            "columns": join_values([column.name for column in dataset.columns]),
+            "salienceReasons": join_values(dataset.salienceReasons),
+        }
+        for dataset in sorted(page.datasets, key=lambda item: (-item.salienceScore, item.datasetId))
+    ]
+
+
+def _dataset_column_rows(page: PageModel) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for dataset in page.datasets:
+        for column in dataset.columns:
+            rows.append(
+                {
+                    "datasetId": dataset.datasetId,
+                    "columnName": column.name,
+                    "type": column.type,
+                    "size": column.size,
+                    "required": column.required,
+                    "semanticType": column.semanticType,
+                    "notes": column.notes,
+                }
+            )
+    return rows
+
+
+def _component_rows(page: PageModel) -> list[dict[str, Any]]:
+    return [
+        {
+            "componentId": component.componentId,
+            "componentType": component.componentType,
+            "label": _component_label(page, component),
+            "parentId": component.parentId,
+            "layoutGroup": component.layoutGroup,
+            "events": join_values(component.events),
+            "sourceRefs": join_values(component.sourceRefs),
+        }
+        for component in page.components
+    ]
+
+
+def _binding_rows(page: PageModel) -> list[dict[str, Any]]:
+    return [
+        {
+            "bindingId": binding.bindingId,
+            "componentId": binding.componentId,
+            "datasetId": binding.datasetId,
+            "columnName": binding.columnName,
+            "bindingType": binding.bindingType,
+            "direction": binding.direction,
+            "sourceRefs": join_values(binding.sourceRefs),
+        }
+        for binding in page.bindings
+    ]
+
+
+def _function_rows(page: PageModel) -> list[dict[str, Any]]:
+    return [
+        {
+            "functionName": function.functionName,
+            "functionType": function.functionType,
+            "parameters": join_values(function.parameters),
+            "callsFunctions": join_values(function.callsFunctions),
+            "callsTransactions": join_values(function.callsTransactions),
+            "readsDatasets": join_values(function.readsDatasets),
+            "writesDatasets": join_values(function.writesDatasets),
+            "controlsComponents": join_values(function.controlsComponents),
+            "platformCalls": join_values(function.platformCalls),
+        }
+        for function in page.functions
+    ]
+
+
+def _event_rows(page: PageModel) -> list[dict[str, Any]]:
+    return [
+        {
+            "eventId": event.eventId,
+            "sourceComponentId": event.sourceComponentId,
+            "eventName": event.eventName,
+            "handlerFunction": event.handlerFunction,
+            "eventType": event.eventType,
+            "triggerCondition": event.triggerCondition,
+            "effects": join_values(event.effects),
+        }
+        for event in page.events
+    ]
+
+
+def _transaction_rows(page: PageModel) -> list[dict[str, Any]]:
+    return [
+        {
+            "transactionId": item.transactionId,
+            "serviceId": item.serviceId,
+            "url": item.url,
+            "inputDatasets": join_values(item.inputDatasets),
+            "outputDatasets": join_values(item.outputDatasets),
+            "parameters": item.parameters,
+            "callbackFunction": item.callbackFunction,
+            "wrapperFunction": item.wrapperFunction,
+            "apiCandidate": item.apiCandidate,
+        }
+        for item in page.transactions
+    ]
+
+
+def _backend_trace_rows(package: PageConversionPackage) -> list[dict[str, Any]]:
+    return [
+        {
+            "transactionId": trace.transactionId,
+            "url": trace.url,
+            "requestMapping": trace.requestMapping,
+            "controller": _join_nonempty(trace.controllerClass, trace.controllerMethod),
+            "service": _join_nonempty(trace.serviceImplClass or trace.serviceInterface, trace.serviceMethod),
+            "dao": _join_nonempty(trace.daoClass, trace.daoMethod),
+            "sqlMapId": trace.sqlMapId,
+            "sqlMapFile": trace.sqlMapFile,
+            "tables": join_values(trace.tableCandidates),
+            "responseFields": join_values(trace.responseFieldCandidates),
+            "querySummary": trace.querySummary,
+        }
+        for trace in package.backendTraces
+    ]
+
+
+def _navigation_rows(page: PageModel) -> list[dict[str, Any]]:
+    return [
+        {
+            "navigationId": item.navigationId,
+            "triggerFunction": item.triggerFunction,
+            "navigationType": item.navigationType,
+            "target": item.target,
+            "parameterBindings": join_values(item.parameterBindings),
+            "returnHandling": item.returnHandling,
+        }
+        for item in page.navigation
+    ]
+
+
+def _validation_rows(page: PageModel) -> list[dict[str, Any]]:
+    return [
+        {
+            "ruleId": item.ruleId,
+            "targetField": item.targetField,
+            "validationType": item.validationType,
+            "triggerTiming": item.triggerTiming,
+            "sourceFunction": item.sourceFunction,
+            "expression": item.expression,
+            "message": item.message,
+        }
+        for item in page.validationRules
+    ]
+
+
+def _state_rule_rows(page: PageModel) -> list[dict[str, Any]]:
+    return [
+        {
+            "ruleId": item.ruleId,
+            "targetComponentId": item.targetComponentId,
+            "stateProperty": item.stateProperty,
+            "triggerCondition": item.triggerCondition,
+            "sourceFunction": item.sourceFunction,
+            "expression": item.expression,
+            "targetValue": item.targetValue,
+        }
+        for item in page.stateRules
+    ]
+
+
+def _message_rows(page: PageModel) -> list[dict[str, Any]]:
+    return [
+        {
+            "messageId": item.messageId,
+            "sourceType": item.sourceType,
+            "messageType": item.messageType,
+            "text": item.text,
+            "sourceFunction": item.sourceFunction,
+            "targetComponentId": item.targetComponentId,
+            "i18nKeyCandidate": item.i18nKeyCandidate,
+        }
+        for item in page.messages
+    ]
+
+
+def _grid_column_rows(page: PageModel) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
     for component in page.components:
-        if component.componentType not in {"Grid", "Combo", "Button", "Div", "Edit", "MaskEdit", "Calendar", "Static"}:
-            continue
-        lines.extend(
-            [
-                f"#### {component.componentId}",
-                f"- componentType: {component.componentType}",
-                f"- layoutGroup: {component.layoutGroup or 'unknown'}",
-                f"- events: {_join(component.events)}",
-                "",
-            ]
+        grid_meta = component.properties.get("gridMeta", {})
+        for band_name in ("headColumns", "bodyColumns"):
+            for column in grid_meta.get(band_name, []):
+                rows.append(
+                    {
+                        "componentId": component.componentId,
+                        "band": column.get("band", band_name.replace("Columns", "")),
+                        "col": column.get("col", ""),
+                        "columnName": column.get("columnName", ""),
+                        "display": column.get("display", ""),
+                        "text": column.get("text", ""),
+                    }
+                )
+    return rows
+
+
+def _main_flow_rows(package: PageConversionPackage) -> list[dict[str, Any]]:
+    event_map = {event.handlerFunction: event for event in package.page.events if event.handlerFunction}
+    navigation_map: dict[str, list[str]] = {}
+    for navigation in package.page.navigation:
+        navigation_map.setdefault(navigation.triggerFunction, []).append(
+            f"{navigation.navigationType}:{navigation.target}"
         )
 
-    lines.extend(["### User Actions", ""])
+    rows: list[dict[str, Any]] = []
+    for function in package.page.functions:
+        if function.functionType != "event-handler":
+            continue
+        event = event_map.get(function.functionName)
+        trigger = event.sourceComponentId if event and event.sourceComponentId else function.functionName
+        transactions = join_values(function.callsTransactions, "none")
+        navigation = join_values(navigation_map.get(function.functionName, []), "none")
+        summary_parts = [
+            f"reads {join_values(function.readsDatasets, 'none')}",
+            f"writes {join_values(function.writesDatasets, 'none')}",
+        ]
+        rows.append(
+            {
+                "flow": function.functionName,
+                "trigger": trigger,
+                "transactions": transactions,
+                "navigation": navigation,
+                "summary": "; ".join(summary_parts),
+            }
+        )
+    return rows
+
+
+def _screen_story_lines(package: PageConversionPackage) -> list[str]:
+    page = package.page
+    lines = [
+        f"- The screen centers on dataset `{page.primaryDatasetId or 'unknown'}` and grid `{page.mainGridComponentId or 'unknown'}`.",
+        f"- Main transaction path: `{join_values(page.primaryTransactionIds, 'none inferred')}`.",
+    ]
+    if package.relatedPages:
+        lines.append(
+            f"- Related screens exist for `{join_values([item.target for item in package.relatedPages], 'none')}`."
+        )
+    if page.validationRules:
+        lines.append(f"- Validation rules detected: `{len(page.validationRules)}`.")
+    if page.messages:
+        lines.append(f"- User-facing messages detected: `{len(page.messages)}`.")
+    return lines
+
+
+def _dataset_summary_rows(page: PageModel) -> list[dict[str, Any]]:
+    return [
+        {
+            "datasetId": dataset.datasetId,
+            "role": dataset.role or "unknown",
+            "primaryUsage": dataset.primaryUsage or "unknown",
+            "columnCount": len(dataset.columns),
+            "boundComponents": join_values(dataset.boundComponents, "none"),
+            "salienceScore": dataset.salienceScore,
+        }
+        for dataset in sorted(page.datasets, key=lambda item: (-item.salienceScore, item.datasetId))
+    ]
+
+
+def _action_summary_rows(package: PageConversionPackage) -> list[dict[str, Any]]:
+    event_map = {event.handlerFunction: event for event in package.page.events if event.handlerFunction}
+    rows: list[dict[str, Any]] = []
+    for function in package.page.functions:
+        if function.functionType != "event-handler":
+            continue
+        event = event_map.get(function.functionName)
+        trigger = event.sourceComponentId if event and event.sourceComponentId else function.functionName
+        rows.append(
+            {
+                "functionName": function.functionName,
+                "trigger": trigger,
+                "transactions": join_values(function.callsTransactions, "none"),
+                "readsDatasets": join_values(function.readsDatasets, "none"),
+                "writesDatasets": join_values(function.writesDatasets, "none"),
+                "summary": limit_text(
+                    "controls "
+                    + join_values(function.controlsComponents, "none")
+                    + ", calls "
+                    + join_values(function.callsFunctions, "none")
+                ),
+            }
+        )
+    return rows
+
+
+def _backend_trace_summary_rows(package: PageConversionPackage) -> list[dict[str, Any]]:
+    return [
+        {
+            "transactionId": trace.transactionId,
+            "url": limit_text(trace.url or "unknown"),
+            "controller": _join_nonempty(trace.controllerClass, trace.controllerMethod),
+            "service": _join_nonempty(trace.serviceImplClass or trace.serviceInterface, trace.serviceMethod),
+            "dao": _join_nonempty(trace.daoClass, trace.daoMethod),
+            "sqlMapId": trace.sqlMapId or "unknown",
+            "tables": join_values(trace.tableCandidates, "none"),
+        }
+        for trace in package.backendTraces
+    ]
+
+
+def _related_screen_rows(package: PageConversionPackage) -> list[dict[str, Any]]:
+    return [
+        {
+            "navigationType": item.navigationType or "unknown",
+            "target": item.target or "unknown",
+            "triggerFunction": item.triggerFunction or "unknown",
+            "resolutionStatus": item.resolutionStatus or "unknown",
+            "pageId": item.pageId or "unresolved",
+        }
+        for item in package.relatedPages
+    ]
+
+
+def _component_label(page: PageModel, component) -> str:
+    text = str(component.properties.get("Text", "") or component.properties.get("text", "") or "").strip()
+    if text:
+        return text
+    if component.componentId:
+        return component.componentId
+    return "unknown"
+
+
+def _dataset_summary_rows(page: PageModel) -> list[dict[str, Any]]:
+    rows = _dataset_rows(page)
+    for row in rows:
+        if row["datasetId"] == page.primaryDatasetId:
+            row["datasetId"] = f"{row['datasetId']} [PRIMARY]"
+    return rows
+
+
+def _main_flow_rows(package: PageConversionPackage) -> list[dict[str, Any]]:
+    page = package.page
+    navigation_by_function = {item.triggerFunction: item for item in page.navigation}
+    event_by_handler = {item.handlerFunction: item for item in page.events if item.handlerFunction}
+    rows: list[dict[str, Any]] = []
     for function in page.functions:
         if function.functionType != "event-handler":
             continue
-        lines.extend(
-            [
-                f"#### {function.functionName}",
-                f"- transactions: {_join(function.callsTransactions)}",
-                f"- controls: {_join(function.controlsComponents)}",
-                f"- readsDatasets: {_join(function.readsDatasets)}",
-                f"- writesDatasets: {_join(function.writesDatasets)}",
-                "",
-            ]
+        event = event_by_handler.get(function.functionName)
+        navigation = navigation_by_function.get(function.functionName)
+        summary_bits: list[str] = []
+        if function.callsTransactions:
+            summary_bits.append(f"calls {join_values(function.callsTransactions)}")
+        if navigation is not None:
+            summary_bits.append(f"{navigation.navigationType} -> {navigation.target}")
+        if function.controlsComponents:
+            summary_bits.append(f"controls {join_values(function.controlsComponents)}")
+        rows.append(
+            {
+                "flow": "Initial load" if function.functionName == page.legacy.initialEvent else "User action",
+                "trigger": _trigger_label(page, event.sourceComponentId if event else "") or function.functionName,
+                "transactions": join_values(function.callsTransactions),
+                "navigation": navigation.navigationType if navigation is not None else "none",
+                "summary": "; ".join(summary_bits) or "manual review required",
+            }
         )
+    return rows
 
-    lines.extend(["## Backend Integrated Analysis", ""])
-    if package.backendTraces:
-        for trace in package.backendTraces:
-            lines.extend(
-                [
-                    f"### {trace.transactionId}",
-                    f"- legacyUrl: {trace.url or 'unknown'}",
-                    f"- controller: {_join_nonempty(trace.controllerClass, trace.controllerMethod)}",
-                    f"- service: {_join_nonempty(trace.serviceImplClass or trace.serviceInterface, trace.serviceMethod)}",
-                    f"- dao: {_join_nonempty(trace.daoClass, trace.daoMethod)}",
-                    f"- sqlMapId: {trace.sqlMapId or 'unknown'}",
-                    f"- tables: {_join(trace.tableCandidates)}",
-                    f"- responseFields: {_join(trace.responseFieldCandidates)}",
-                    f"- querySummary: {trace.querySummary or 'unknown'}",
-                    "",
-                ]
-            )
-    else:
-        lines.extend(["- No backend trace resolved.", ""])
 
-    lines.extend(["## Related Screens", ""])
-    if package.relatedPages:
-        for related in package.relatedPages:
-            lines.extend(
-                [
-                    f"### {related.target or related.navigationId}",
-                    f"- relation: {related.navigationType or 'unknown'}",
-                    f"- triggerFunction: {related.triggerFunction or 'unknown'}",
-                    f"- resolutionStatus: {related.resolutionStatus or 'unknown'}",
-                    f"- resolvedPath: {related.resolvedPath or 'unknown'}",
-                    f"- relatedPageId: {related.pageId or 'unknown'}",
-                    f"- relatedPageName: {related.pageName or 'unknown'}",
-                    f"- relatedPageType: {related.pageType or 'unknown'}",
-                    "",
-                ]
-            )
-    else:
-        lines.extend(["- No popup/subview target found.", ""])
+def _action_summary_rows(package: PageConversionPackage) -> list[dict[str, Any]]:
+    page = package.page
+    event_by_handler = {item.handlerFunction: item for item in page.events if item.handlerFunction}
+    navigation_by_function = {item.triggerFunction: item for item in page.navigation}
+    rows: list[dict[str, Any]] = []
+    for function in page.functions:
+        if function.functionType != "event-handler":
+            continue
+        event = event_by_handler.get(function.functionName)
+        navigation = navigation_by_function.get(function.functionName)
+        summary = (
+            f"{navigation.navigationType} -> {navigation.target}"
+            if navigation is not None
+            else limit_text(join_values(function.controlsComponents, "no direct UI control"), 80)
+        )
+        rows.append(
+            {
+                "functionName": function.functionName,
+                "trigger": _trigger_label(page, event.sourceComponentId if event else "") or function.functionName,
+                "transactions": join_values(function.callsTransactions),
+                "readsDatasets": join_values(function.readsDatasets),
+                "writesDatasets": join_values(function.writesDatasets),
+                "summary": summary,
+            }
+        )
+    return rows
 
-    lines.extend(
-        [
-            "## Handoff Notes",
-            "",
-            "- Treat popup or subview targets as separate screens, not as inline sections of the current page.",
-            "- Use stage 2 Vue config JSON as the implementation contract for frontend generation.",
-            "- Keep ambiguous wrapper transactions in open questions until review.json resolves them.",
-        ]
-    )
-    return "\n".join(lines)
+
+def _backend_trace_summary_rows(package: PageConversionPackage) -> list[dict[str, Any]]:
+    return [
+        {
+            "transactionId": trace.transactionId,
+            "url": limit_text(trace.url or "unknown", 70),
+            "controller": _join_nonempty(trace.controllerClass, trace.controllerMethod),
+            "service": _join_nonempty(trace.serviceImplClass or trace.serviceInterface, trace.serviceMethod),
+            "dao": _join_nonempty(trace.daoClass, trace.daoMethod),
+            "sqlMapId": trace.sqlMapId or "unknown",
+            "tables": join_values(trace.tableCandidates),
+        }
+        for trace in package.backendTraces
+    ]
+
+
+def _related_screen_rows(package: PageConversionPackage) -> list[dict[str, Any]]:
+    return [
+        {
+            "navigationType": item.navigationType,
+            "target": item.target or item.navigationId,
+            "triggerFunction": item.triggerFunction or "unknown",
+            "resolutionStatus": item.resolutionStatus or "unknown",
+            "pageId": item.pageId or "unresolved",
+        }
+        for item in package.relatedPages
+    ]
+
+
+def _screen_story_lines(package: PageConversionPackage) -> list[str]:
+    page = package.page
+    return [
+        f"- The page opens as `{page.pageType or 'unknown'}` and centers the user on `{page.mainGridComponentId or 'unknown'}` backed by `{page.primaryDatasetId or 'unknown'}`.",
+        f"- Initial event is `{page.legacy.initialEvent or 'unknown'}` and should be reviewed for preload or lookup behavior.",
+        f"- Primary visible actions detected: {join_values([item['trigger'] for item in _main_flow_rows(package)], 'none inferred')}.",
+        f"- Related navigation count: `{len(package.relatedPages)}`.",
+    ]
+
+
+def _trigger_label(page: PageModel, component_id: str) -> str:
+    if not component_id:
+        return ""
+    component = next((item for item in page.components if item.componentId == component_id), None)
+    if component is None:
+        return component_id
+    return _component_label(page, component)
+
+
+def _component_label(page: PageModel, component: Any) -> str:
+    direct = str(component.properties.get("Text") or component.properties.get("Caption") or "").strip()
+    if direct:
+        return direct
+
+    target_left = _safe_int(component.properties.get("Left"))
+    target_top = _safe_int(component.properties.get("Top"))
+    for other in page.components:
+        if other.parentId != component.parentId or other.componentType not in {"Static", "Label"}:
+            continue
+        other_text = str(other.properties.get("Text") or other.properties.get("Caption") or "").strip()
+        if not other_text:
+            continue
+        other_left = _safe_int(other.properties.get("Left"))
+        other_top = _safe_int(other.properties.get("Top"))
+        if other_left <= target_left and abs(other_top - target_top) <= 24:
+            return other_text
+    return component.componentId
+
+
+def _safe_int(value: Any) -> int:
+    try:
+        return int(str(value or 0))
+    except (TypeError, ValueError):
+        return 0
 
 
 def _build_open_questions(

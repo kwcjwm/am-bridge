@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 import sys
 
@@ -14,6 +15,7 @@ if str(SRC_ROOT) not in sys.path:
 from am_bridge.config import derive_stage_artifact_paths, load_cli_config, resolve_input_path
 from am_bridge.generators import generate_page_conversion_spec
 from am_bridge.pipeline import analyze_file
+from am_bridge.report_artifacts import build_stage1_report_sidecars, build_stage2_report_sidecars
 from am_bridge.stages import (
     build_conversion_package,
     build_conversion_plan,
@@ -21,7 +23,10 @@ from am_bridge.stages import (
     build_starter_bundle,
     build_vue_page_config,
     generate_analysis_report,
+    generate_plan_prompt_pack,
+    generate_plan_registries,
     generate_package_report,
+    generate_stage1_registries,
     generate_plan_report,
     generate_pm_test_checklist,
 )
@@ -87,12 +92,38 @@ def _run_stage1(input_path: Path, config, paths, review_path: Path) -> int:
         source_roots=config.sourceRoots,
         review_path=review_path if review_path.exists() else None,
     )
+    stage1_registries = generate_stage1_registries(package)
+    stage1_registry_dir = paths.stage1ReportDir / "registries"
 
     _write_text(paths.analysisJson, model.to_json())
     _write_text(paths.pageSpec, generate_page_conversion_spec(model))
     _write_text(paths.packageJson, package.to_json())
-    _write_text(paths.packageReport, generate_package_report(package))
-    _write_text(paths.analysisReport, generate_analysis_report(package))
+    _write_registry_files(stage1_registry_dir, stage1_registries)
+    _write_text(
+        paths.packageReport,
+        generate_package_report(
+            package,
+            registry_dir=_relative_path(stage1_registry_dir, paths.packageReport.parent),
+            artifact_links={
+                "package-json": _relative_path(paths.packageJson, paths.packageReport.parent),
+                "review-json": _relative_path(paths.reviewJson, paths.packageReport.parent),
+                "page-spec": _relative_path(paths.pageSpec, paths.packageReport.parent),
+            },
+        ),
+    )
+    _write_text(
+        paths.analysisReport,
+        generate_analysis_report(
+            package,
+            registry_dir=_relative_path(stage1_registry_dir, paths.analysisReport.parent),
+            artifact_links={
+                "package-json": _relative_path(paths.packageJson, paths.analysisReport.parent),
+                "review-json": _relative_path(paths.reviewJson, paths.analysisReport.parent),
+                "page-spec": _relative_path(paths.pageSpec, paths.analysisReport.parent),
+            },
+        ),
+    )
+    _write_sidecars(paths.stage1ReportDir, build_stage1_report_sidecars(package))
     _write_json(paths.reviewJson, build_review_template(package))
 
     summary = {
@@ -135,15 +166,61 @@ def _run_stage2(input_path: Path, config, paths, review_path: Path) -> int:
     plan = build_conversion_plan(package)
     vue_config = build_vue_page_config(package, plan)
     pm_checklist = generate_pm_test_checklist(package, plan, vue_config)
+    stage1_registries = generate_stage1_registries(package)
+    stage1_registry_dir = paths.stage1ReportDir / "registries"
+    stage2_registries = generate_plan_registries(plan, package)
+    stage2_registry_dir = paths.stage2ReportDir / "registries"
+    prompt_pack_path = paths.stage2ReportDir / "ai-prompts.md"
 
     _write_text(paths.packageJson, package.to_json())
-    _write_text(paths.packageReport, generate_package_report(package))
-    _write_text(paths.analysisReport, generate_analysis_report(package))
+    _write_registry_files(stage1_registry_dir, stage1_registries)
+    _write_text(
+        paths.packageReport,
+        generate_package_report(
+            package,
+            registry_dir=_relative_path(stage1_registry_dir, paths.packageReport.parent),
+            artifact_links={
+                "package-json": _relative_path(paths.packageJson, paths.packageReport.parent),
+                "review-json": _relative_path(paths.reviewJson, paths.packageReport.parent),
+                "page-spec": _relative_path(paths.pageSpec, paths.packageReport.parent),
+            },
+        ),
+    )
+    _write_text(
+        paths.analysisReport,
+        generate_analysis_report(
+            package,
+            registry_dir=_relative_path(stage1_registry_dir, paths.analysisReport.parent),
+            artifact_links={
+                "package-json": _relative_path(paths.packageJson, paths.analysisReport.parent),
+                "review-json": _relative_path(paths.reviewJson, paths.analysisReport.parent),
+                "page-spec": _relative_path(paths.pageSpec, paths.analysisReport.parent),
+            },
+        ),
+    )
     _write_json(paths.reviewJson, build_review_template(package), overwrite=False)
     _write_text(paths.planJson, plan.to_json())
-    _write_text(paths.planReport, generate_plan_report(plan, package))
+    _write_registry_files(stage2_registry_dir, stage2_registries)
+    _write_text(prompt_pack_path, generate_plan_prompt_pack(plan))
+    _write_text(
+        paths.planReport,
+        generate_plan_report(
+            plan,
+            package,
+            registry_dir=_relative_path(stage2_registry_dir, paths.planReport.parent),
+            prompt_pack_path=_relative_path(prompt_pack_path, paths.planReport.parent),
+            artifact_links={
+                "plan-json": _relative_path(paths.planJson, paths.planReport.parent),
+                "vue-config-json": _relative_path(paths.vueConfigJson, paths.planReport.parent),
+                "pm-checklist": _relative_path(paths.pmChecklist, paths.planReport.parent),
+                "review-json": _relative_path(paths.reviewJson, paths.planReport.parent),
+            },
+        ),
+    )
     _write_text(paths.vueConfigJson, vue_config.to_json())
     _write_text(paths.pmChecklist, pm_checklist)
+    _write_sidecars(paths.stage1ReportDir, build_stage1_report_sidecars(package))
+    _write_sidecars(paths.stage2ReportDir, build_stage2_report_sidecars(package, plan, vue_config))
 
     summary = {
         "stage": "stage2",
@@ -186,14 +263,64 @@ def _run_stage3(input_path: Path, config, paths, review_path: Path) -> int:
     plan = build_conversion_plan(package)
     vue_config = build_vue_page_config(package, plan)
     pm_checklist = generate_pm_test_checklist(package, plan, vue_config)
-    bundle = build_starter_bundle(package, plan)
+    bundle = build_starter_bundle(package, plan, vue_config)
+    stage1_registries = generate_stage1_registries(package)
+    stage1_registry_dir = paths.stage1ReportDir / "registries"
+    stage2_registries = generate_plan_registries(plan, package)
+    stage2_registry_dir = paths.stage2ReportDir / "registries"
+    prompt_pack_path = paths.stage2ReportDir / "ai-prompts.md"
 
     for starter_file in [*bundle.frontendFiles, *bundle.backendFiles]:
         _write_text(paths.starterDir / starter_file.path, starter_file.content)
+    _write_text(paths.packageJson, package.to_json())
+    _write_json(paths.reviewJson, build_review_template(package), overwrite=False)
+    _write_registry_files(stage1_registry_dir, stage1_registries)
+    _write_registry_files(stage2_registry_dir, stage2_registries)
+    _write_text(prompt_pack_path, generate_plan_prompt_pack(plan))
+    _write_text(
+        paths.packageReport,
+        generate_package_report(
+            package,
+            registry_dir=_relative_path(stage1_registry_dir, paths.packageReport.parent),
+            artifact_links={
+                "package-json": _relative_path(paths.packageJson, paths.packageReport.parent),
+                "review-json": _relative_path(paths.reviewJson, paths.packageReport.parent),
+                "page-spec": _relative_path(paths.pageSpec, paths.packageReport.parent),
+            },
+        ),
+    )
+    _write_text(
+        paths.analysisReport,
+        generate_analysis_report(
+            package,
+            registry_dir=_relative_path(stage1_registry_dir, paths.analysisReport.parent),
+            artifact_links={
+                "package-json": _relative_path(paths.packageJson, paths.analysisReport.parent),
+                "review-json": _relative_path(paths.reviewJson, paths.analysisReport.parent),
+                "page-spec": _relative_path(paths.pageSpec, paths.analysisReport.parent),
+            },
+        ),
+    )
     _write_text(paths.planJson, plan.to_json())
-    _write_text(paths.planReport, generate_plan_report(plan, package))
+    _write_text(
+        paths.planReport,
+        generate_plan_report(
+            plan,
+            package,
+            registry_dir=_relative_path(stage2_registry_dir, paths.planReport.parent),
+            prompt_pack_path=_relative_path(prompt_pack_path, paths.planReport.parent),
+            artifact_links={
+                "plan-json": _relative_path(paths.planJson, paths.planReport.parent),
+                "vue-config-json": _relative_path(paths.vueConfigJson, paths.planReport.parent),
+                "pm-checklist": _relative_path(paths.pmChecklist, paths.planReport.parent),
+                "review-json": _relative_path(paths.reviewJson, paths.planReport.parent),
+            },
+        ),
+    )
     _write_text(paths.vueConfigJson, vue_config.to_json())
     _write_text(paths.pmChecklist, pm_checklist)
+    _write_sidecars(paths.stage1ReportDir, build_stage1_report_sidecars(package))
+    _write_sidecars(paths.stage2ReportDir, build_stage2_report_sidecars(package, plan, vue_config))
     _write_text(paths.starterDir / "starter-bundle.json", bundle.to_json())
     _write_json(paths.starterDir / "handoff-prompts.json", bundle.handoffPrompts)
     _write_text(paths.starterDir / "vue-page-config.json", vue_config.to_json())
@@ -227,6 +354,8 @@ def _artifact_paths(paths) -> dict[str, str]:
         "planReport": str(paths.planReport),
         "vueConfigJson": str(paths.vueConfigJson),
         "pmChecklist": str(paths.pmChecklist),
+        "stage1ReportDir": str(paths.stage1ReportDir),
+        "stage2ReportDir": str(paths.stage2ReportDir),
         "starterDir": str(paths.starterDir),
     }
 
@@ -252,6 +381,20 @@ def _write_json(path: Path, data: dict, overwrite: bool = True) -> None:
     if path.exists() and not overwrite:
         return
     _write_text(path, json.dumps(data, ensure_ascii=False, indent=2))
+
+
+def _write_registry_files(root: Path, files: dict[str, str]) -> None:
+    for relative_path, content in files.items():
+        _write_text(root / relative_path, content)
+
+
+def _write_sidecars(root: Path, files: dict[str, str]) -> None:
+    for relative_path, content in files.items():
+        _write_text(root / relative_path, content)
+
+
+def _relative_path(path: Path, start: Path) -> str:
+    return Path(os.path.relpath(path, start)).as_posix()
 
 
 if __name__ == "__main__":

@@ -1,11 +1,13 @@
-package com.example.am.form.service;
+package com.example.am.form.mapper;
 
 import java.util.List;
+import org.apache.ibatis.annotations.Mapper;
 import com.example.am.form.dto.FormPageRow;
 import com.example.am.form.dto.FormPageSearchCondition;
 import com.example.am.form.dto.FormPageLookupOption;
 
-public interface FormPageService {
+@Mapper
+public interface FormPageMapper {
     List<FormPageRow> search(FormPageSearchCondition request);
-    List<FormPageLookupOption> getTestCategoryOptions();
+    List<FormPageLookupOption> selectTestCategoryOptions();
 }
