@@ -2,7 +2,10 @@
 
 ## One-Time Harness Check
 
-Use this when you want AI Pro to load the project harness before real AM work:
+Use this only when the AI Pro environment actually supports a global harness command.
+If not, use the bundle `bootstrap-initial-prompt.md` and `no-admin-runtime-prompt.md` flow instead.
+
+Use this when you want AI Pro to inspect the project harness before real AM work:
 
 ```text
 /harness
@@ -38,6 +41,7 @@ Quality bar:
 - Distinguish main result dataset vs search/code/view-state datasets.
 - Do not claim backend trace completion unless controller/service/DAO/SQL evidence is present or explicitly overridden in review JSON.
 - Follow the project harness instead of answering in one shot.
+- If registered tools are unavailable, use the direct execution path selected during bootstrap.
 ```
 
 ## Stage-Specific Review Prompt

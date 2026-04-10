@@ -6,6 +6,19 @@ Use this script when the project has been moved into the company environment and
 2. bootstrap AI Pro
 3. run one sample AM page
 
+This script assumes the realistic default:
+
+- global `/harness` installation may be impossible
+- custom tool registration may be impossible
+- workspace file loading is still available
+- direct command execution may still be usable
+
+In other words:
+
+- project harness activation is the real requirement
+- direct execution is the normal runtime path
+- global harness and tool registration are optional conveniences
+
 ## Phase 0: Build The Internal Workspace
 
 If you cloned the full repository into the internal environment, do not open the repo root in AI Pro.
@@ -51,7 +64,34 @@ Stop here if the readiness result is:
 If `prompts/amprompt.md` contains a real custom prompt, keep it in place.
 Do not paste it first. It is supplemental and should be used only after the readiness check succeeds.
 
-## Phase 3: Bootstrap Harness, Skill, And Tools
+## Phase 3: Choose Runtime Mode
+
+If the readiness report says:
+
+- global command unavailable
+- custom tool registration unavailable
+
+then treat that as expected no-admin mode, skip the old admin-style bootstrap path, and use `no-admin-runtime-prompt.md`.
+
+## Phase 3A: No-Admin Runtime Activation
+
+Paste the full contents of:
+
+```text
+no-admin-runtime-prompt.md
+```
+
+Stop here if the internal AI reports all of these as unavailable:
+
+- `scripts/am_stage.ps1`
+- `python scripts/ai_pro_stage_runner.py ...`
+- `am-bridge-analyze ...`
+
+If one of them is available, continue with that execution path.
+
+## Phase 3B: Admin-Style Bootstrap When Supported
+
+Only use this phase if global command installation and custom tool registration are actually allowed.
 
 Paste this exact prompt into the internal AI:
 
@@ -100,6 +140,10 @@ Target page: DefApp/Win32/form.xml
 I am the PM and you are the PL.
 Use am-bridge as the deterministic tool layer.
 If prompts/amprompt.md exists, use it as supplemental guidance for report detail and Vue conversion config completeness, but do not override the staged workflow.
+If registered tools are unavailable, use one of these direct execution paths:
+1. `scripts/am_stage.ps1`
+2. `python scripts/ai_pro_stage_runner.py ...`
+3. `am-bridge-analyze ...`
 
 Execution policy:
 1. Run stage1.

@@ -2,17 +2,16 @@
 
 Use this document when the exported internal workspace has been opened in an AI Pro environment and `GLM-4.7` should perform the setup work.
 
-The setup target has three layers:
+The practical setup target has three layers:
 
-1. global harness
-2. project harness
-3. deterministic `am-bridge` tools
+1. project harness
+2. a runnable deterministic `am-bridge` path
+3. optional admin conveniences such as global `/harness` and registered tools
 
 The final outcome is:
 
-- `/harness` works
-- the project AM workflow is discoverable
-- `am-bridge-stage1|2|3` can be called by the model
+- the AM page workflow is discoverable from workspace files
+- at least one real execution path works for `stage1`, `stage2`, and `stage3`
 - the model can run staged AM work against `aaa.xml`
 - stage1 emits a detailed integrated legacy analysis report
 - stage2 emits a Vue page config JSON for implementation
@@ -22,43 +21,19 @@ The final outcome is:
 
 Before changing anything, discover:
 
-- the repository root
+- the current workspace root
 - whether the current workspace is the exported internal bundle root
-- the AI Pro home or config root
+- whether AI Pro can read workspace files directly
+- whether direct command execution or shell execution is possible
+- whether Python is available for running `scripts/ai_pro_stage_runner.py`
 - whether AI Pro supports global slash commands
 - whether AI Pro supports saved prompts or workflow definitions
 - whether AI Pro supports tool registration through JSON, TOML, YAML, or another config file
-- whether Python is available for running `scripts/ai_pro_stage_runner.py`
 
 If one of those items is missing, report it instead of guessing.
 If the current workspace is not the exported internal bundle root, stop and ask the operator to open the exported bundle instead of the external support repository.
 
-## Phase 1: Global Harness
-
-### Goal
-
-Make `/harness` available in AI Pro.
-
-### Source
-
-- `integrations/ai-pro/global/harness-global.md`
-
-### Actions
-
-1. Find where AI Pro stores global commands, global prompts, or system command mappings.
-2. Install the contents of `harness-global.md` into that location.
-3. Prefer `/harness` as the command alias.
-4. If slash commands are not supported, create the nearest equivalent named prompt:
-   - name: `harness`
-   - purpose: global harness bootstrap
-
-### Success Criteria
-
-- `/harness` or equivalent exists
-- invoking it makes the model inspect workspace harness files
-- it does not jump straight into AM implementation
-
-## Phase 2: Project Harness
+## Phase 1: Project Harness
 
 ### Goal
 
@@ -68,6 +43,7 @@ Teach AI Pro how this AM project is supposed to operate.
 
 - `AGENTS.md`
 - `bootstrap-initial-prompt.md`
+- `no-admin-runtime-prompt.md`
 - `.agents/skills/am-page-modernization/SKILL.md`
 - `integrations/ai-pro/project/am-page-modernization.md`
 - `integrations/ai-pro/project/operator-prompts.md`
@@ -78,7 +54,6 @@ Teach AI Pro how this AM project is supposed to operate.
 2. If yes:
    - keep `AGENTS.md` and `.agents/` as the primary project harness
    - use `bootstrap-initial-prompt.md` as the first operator message
-   - make sure `/harness` reads them
 3. If no:
    - register `integrations/ai-pro/project/am-page-modernization.md` as the project workflow prompt
    - optionally register the prompts in `operator-prompts.md` as saved prompts
@@ -93,11 +68,70 @@ Teach AI Pro how this AM project is supposed to operate.
 - the model knows that stage 1 is not final truth
 - the model knows to use `review.json` as the correction layer
 
-## Phase 3: Tool Registration
+## Phase 2: Runtime Capability
 
 ### Goal
 
-Expose `am-bridge` as callable deterministic tools.
+Select at least one runnable deterministic execution path that does not rely on admin-only features.
+
+### Primary Sources
+
+- `scripts/am_stage.ps1`
+- `scripts/ai_pro_stage_runner.py`
+- `am-bridge.config.json`
+
+### Actions
+
+1. Check these candidate runtime paths in order:
+   - `scripts/am_stage.ps1`
+   - `python scripts/ai_pro_stage_runner.py ...`
+   - registered `am-bridge-stage1|2|3`
+   - `am-bridge-analyze ...`
+2. Prefer the simplest path that does not depend on admin features.
+3. Confirm the selected path can see:
+   - `scripts/ai_pro_stage_runner.py`
+   - `src/am_bridge`
+   - `am-bridge.config.json`
+4. If all runtime paths are blocked, stop and report the exact blocker.
+
+### Success Criteria
+
+- one default runtime path is selected
+- that path can resolve the page path
+- that path can emit the expected stage artifacts
+
+## Phase 3: Optional Global Harness
+
+### Goal
+
+Make `/harness` available in AI Pro when the platform allows it.
+
+### Source
+
+- `integrations/ai-pro/global/harness-global.md`
+
+### Actions
+
+1. Find where AI Pro stores global commands, global prompts, or system command mappings.
+2. Install the contents of `harness-global.md` only if the environment permits it.
+3. Prefer `/harness` as the command alias.
+4. If slash commands are not supported but saved prompts are supported, create the nearest equivalent named prompt:
+   - name: `harness`
+   - purpose: global harness inspection
+
+### Success Criteria
+
+- `/harness` or equivalent exists when the platform allows it
+- invoking it makes the model inspect workspace harness files
+- it does not jump straight into AM implementation
+
+If this phase is blocked by server-side policy, do not stop the whole bootstrap.
+
+## Phase 4: Optional Tool Registration
+
+### Goal
+
+Expose `am-bridge` as callable deterministic tools when the platform allows it.
 
 ### Primary Sources
 
@@ -117,7 +151,7 @@ Expose `am-bridge` as callable deterministic tools.
    - register one `am-bridge-stage` tool with `stage` as a required argument
 4. Point every tool at:
    - `python <repo-root>/scripts/ai_pro_stage_runner.py ...`
-5. Make sure the config file points at real legacy locations:
+5. Make sure the config file points at:
    - `<repo-root>/am-bridge.config.json`
 
 ### Success Criteria
@@ -126,7 +160,9 @@ Expose `am-bridge` as callable deterministic tools.
 - tool output is JSON
 - stage outputs include artifact paths and key decisions
 
-## Phase 4: Target Project Wiring
+If this phase is blocked by server-side policy, continue with the direct runtime path chosen in Phase 2.
+
+## Phase 5: Target Project Wiring
 
 Before claiming setup is complete, update:
 
@@ -139,22 +175,20 @@ The operator must provide or confirm:
 
 Do not leave sample paths in place for production use.
 
-## Phase 5: Validation
+## Phase 6: Validation
 
 Run these checks:
 
-1. `/harness`
-   - confirm harness status
-   - confirm project workflow
-   - confirm tool status
-2. `am-bridge-stage1` on a known page
-   - confirm JSON output
+1. confirm the project workflow is loaded from workspace files
+2. confirm the selected runtime path still works
+3. run `stage1` on a known page through the selected runtime path
+   - confirm artifact generation
    - confirm `primaryDatasetId`
    - confirm backend trace summary exists when possible
-3. `am-bridge-stage2` on a known page
+4. run `stage2` on the same known page
    - confirm `...-vue-config.json` is created
    - confirm `...-pm-checklist.md` is created
-4. if stage2 passes, optionally run stage3 on the same known page
+5. if stage2 passes, optionally run stage3 on the same known page
 
 ### Expected Sample Validation Result
 
@@ -169,15 +203,16 @@ When run against the bundled sample `form.xml`, stage1 should show:
 If setup cannot be completed:
 
 - report the missing AI Pro capability
-- report the exact file or registry that blocked setup
+- report the exact file, command, or registry that blocked setup
 - do not fake success
 
 ## Final Report Format
 
 When bootstrap is complete, report:
 
-- global harness status
 - project harness status
+- default runtime path
+- global harness status
 - tool registration status
 - config status
 - validation result

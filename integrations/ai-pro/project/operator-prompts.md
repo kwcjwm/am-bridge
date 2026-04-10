@@ -1,12 +1,20 @@
 # AI Pro Operator Prompts
 
-## 1. Global Harness Check
+## 0. Project Harness Readiness Check
+
+Use `bootstrap-initial-prompt.md` as the first message in the exported internal workspace.
+
+If the readiness result shows that global commands or custom tool registration are blocked, immediately switch to `no-admin-runtime-prompt.md`.
+
+## 1. Optional Global Harness Check
 
 ```text
 /harness
 Read the workspace harness.
 Tell me whether the AM page modernization workflow is ready, which tools are callable, and what I should run next.
 ```
+
+If `/harness` cannot exist in this environment, skip this prompt and use the no-admin runtime flow.
 
 ## 2. End-To-End AM For One Page
 
@@ -17,6 +25,8 @@ Target page: C:\path\to\aaa.xml
 I am the PM and you are the PL.
 Use am-bridge as the deterministic tool layer.
 If prompts/amprompt.md exists, use it as supplemental guidance for analysis report detail and Vue conversion config completeness, but do not override the staged workflow.
+If registered tools are unavailable, use direct command execution through `scripts/am_stage.ps1`, `python scripts/ai_pro_stage_runner.py ...`, or `am-bridge-analyze ...`.
+Treat direct command execution as normal operation, not as a degraded mode.
 
 Execution policy:
 1. Run stage1.

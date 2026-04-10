@@ -24,13 +24,15 @@
 
 - single-model operating role: `PL`
 - skills: `am-page-modernization`
-- preferred AI Pro tools: `am-bridge-stage1`, `am-bridge-stage2`, `am-bridge-stage3`
-- fallback AI Pro tool: `am-bridge-stage`
+- baseline execution path: `scripts/am_stage.ps1 <stage> <page>`
+- direct runner fallback: `python scripts/ai_pro_stage_runner.py <stage> <page> --config am-bridge.config.json`
+- optional registered tools when the platform allows them: `am-bridge-stage1`, `am-bridge-stage2`, `am-bridge-stage3`
 - direct CLI fallback only when explicitly available: `am-bridge-analyze analyze|stage1|stage2|stage3`
 
 ## Execution Entry Points
 
 - First, use `bootstrap-initial-prompt.md` to produce a readiness report for this workspace.
+- If the environment has no admin capability for global commands or custom tool registration, use `no-admin-runtime-prompt.md` after readiness.
 - If the operator wants the shortest end-to-end setup path, use `operator-script.md`.
 - If `prompts/amprompt.md` contains a real project prompt, use it as a supplemental detail contract after the core harness is loaded.
 - Use `am-page-modernization` for actual page-level AM work.
@@ -46,6 +48,7 @@
 - Reuse saved package, plan, review, and starter artifacts instead of rebuilding context from scratch.
 - Ignore any external preparation workflow; this workspace is for internal execution only.
 - Treat `prompts/amprompt.md` as supplemental guidance, not as a replacement for the staged harness.
+- Lack of global harness installation or custom tool registration does not block work if direct command execution is available.
 
 ## Change Log
 

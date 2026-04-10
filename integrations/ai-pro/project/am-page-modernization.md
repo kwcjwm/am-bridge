@@ -46,6 +46,8 @@ Prefer these tools if registered:
 - `am-bridge-stage3`
 
 If only one wrapper is registered, call it with the matching stage.
+If custom tool registration is unavailable, use direct command execution through `scripts/am_stage.ps1`, `python scripts/ai_pro_stage_runner.py ...`, or `am-bridge-analyze ...`.
+Direct command execution is normal runtime behavior in restricted environments.
 
 ## Stage Workflow
 

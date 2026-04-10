@@ -11,11 +11,13 @@ The internal workspace should contain only:
 
 - the internal `AGENTS.md`
 - the initial bootstrap prompt
+- the no-admin runtime prompt
 - the operator script
 - any optional custom prompts under `prompts/`
 - the `am-page-modernization` skill assets
 - AI Pro integration prompts and tool contracts
 - the deterministic runner and configuration file
+- the direct command wrapper script
 - the runtime `src/am_bridge` package used by the runner
 - the bundled public sample inputs used for first validation
 

@@ -12,7 +12,14 @@ The human user is the PM. `am-bridge` CLI is the deterministic toolset. Your job
 
 Do not treat the deterministic analyzer as final truth.
 
-In AI Pro environments, prefer registered runner-backed tools:
+In AI Pro environments, use the simplest real runtime that the platform allows.
+
+Prefer direct execution first in restricted environments:
+
+- `scripts/am_stage.ps1 <stage> <page-xml>`
+- `python scripts/ai_pro_stage_runner.py <stage> <page-xml> --config am-bridge.config.json`
+
+Use registered runner-backed tools when the platform actually supports them:
 
 - `am-bridge-stage1`
 - `am-bridge-stage2`
@@ -40,8 +47,20 @@ That judgment belongs to the AI review pass.
 
 ### Stage 1: Build Evidence Package
 
+If the selected runtime path is `scripts/am_stage.ps1`, run:
+
+```powershell
+scripts/am_stage.ps1 stage1 <page-xml>
+```
+
+If the selected runtime path is the Python runner, run:
+
+```powershell
+python scripts/ai_pro_stage_runner.py stage1 <page-xml> --config am-bridge.config.json
+```
+
 If runner-backed AI Pro tools are registered, call `am-bridge-stage1`.
-Otherwise run the direct CLI:
+If neither of the above is available, run the direct CLI:
 
 ```powershell
 am-bridge-analyze stage1 <page-xml>
@@ -79,8 +98,20 @@ This is mandatory when the page has a strong main grid or obvious analyzer mista
 
 ### Stage 2: Lock Conversion Plan
 
+If the selected runtime path is `scripts/am_stage.ps1`, run:
+
+```powershell
+scripts/am_stage.ps1 stage2 <page-xml>
+```
+
+If the selected runtime path is the Python runner, run:
+
+```powershell
+python scripts/ai_pro_stage_runner.py stage2 <page-xml> --config am-bridge.config.json
+```
+
 If runner-backed AI Pro tools are registered, call `am-bridge-stage2`.
-Otherwise run the direct CLI:
+If neither of the above is available, run the direct CLI:
 
 ```powershell
 am-bridge-analyze stage2 <page-xml>
@@ -104,8 +135,20 @@ Use this stage to lock:
 
 ### Stage 3: Generate Starter Bundle
 
+If the selected runtime path is `scripts/am_stage.ps1`, run:
+
+```powershell
+scripts/am_stage.ps1 stage3 <page-xml>
+```
+
+If the selected runtime path is the Python runner, run:
+
+```powershell
+python scripts/ai_pro_stage_runner.py stage3 <page-xml> --config am-bridge.config.json
+```
+
 If runner-backed AI Pro tools are registered, call `am-bridge-stage3`.
-Otherwise run the direct CLI:
+If neither of the above is available, run the direct CLI:
 
 ```powershell
 am-bridge-analyze stage3 <page-xml>

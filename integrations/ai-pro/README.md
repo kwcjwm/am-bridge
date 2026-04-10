@@ -6,16 +6,54 @@ The repository root is an external Codex support workspace.
 The company-side AI should not open the root of this repository directly.
 Instead, export the internal bundle and open the exported bundle root as its workspace.
 
-The deployment model has three layers:
+The practical deployment model has three layers:
 
-1. Global harness
-   Enable `/harness` or an equivalent global command in AI Pro.
-2. Project harness
-   Teach AI Pro how this AM project is supposed to work.
-3. Tool wiring
-   Expose `am-bridge` as deterministic tools that the model can call.
+1. Project harness
+   Required. Teach AI Pro how this AM project is supposed to work.
+2. Runnable deterministic path
+   Required. Give AI Pro a real way to execute `am-bridge`.
+3. Admin conveniences
+   Optional. Global `/harness` and custom tool registration improve ergonomics but are not required for AM execution.
 
-## 1. Global Harness
+## 1. Project Harness
+
+Use these files for the project-level AM workflow:
+
+- `AGENTS.md`
+- `bootstrap-initial-prompt.md`
+- `no-admin-runtime-prompt.md`
+- `operator-script.md`
+- `prompts/amprompt.md` when a custom detailed AM prompt is provided
+- `.agents/skills/am-page-modernization/SKILL.md`
+- `integrations/ai-pro/project/am-page-modernization.md`
+- `integrations/ai-pro/project/operator-prompts.md`
+
+If AI Pro can read workspace files directly, point it at the exported bundle root, not this repository root.
+The first user message inside the company-side workspace should be the contents of `bootstrap-initial-prompt.md`.
+For the shortest operator path, follow `operator-script.md`.
+If `prompts/amprompt.md` exists, treat it as supplemental detail guidance after the core harness is active.
+If global command installation and custom tool registration are blocked, switch to `no-admin-runtime-prompt.md`.
+
+If AI Pro cannot read Codex skill format directly, use the portable prompt files under `integrations/ai-pro/project/`.
+
+## 2. Runnable Deterministic Path
+
+The minimum runtime requirement is one callable path that does not depend on admin features.
+
+Preferred order:
+
+1. `scripts/am_stage.ps1`
+2. `python scripts/ai_pro_stage_runner.py ...`
+3. registered `am-bridge-stage1|2|3`
+4. `am-bridge-analyze ...`
+
+The first two options are enough for real work if the environment allows direct command execution.
+
+## 3. Admin Conveniences
+
+These are optional. Use them only when the platform actually permits them.
+
+### Optional Global Harness
 
 Use `integrations/ai-pro/global/harness-global.md` as the source for the global `/harness` behavior.
 
@@ -30,26 +68,7 @@ Recommended mapping:
 - command: `/harness`
 - source file: `integrations/ai-pro/global/harness-global.md`
 
-## 2. Project Harness
-
-Use these files for the project-level AM workflow:
-
-- `AGENTS.md`
-- `bootstrap-initial-prompt.md`
-- `operator-script.md`
-- `prompts/amprompt.md` when a custom detailed AM prompt is provided
-- `.agents/skills/am-page-modernization/SKILL.md`
-- `integrations/ai-pro/project/am-page-modernization.md`
-- `integrations/ai-pro/project/operator-prompts.md`
-
-If AI Pro can read workspace files directly, point it at the exported bundle root, not this repository root.
-The first user message inside the company-side workspace should be the contents of `bootstrap-initial-prompt.md`.
-For the shortest operator path, follow `operator-script.md`.
-If `prompts/amprompt.md` exists, treat it as supplemental detail guidance after the core harness is active.
-
-If AI Pro cannot read Codex skill format directly, use the portable prompt files under `integrations/ai-pro/project/`.
-
-## 3. Tool Wiring
+### Optional Tool Wiring
 
 Expose `am-bridge` through `scripts/ai_pro_stage_runner.py`.
 
@@ -73,13 +92,11 @@ It also produces:
 ## Deployment Order
 
 1. Open the exported bundle root, not the source repository root.
-2. Install the global harness prompt.
-3. Paste `bootstrap-initial-prompt.md` and review the readiness report.
-4. Install or expose the project harness files.
-5. Register the `am-bridge` stage tools.
-6. Run `/harness`.
-7. Run the bundled sample validation or another known page.
-8. Only after validation, point `am-bridge.config.json` to the real legacy source roots and backend roots.
+2. Paste `bootstrap-initial-prompt.md` and review the readiness report.
+3. If admin features are blocked, switch to `no-admin-runtime-prompt.md` and use direct execution.
+4. If admin features are available, optionally install the global harness and register tools.
+5. Run the bundled sample validation or another known page.
+6. Only after validation, point `am-bridge.config.json` to the real legacy source roots and backend roots.
 
 ## GLM-4.7 Operating Rules
 
@@ -106,7 +123,8 @@ If the exported internal bundle is copied into another machine and GLM-4.7 shoul
 
 Those files tell GLM-4.7 how to:
 
-1. install the global harness
-2. activate the project harness
-3. register `am-bridge` tools
-4. verify the whole stack
+1. activate the project harness
+2. select a runnable deterministic path
+3. optionally install the global harness
+4. optionally register `am-bridge` tools
+5. verify the whole stack

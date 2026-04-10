@@ -1,13 +1,14 @@
 {
   "bootstrapVersion": 1,
-  "goal": "Prepare the exported internal AI workspace to use global harness, project AM harness, and am-bridge staged tools.",
+  "goal": "Prepare the exported internal AI workspace to use the project AM harness and at least one runnable am-bridge execution path, with optional global harness and tool registration when the platform allows it.",
   "globalHarness": {
+    "optional": true,
     "preferredAlias": "/harness",
     "sourceFiles": [
       "integrations/ai-pro/global/harness-global.md"
     ],
     "successCriteria": [
-      "A global harness command or equivalent prompt exists.",
+      "A global harness command or equivalent prompt exists when the platform allows it.",
       "The command inspects workspace harness files.",
       "The command reports workflow and tool readiness."
     ]
@@ -30,7 +31,25 @@
       "Stage 2 produces a PM-facing checklist."
     ]
   },
+  "directExecution": {
+    "sourceFiles": [
+      "scripts/am_stage.ps1",
+      "scripts/ai_pro_stage_runner.py",
+      "am-bridge.config.json"
+    ],
+    "preferredCommands": [
+      "scripts/am_stage.ps1 <stage> <page>",
+      "python scripts/ai_pro_stage_runner.py <stage> <page> --config am-bridge.config.json",
+      "am-bridge-analyze <stage> <page>"
+    ],
+    "successCriteria": [
+      "At least one direct execution path is available without admin-only setup.",
+      "The selected runtime path can resolve the page path.",
+      "The selected runtime path returns or emits the expected stage artifacts."
+    ]
+  },
   "toolRegistration": {
+    "optional": true,
     "sourceFiles": [
       "scripts/ai_pro_stage_runner.py",
       "integrations/ai-pro/tools/tool-contract.md",
@@ -44,7 +63,7 @@
     ],
     "fallbackTool": "am-bridge-stage",
     "successCriteria": [
-      "Stage tool output is JSON.",
+      "Stage tool output is JSON when tool registration is enabled.",
       "The runner can resolve the page path.",
       "Artifact paths are returned in the tool output."
     ]
@@ -58,8 +77,8 @@
   },
   "validation": {
     "preferredChecks": [
-      "/harness",
-      "runner help or tool callable check",
+      "project harness readiness report",
+      "runner help or direct callable check",
       "stage1 on the bundled sample page or another configured known page",
       "stage2 on a known page only when stage1 succeeded"
     ],

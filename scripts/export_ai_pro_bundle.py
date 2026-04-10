@@ -13,6 +13,7 @@ FILES_TO_COPY = [
     (Path("deploy/internal-ai/AGENTS.md"), Path("AGENTS.md")),
     (Path("deploy/internal-ai/README.md"), Path("README.md")),
     (Path("deploy/internal-ai/bootstrap-initial-prompt.md"), Path("bootstrap-initial-prompt.md")),
+    (Path("deploy/internal-ai/no-admin-runtime-prompt.md"), Path("no-admin-runtime-prompt.md")),
     (Path("deploy/internal-ai/operator-script.md"), Path("operator-script.md")),
     (Path(".agents/skills/am-page-modernization/SKILL.md"), Path(".agents/skills/am-page-modernization/SKILL.md")),
     (
@@ -65,6 +66,7 @@ FILES_TO_COPY = [
         Path("integrations/ai-pro/tools/tool-registry.single-tool.example.json"),
     ),
     (Path("scripts/ai_pro_stage_runner.py"), Path("scripts/ai_pro_stage_runner.py")),
+    (Path("scripts/am_stage.ps1"), Path("scripts/am_stage.ps1")),
     (Path("am-bridge.config.json"), Path("am-bridge.config.json")),
 ]
 
@@ -151,6 +153,7 @@ def _write_bundle_readme(output_root: Path) -> None:
         "entryDocument": str(output_root / "AGENTS.md"),
         "operatorScript": str(output_root / "operator-script.md"),
         "bootstrapPrompt": str(output_root / "bootstrap-initial-prompt.md"),
+        "noAdminRuntimePrompt": str(output_root / "no-admin-runtime-prompt.md"),
         "globalHarnessSource": str(output_root / "integrations" / "ai-pro" / "global" / "harness-global.md"),
         "projectHarnessSource": str(output_root / "integrations" / "ai-pro" / "project" / "am-page-modernization.md"),
         "toolRegistrySource": str(output_root / "integrations" / "ai-pro" / "tools" / "tool-registry.resolved.json"),

@@ -13,38 +13,24 @@ Do not start with the prompts below until the readiness report is complete.
 You are preparing the exported internal AM workspace for AI Pro + GLM-4.7.
 
 First, inspect the local AI Pro environment and discover:
-- where global prompts or slash commands are stored
-- where project prompts or workflow definitions are stored
-- where tool registrations are stored
+- whether this workspace is the exported internal bundle root
+- whether workspace files can be read directly
+- whether direct command execution is possible
 - whether Python is available
+- whether global prompts or slash commands are supported
+- whether tool registrations are supported
 
 Use these workspace files as the source of truth:
 - integrations/ai-pro/bootstrap/glm-bootstrap-playbook.md
 - integrations/ai-pro/bootstrap/bootstrap-manifest.json
-- integrations/ai-pro/global/harness-global.md
 - integrations/ai-pro/project/am-page-modernization.md
 - integrations/ai-pro/tools/tool-contract.md
 
 Do not make assumptions silently.
-Report the paths and formats you discovered before editing anything.
+Report the capabilities you discovered before editing anything.
 ```
 
-## Prompt 2: Install The Global Harness
-
-```text
-Follow integrations/ai-pro/bootstrap/glm-bootstrap-playbook.md.
-
-Install the global harness for AI Pro using:
-- integrations/ai-pro/global/harness-global.md
-
-Preferred result:
-- /harness becomes available
-
-If AI Pro does not support slash commands, create the nearest equivalent global prompt and report the exact alias you chose.
-After installation, verify that the global harness can inspect workspace harness files.
-```
-
-## Prompt 3: Activate The Project Harness
+## Prompt 2: Activate The Project Harness
 
 ```text
 Follow integrations/ai-pro/bootstrap/glm-bootstrap-playbook.md.
@@ -54,6 +40,7 @@ Activate the AM project harness for this workspace.
 Use these files:
 - AGENTS.md
 - bootstrap-initial-prompt.md
+- no-admin-runtime-prompt.md
 - .agents/skills/am-page-modernization/SKILL.md
 - integrations/ai-pro/project/am-page-modernization.md
 - integrations/ai-pro/project/operator-prompts.md
@@ -66,12 +53,47 @@ Keep the PM/PL contract intact:
 If AI Pro cannot use the Codex-style project files directly, register the portable workflow prompt from integrations/ai-pro/project/.
 ```
 
-## Prompt 4: Register am-bridge Tools
+## Prompt 3: Select A Runnable Execution Path
 
 ```text
 Follow integrations/ai-pro/bootstrap/glm-bootstrap-playbook.md.
 
-Register am-bridge as callable deterministic tools for AI Pro.
+Choose the default runtime path for this workspace.
+
+Check these candidates in order:
+1. scripts/am_stage.ps1
+2. python scripts/ai_pro_stage_runner.py ...
+3. registered am-bridge-stage1, am-bridge-stage2, am-bridge-stage3
+4. am-bridge-analyze ...
+
+Pick the first path that is actually available and does not depend on blocked admin features.
+Do not claim success without evidence.
+Report the selected path and the blocked alternatives.
+```
+
+## Prompt 4: Optional Global Harness
+
+```text
+Follow integrations/ai-pro/bootstrap/glm-bootstrap-playbook.md.
+
+If the platform allows global command or global prompt installation, install the global harness using:
+- integrations/ai-pro/global/harness-global.md
+
+Preferred result:
+- /harness becomes available
+
+If AI Pro does not support slash commands but does support saved prompts, create the nearest equivalent and report the exact alias you chose.
+After installation, verify that the global harness can inspect workspace harness files.
+```
+
+If global command installation is blocked by server policy, skip this prompt.
+
+## Prompt 5: Optional Tool Registration
+
+```text
+Follow integrations/ai-pro/bootstrap/glm-bootstrap-playbook.md.
+
+If the platform allows custom tool registration, register am-bridge as callable deterministic tools for AI Pro.
 
 Use:
 - scripts/ai_pro_stage_runner.py
@@ -88,7 +110,9 @@ If the environment only supports one parameterized tool, register one am-bridge-
 After registration, show the resolved commands or config entries you created.
 ```
 
-## Prompt 5: Point The Config To The Real Legacy Project
+If custom tool registration is blocked by server policy, skip this prompt and keep the direct execution path from Prompt 3.
+
+## Prompt 6: Point The Config To The Real Legacy Project
 
 ```text
 Update am-bridge.config.json for the real target project.
@@ -101,19 +125,18 @@ Do not leave sample paths in place if real paths are available.
 After the update, summarize the configured roots.
 ```
 
-If you want to prove the bundle first with the bundled public sample, do Prompt 6 before this step.
+If you want to prove the bundle first with the bundled public sample, do Prompt 7 before this step.
 
-## Prompt 6: Validate The Whole Stack
+## Prompt 7: Validate The Whole Stack
 
 ```text
 Validate the AI Pro bootstrap for this workspace.
 
-1. Run /harness or the installed equivalent.
-2. Confirm the project harness is discoverable.
+1. Confirm the project harness is discoverable from workspace files.
+2. Confirm the selected runtime path still works.
 3. Run stage1 on the bundled sample page or another known page exposed by the configured sourceRoots.
-4. Confirm the tool returns JSON.
-5. Confirm the stage1 result includes key page decisions.
-6. Run stage2 and confirm a Vue page config JSON and PM checklist are emitted if stage1 succeeded.
+4. Confirm key stage1 decisions are present.
+5. Run stage2 and confirm a Vue page config JSON and PM checklist are emitted if stage1 succeeded.
 
 If the bundled sample form.xml is used, expect:
 - primaryDatasetId = ds_scorechk
@@ -121,15 +144,16 @@ If the bundled sample form.xml is used, expect:
 - backend trace to sampleDAO.ScoreChk
 
 Report:
-- global harness status
 - project harness status
+- selected runtime path
+- global harness status
 - tool status
 - config status
 - validation result
 - next operator action
 ```
 
-## Prompt 7: All-In-One Bootstrap
+## Prompt 8: All-In-One Bootstrap
 
 ```text
 Bootstrap this exported internal workspace for AI Pro + GLM-4.7 end to end.
@@ -137,18 +161,18 @@ Bootstrap this exported internal workspace for AI Pro + GLM-4.7 end to end.
 Use these sources:
 - integrations/ai-pro/bootstrap/glm-bootstrap-playbook.md
 - integrations/ai-pro/bootstrap/bootstrap-manifest.json
-- integrations/ai-pro/global/harness-global.md
 - integrations/ai-pro/project/am-page-modernization.md
 - integrations/ai-pro/tools/tool-contract.md
 - scripts/ai_pro_stage_runner.py
 
 Tasks:
-1. Discover the local AI Pro config locations and formats.
-2. Install the global harness.
-3. Activate the project harness.
-4. Register the am-bridge tools.
-5. Tell me what values are still needed for am-bridge.config.json.
-6. Validate the installed setup as far as possible.
+1. Discover the local AI Pro capability set.
+2. Activate the project harness.
+3. Select a runnable deterministic execution path.
+4. Optionally install the global harness if the platform allows it.
+5. Optionally register am-bridge tools if the platform allows it.
+6. Tell me what values are still needed for am-bridge.config.json.
+7. Validate the installed setup as far as possible.
 
 Do not claim success unless each step was actually completed or explicitly blocked.
 ```
