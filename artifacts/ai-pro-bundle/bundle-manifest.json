@@ -1,9 +1,0 @@
-{
-  "repoRoot": "C:\\workspace\\am-bridge",
-  "bundleRoot": "C:\\workspace\\am-bridge\\artifacts\\ai-pro-bundle",
-  "globalHarnessSource": "C:\\workspace\\am-bridge\\artifacts\\ai-pro-bundle\\integrations\\ai-pro\\global\\harness-global.md",
-  "projectHarnessSource": "C:\\workspace\\am-bridge\\artifacts\\ai-pro-bundle\\integrations\\ai-pro\\project\\am-page-modernization.md",
-  "toolRegistrySource": "C:\\workspace\\am-bridge\\artifacts\\ai-pro-bundle\\integrations\\ai-pro\\tools\\tool-registry.resolved.json",
-  "runnerScript": "C:\\workspace\\am-bridge\\artifacts\\ai-pro-bundle\\scripts\\ai_pro_stage_runner.py",
-  "configFile": "C:\\workspace\\am-bridge\\artifacts\\ai-pro-bundle\\am-bridge.config.json"
-}

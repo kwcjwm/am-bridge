@@ -383,8 +383,12 @@ def generate_pm_test_checklist(
 ) -> str:
     page = package.page
     primary_transactions = page.primaryTransactionIds or [item["transactionId"] for item in vue_config.endpoints]
-    related_pages = package.relatedPages
-    search_controls = [item["componentId"] for item in vue_config.searchControls if item.get("componentId")]
+    related_pages = vue_config.relatedPages
+    search_controls = [
+        _display_label_id(item.get("label", ""), item.get("componentId", ""))
+        for item in vue_config.searchControls
+        if item.get("componentId")
+    ]
     main_grid = page.mainGridComponentId or "unconfirmed"
     primary_dataset = page.primaryDatasetId or "unconfirmed"
     secondary_datasets = ", ".join(page.secondaryDatasetIds) or "none locked"
@@ -429,7 +433,7 @@ def generate_pm_test_checklist(
         lines.append("- [ ] Confirm the primary business transaction before implementation continues.")
 
     lines.extend(["", "## Functional Scenario Checks", ""])
-    action_lines = _build_action_checklist_items(package, primary_transactions)
+    action_lines = _build_action_checklist_items(vue_config, primary_transactions)
     lines.extend(action_lines or ["- [ ] No actionable event handlers were inferred. Confirm manual scenarios with PM."])
 
     lines.extend(["", "## Backend And Integration Spot Checks", ""])
@@ -442,16 +446,22 @@ def generate_pm_test_checklist(
     lines.extend(["", "## Related Screen Checks", ""])
     if related_pages:
         for related in related_pages:
-            if related.resolutionStatus == "resolved":
+            trigger_name = _display_label_id(
+                str(related.get("triggerComponentLabel", "") or related.get("triggerFunction", "") or ""),
+                str(related.get("triggerComponentId", "") or related.get("triggerFunction", "") or ""),
+            )
+            if related.get("resolutionStatus") == "resolved":
+                target_name = related.get("pageName") or related.get("pageId") or related.get("target")
                 lines.append(
                     "- [ ] "
-                    f"`{related.triggerFunction or related.navigationType}` opens `{related.pageId or related.target}` "
-                    f"from legacy target `{related.target}` as a separate related screen with the expected handoff."
+                    f"{trigger_name} opens `{target_name}` from legacy target "
+                    f"`{related.get('target')}` as a separate related screen with the expected handoff."
                 )
             else:
                 lines.append(
                     "- [ ] "
-                    f"Clarify unresolved related target `{related.target}` before merging it into any current-page implementation."
+                    f"Clarify unresolved related target `{related.get('target')}` "
+                    f"triggered by {trigger_name} before merging it into any current-page implementation."
                 )
     else:
         lines.append("- [ ] Confirm whether this page has popup/subview navigation that still needs to be modeled.")
@@ -1237,27 +1247,51 @@ def _describe_endpoint_check(
     )
 
 
+def _display_label_id(label: str, identifier: str) -> str:
+    label = str(label or "").strip()
+    identifier = str(identifier or "").strip()
+    if label and identifier and label != identifier:
+        return f"{label} (`{identifier}`)"
+    if identifier:
+        return f"`{identifier}`"
+    if label:
+        return label
+    return "`unknown`"
+
+
 def _build_action_checklist_items(
-    package: PageConversionPackage,
+    vue_config: VuePageConfigModel,
     primary_transactions: list[str],
 ) -> list[str]:
     items: list[str] = []
     primary_transaction_set = set(primary_transactions)
-    for function in package.page.functions:
-        if function.functionType != "event-handler":
-            continue
-        related_transactions = function.callsTransactions
+    for action in vue_config.actions:
+        related_transactions = action.get("transactions", [])
         if primary_transaction_set and not primary_transaction_set.intersection(related_transactions):
-            if not related_transactions and not function.controlsComponents:
+            if (
+                not related_transactions
+                and not action.get("controlsComponents")
+                and not action.get("navigationTargets")
+            ):
                 continue
-        reads = ", ".join(function.readsDatasets) or "no read dataset captured"
-        writes = ", ".join(function.writesDatasets) or "no write dataset captured"
-        controls = ", ".join(function.controlsComponents) or "no direct control target captured"
+        reads = ", ".join(action.get("readsDatasets", [])) or "no read dataset captured"
+        writes = ", ".join(action.get("writesDatasets", [])) or "no write dataset captured"
+        controls = ", ".join(action.get("controlsComponents", [])) or "no direct control target captured"
         transactions = ", ".join(related_transactions) or "no direct transaction captured"
+        navigation_targets = ", ".join(
+            item.get("pageName") or item.get("pageId") or item.get("target") or "unknown"
+            for item in action.get("navigationTargets", [])
+        ) or "no related screen captured"
+        action_name = _display_label_id(
+            str(action.get("sourceComponentLabel", "") or action.get("functionName", "")),
+            str(action.get("sourceComponentId", "") or action.get("functionName", "")),
+        )
+        handler_name = str(action.get("functionName", "") or "unknown")
         items.append(
             "- [ ] "
-            f"`{function.functionName}` behaves as expected. Transactions: {transactions}. "
-            f"Reads: {reads}. Writes: {writes}. Controls: {controls}."
+            f"{action_name} using handler `{handler_name}` behaves as expected. "
+            f"Transactions: {transactions}. Reads: {reads}. Writes: {writes}. "
+            f"Controls: {controls}. Related screens: {navigation_targets}."
         )
     return items
 

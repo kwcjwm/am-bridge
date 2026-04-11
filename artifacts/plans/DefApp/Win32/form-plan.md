@@ -84,6 +84,8 @@
 - vue-config-json: [vue-config-json](form-vue-config.json)
 - pm-checklist: [pm-checklist](form-pm-checklist.md)
 - review-json: [review-json](../../../reviews/DefApp/Win32/form-review.json)
+- page report hub: [page report hub](../../../reports/DefApp/Win32/form/README.md)
+- stage2 report pack: [stage2 report pack](../../../reports/DefApp/Win32/form/stage2/README.md)
 - Prompt pack: [../../../reports/DefApp/Win32/form/stage2/ai-prompts.md](../../../reports/DefApp/Win32/form/stage2/ai-prompts.md)
 - Registry directory: [../../../reports/DefApp/Win32/form/stage2/registries](../../../reports/DefApp/Win32/form/stage2/registries)
 - Registry: [file-blueprints.csv](../../../reports/DefApp/Win32/form/stage2/registries/file-blueprints.csv)

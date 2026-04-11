@@ -14,14 +14,14 @@
 
 - Page: `form` / `New Form`
 - Interaction pattern: `grid-page`
-- Primary business result: dataset `ds_scorechk` on grid `Grid0`
+- Primary business result: dataset `ds_scorechk` / grid `Grid0`
 - Primary transaction: `TX-BUTTON0ONCLICK-1`
 - Related screens: `2` detected, `1` unresolved
 
 ## Key Decisions
 
-- Treat `ds_scorechk` as the main result dataset unless review overrides change it.
-- Keep interaction pattern as `grid-page` and preserve the dominant result flow before UI redesign.
+- `ds_scorechk` remains the main result dataset unless review overrides change it.
+- `grid-page` interaction pattern should be preserved before UI redesign.
 - Treat popup/subview targets as separate screens, not inline fragments of the current page.
 - Use `review.json` for corrections; do not carry technical fixes only in chat.
 
@@ -51,6 +51,8 @@
 - package-json: [package-json](form-package.json)
 - review-json: [review-json](../../../reviews/DefApp/Win32/form-review.json)
 - page-spec: [page-spec](../../../target/DefApp/Win32/form-spec.md)
+- page report hub: [page report hub](../../../reports/DefApp/Win32/form/README.md)
+- stage1 report pack: [stage1 report pack](../../../reports/DefApp/Win32/form/stage1/README.md)
 - Registry directory: [../../../reports/DefApp/Win32/form/stage1/registries](../../../reports/DefApp/Win32/form/stage1/registries)
 - Registry: [datasets.csv](../../../reports/DefApp/Win32/form/stage1/registries/datasets.csv)
 - Registry: [dataset-columns.csv](../../../reports/DefApp/Win32/form/stage1/registries/dataset-columns.csv)

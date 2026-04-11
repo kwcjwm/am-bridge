@@ -72,7 +72,7 @@ FILES_TO_COPY = [
 
 DIRS_TO_COPY = [
     (Path("deploy/internal-ai/prompts"), Path("prompts")),
-    (Path("src"), Path("src")),
+    (Path("src/am_bridge"), Path("src/am_bridge")),
     (
         Path("samples/ScoreRanking_Proj-master/src/main/java"),
         Path("samples/ScoreRanking_Proj-master/src/main/java"),
@@ -92,7 +92,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Export the internal single-model AI workspace.")
     parser.add_argument(
         "--output",
-        default=str(REPO_ROOT / "artifacts" / "internal-ai-workspace"),
+        default=str(REPO_ROOT / "exports" / "internal-ai-workspace"),
         help="Destination directory for the exported internal workspace",
     )
     return parser
@@ -131,7 +131,7 @@ def main() -> int:
 def _write_resolved_tool_registry(output_root: Path) -> None:
     registry_dir = output_root / "integrations" / "ai-pro" / "tools"
     registry_dir.mkdir(parents=True, exist_ok=True)
-    replacements = {"<REPO_ROOT>": str(output_root).replace("\\", "/")}
+    replacements = {"<REPO_ROOT>": "."}
 
     templates = {
         "tool-registry.example.json": "tool-registry.resolved.json",
@@ -149,29 +149,19 @@ def _write_resolved_tool_registry(output_root: Path) -> None:
 def _write_bundle_readme(output_root: Path) -> None:
     bundle_readme = {
         "bundleType": "internal-ai-workspace",
-        "bundleRoot": str(output_root),
-        "entryDocument": str(output_root / "AGENTS.md"),
-        "operatorScript": str(output_root / "operator-script.md"),
-        "bootstrapPrompt": str(output_root / "bootstrap-initial-prompt.md"),
-        "noAdminRuntimePrompt": str(output_root / "no-admin-runtime-prompt.md"),
-        "globalHarnessSource": str(output_root / "integrations" / "ai-pro" / "global" / "harness-global.md"),
-        "projectHarnessSource": str(output_root / "integrations" / "ai-pro" / "project" / "am-page-modernization.md"),
-        "toolRegistrySource": str(output_root / "integrations" / "ai-pro" / "tools" / "tool-registry.resolved.json"),
-        "runnerScript": str(output_root / "scripts" / "ai_pro_stage_runner.py"),
-        "configFile": str(output_root / "am-bridge.config.json"),
-        "sampleValidationPage": str(
-            output_root
-            / "samples"
-            / "ScoreRanking_Proj-master"
-            / "src"
-            / "main"
-            / "resources"
-            / "egovframework"
-            / "conf"
-            / "scoreranking"
-            / "DefApp"
-            / "Win32"
-            / "form.xml"
+        "bundleRoot": ".",
+        "entryDocument": "AGENTS.md",
+        "operatorScript": "operator-script.md",
+        "bootstrapPrompt": "bootstrap-initial-prompt.md",
+        "noAdminRuntimePrompt": "no-admin-runtime-prompt.md",
+        "globalHarnessSource": "integrations/ai-pro/global/harness-global.md",
+        "projectHarnessSource": "integrations/ai-pro/project/am-page-modernization.md",
+        "toolRegistrySource": "integrations/ai-pro/tools/tool-registry.resolved.json",
+        "runnerScript": "scripts/ai_pro_stage_runner.py",
+        "configFile": "am-bridge.config.json",
+        "sampleValidationPage": (
+            "samples/ScoreRanking_Proj-master/src/main/resources/"
+            "egovframework/conf/scoreranking/DefApp/Win32/form.xml"
         ),
     }
     target = output_root / "bundle-manifest.json"

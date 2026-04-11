@@ -2,6 +2,8 @@ import json
 from pathlib import Path
 
 from am_bridge.config import load_cli_config
+from am_bridge.report_artifacts import build_stage1_report_sidecars, build_stage2_report_sidecars
+from am_bridge.report_hubs import build_page_report_hub
 from am_bridge.stages import (
     build_conversion_package,
     build_conversion_plan,
@@ -109,3 +111,52 @@ def test_review_overrides_flow_into_stage2_and_stage3_outputs(tmp_path: Path) ->
 
     mapper_file = next(file for file in bundle.backendFiles if file.path.endswith("Mapper.xml"))
     assert "manual.testNameList" in mapper_file.content
+
+
+def test_report_sidecars_include_report_hubs_and_clickable_section_docs() -> None:
+    _assert_report_hubs()
+
+
+def _assert_report_hubs() -> None:
+    config = load_cli_config(CONFIG_PATH)
+
+    package = build_conversion_package(
+        FORM_XML,
+        backend_roots=config.backendRoots,
+        source_roots=config.sourceRoots,
+    )
+    plan = build_conversion_plan(package)
+    vue_config = build_vue_page_config(package, plan)
+
+    stage1_sidecars = build_stage1_report_sidecars(package)
+    stage2_sidecars = build_stage2_report_sidecars(package, plan, vue_config)
+    page_hub = build_page_report_hub(
+        package,
+        {
+            "package_report": "form-package.md",
+            "analysis_report": "form-analysis.md",
+            "plan_report": "form-plan.md",
+        },
+        {"stage1", "stage2"},
+    )
+
+    assert "README.md" in stage1_sidecars
+    assert "sections/datasets.md" in stage1_sidecars
+    assert "sections/backend.md" in stage1_sidecars
+    assert "Stage 1 Analysis Guide" in stage1_sidecars["README.md"]
+    assert "sections/datasets.md" in stage1_sidecars["README.md"]
+    assert stage1_sidecars["datasets.csv"].startswith("\ufeff")
+
+    assert "README.md" in stage2_sidecars
+    assert "sections/ui-contract.md" in stage2_sidecars
+    assert "sections/verification.md" in stage2_sidecars
+    assert "Stage 2 Plan Guide" in stage2_sidecars["README.md"]
+    assert "navigationTargets" in stage2_sidecars["actions.csv"]
+    assert "validationSummary" in stage2_sidecars["search-controls.csv"]
+    assert "querySummary" in stage2_sidecars["endpoints.csv"]
+
+    assert "README.md" in page_hub
+    assert "README.en.md" in page_hub
+    assert "translate-to-korean.md" in page_hub
+    assert "Page Report Hub" in page_hub["README.md"]
+    assert "stage1/README.md" in page_hub["README.md"]

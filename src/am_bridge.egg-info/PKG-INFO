@@ -1,5 +1,0 @@
-Metadata-Version: 2.4
-Name: am-bridge
-Version: 0.1.0
-Summary: Legacy frontend analysis workbench for page-based Vue 3 conversion
-Requires-Python: >=3.11

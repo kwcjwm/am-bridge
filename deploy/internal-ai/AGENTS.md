@@ -4,6 +4,7 @@
 
 - Use `$am-page-modernization` when the user asks to analyze a MiPlatform/XPlatform/Nexacro page for AM work.
 - Use `$am-page-modernization` when the user wants page-level conversion planning, starter generation, or staged frontend/backend modernization.
+- Use `$am-page-modernization` when the user wants a customer-facing `UI Shell` first before behavior is locked.
 - Treat the human user as `PM`.
 - Treat the AI assistant as the working `PL`.
 - Treat `am-bridge` CLI stages as deterministic tools under the PL.
@@ -24,6 +25,9 @@
 
 - single-model operating role: `PL`
 - skills: `am-page-modernization`
+- working lanes:
+  - `UI Shell First`
+  - `Behavior / Contract Lock`
 - baseline execution path: `scripts/am_stage.ps1 <stage> <page>`
 - direct runner fallback: `python scripts/ai_pro_stage_runner.py <stage> <page> --config am-bridge.config.json`
 - optional registered tools when the platform allows them: `am-bridge-stage1`, `am-bridge-stage2`, `am-bridge-stage3`
@@ -36,23 +40,29 @@
 - If the operator wants the shortest end-to-end setup path, use `operator-script.md`.
 - If `prompts/amprompt.md` contains a real project prompt, use it as a supplemental detail contract after the core harness is loaded.
 - Use `am-page-modernization` for actual page-level AM work.
-- Give a concrete legacy page such as `aaa.xml`, then let the PL run `stage1 -> review -> stage2 -> stage3`.
+- Give a concrete legacy page such as `aaa.xml`, classify whether `UI Shell First` is needed, then let the PL run either:
+  - `UI Shell -> stage1 -> review -> stage2 -> stage3`
+  - or `stage1 -> review -> stage2 -> stage3`
 - Keep PM decisions in conversation, but keep technical corrections in the review JSON so the next stage can reuse them.
 - Operate with one model plus deterministic tools and saved artifacts only.
 
 ## Working Rule
 
 - Do not treat stage 1 as final truth.
+- Do not treat a `UI Shell` as completed functionality.
 - Always allow an AI review pass before stage 2 when dataset salience or backend tracing looks wrong.
 - Keep deterministic extraction and probabilistic judgment separate.
 - Reuse saved package, plan, review, and starter artifacts instead of rebuilding context from scratch.
 - Ignore any external preparation workflow; this workspace is for internal execution only.
 - Treat `prompts/amprompt.md` as supplemental guidance, not as a replacement for the staged harness.
 - Lack of global harness installation or custom tool registration does not block work if direct command execution is available.
+- Treat generated English reports as canonical. If the PM needs Korean delivery, derive it after review instead of replacing the English originals.
+- Default Korean delivery to summary-level PM/operator docs. Keep deep section docs and registries in English unless explicitly requested.
 
 ## Change Log
 
 | Date | Change | Reason |
 |------|--------|--------|
+| 2026-04-11 | Added `UI Shell First` lane alongside staged behavior / contract lock flow | Let internal AI produce early customer-facing layout agreements without pretending behavior is already fixed |
 | 2026-04-10 | Split internal single-model harness into its own source file for exported workspaces | Prevent confusion with the external Codex support workspace |
 | 2026-04-09 | Added AM page modernization harness, stage workflow, and review loop | Let AI Pro act as PL on top of deterministic AM tools |

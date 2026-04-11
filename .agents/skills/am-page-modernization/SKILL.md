@@ -1,6 +1,6 @@
 ---
 name: am-page-modernization
-description: AI PL workflow for page-based AM modernization using am-bridge. Use when the PM gives a MiPlatform/XPlatform/Nexacro page such as `aaa.xml` and wants staged work: (1) stage 1 page+backend analysis package, (2) AI review and correction of dataset salience or backend trace, (3) stage 2 conversion plan, (4) stage 3 starter generation for Vue/Spring Boot, or any general AM execution that should follow the project harness instead of a one-shot answer.
+description: AI PL workflow for page-based AM modernization using am-bridge. Use when the PM gives a MiPlatform/XPlatform/Nexacro page such as `aaa.xml` and wants either (a) an early customer-facing UI shell for structure signoff or (b) staged behavior locking work: stage 1 page+backend analysis package, AI review, stage 2 conversion plan, and stage 3 starter generation for Vue/Spring Boot.
 ---
 
 # AM Page Modernization
@@ -11,6 +11,7 @@ The human user is the PM. `am-bridge` CLI is the deterministic toolset. Your job
 ## Core Rule
 
 Do not treat the deterministic analyzer as final truth.
+Do not treat a `UI Shell` as completed functionality.
 
 In AI Pro environments, use the simplest real runtime that the platform allows.
 
@@ -42,6 +43,38 @@ The analyzer is weak at:
 - resolving ambiguous backend chains in dynamic wrapper-heavy pages
 
 That judgment belongs to the AI review pass.
+
+## Operating Lanes
+
+### Lane A: UI Shell First
+
+Use this lane when the PM primarily wants to avoid early customer questions such as:
+
+- why a button moved
+- why a section is missing
+- where a popup entry went
+
+In this lane:
+
+- lock the page frame, component placement, tabs, search area, result grid, detail area, and popup anchors first
+- allow placeholder actions such as `console.log`, `alert`, or `연결 예정`
+- clearly mark that behavior, API, save flow, validation, and backend bindings are not final yet
+
+Recommended artifacts:
+
+- `templates/analysis/page-triage.yaml`
+- `templates/target/ui-shell-blueprint.yaml`
+
+### Lane B: Behavior / Contract Lock
+
+Use this lane when the PM needs actual modernization decisions to be locked.
+
+This is the existing staged flow:
+
+- stage 1 analysis package
+- AI review via `review.json`
+- stage 2 plan and Vue config lock
+- stage 3 starter generation
 
 ## Stage Workflow
 
@@ -164,6 +197,16 @@ Read:
 
 Treat stage 3 as scaffold + contract, not as final production code.
 
+## When To Start With A UI Shell
+
+Start with `UI Shell First` before stage 1 when one or more of these are true:
+
+- the PM expects early structure signoff
+- customer feedback is likely to focus on layout, missing blocks, or moved buttons
+- the page is visually dense but the behavior contract is not ready to lock yet
+
+Do not skip stage 1, review, or stage 2 just because the shell already exists.
+
 ## Operating Style For GLM-4.7
 
 GLM-4.7 works better when you keep context narrow and structured.
@@ -172,6 +215,8 @@ GLM-4.7 works better when you keep context narrow and structured.
 - Reuse saved package/plan/review files between steps.
 - When correcting analysis, edit the review JSON rather than re-explaining the whole page in prose.
 - Advance one page or one use case at a time.
+- Keep generated reports canonical in English. If PM-facing Korean output is needed, derive it from the reviewed English report pack instead of treating generator-authored Korean as the source of truth.
+- By default, translate only the summary-level PM/operator docs and keep deeper section docs plus registries linked in English.
 
 ## PM / PL Contract
 

@@ -10,6 +10,7 @@ def render_csv(rows: list[dict[str, Any]], fieldnames: list[str] | None = None) 
     ordered_rows = list(rows)
     columns = list(fieldnames or _collect_fieldnames(ordered_rows))
     buffer = StringIO()
+    buffer.write("\ufeff")
     writer = csv.DictWriter(buffer, fieldnames=columns, lineterminator="\n")
     writer.writeheader()
     for row in ordered_rows:

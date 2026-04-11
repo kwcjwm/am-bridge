@@ -1,10 +1,15 @@
+**/__pycache__/
+*.pyc
+*.egg-info/
 artifacts/raw/*
 !artifacts/raw/README.md
+!artifacts/README.md
 artifacts/analysis/*
 !artifacts/analysis/README.md
 !artifacts/target/*
 !artifacts/target/README.md
 artifacts/reports/*
 !artifacts/reports/README.md
-artifacts/internal-ai-workspace/*
+exports/internal-ai-workspace/*
+!exports/README.md
 samples/**/target/

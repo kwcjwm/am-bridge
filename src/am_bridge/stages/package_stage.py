@@ -136,16 +136,28 @@ def generate_package_report(
     package: PageConversionPackage,
     registry_dir: str = "",
     artifact_links: dict[str, str] | None = None,
+    lang: str = "en",
 ) -> str:
-    return _generate_package_report_v2(package, registry_dir=registry_dir, artifact_links=artifact_links)
+    return _generate_package_report_v2(
+        package,
+        registry_dir=registry_dir,
+        artifact_links=artifact_links,
+        lang=lang,
+    )
 
 
 def generate_analysis_report(
     package: PageConversionPackage,
     registry_dir: str = "",
     artifact_links: dict[str, str] | None = None,
+    lang: str = "en",
 ) -> str:
-    return _generate_analysis_report_v2(package, registry_dir=registry_dir, artifact_links=artifact_links)
+    return _generate_analysis_report_v2(
+        package,
+        registry_dir=registry_dir,
+        artifact_links=artifact_links,
+        lang=lang,
+    )
 
 
 def generate_stage1_registries(package: PageConversionPackage) -> dict[str, str]:
@@ -171,26 +183,27 @@ def _generate_package_report_v2(
     package: PageConversionPackage,
     registry_dir: str = "",
     artifact_links: dict[str, str] | None = None,
+    lang: str = "en",
 ) -> str:
     page = package.page
     sections: list[tuple[str, list[str]]] = [
         (
-            "Executive Summary",
+            _t(lang, "요약", "Executive Summary"),
             [
-                f"- Page: `{page.pageId or 'unknown'}` / `{page.pageName or 'unknown'}`",
-                f"- Interaction pattern: `{page.interactionPattern or 'unknown'}`",
-                f"- Primary business result: dataset `{page.primaryDatasetId or 'unknown'}` on grid `{page.mainGridComponentId or 'unknown'}`",
-                f"- Primary transaction: `{join_values(page.primaryTransactionIds, 'none locked')}`",
-                f"- Related screens: `{len(package.relatedPages)}` detected, `{sum(1 for item in package.relatedPages if item.resolutionStatus != 'resolved')}` unresolved",
+                f"- {_t(lang, '페이지', 'Page')}: `{page.pageId or 'unknown'}` / `{page.pageName or 'unknown'}`",
+                f"- {_t(lang, '상호작용 패턴', 'Interaction pattern')}: `{page.interactionPattern or 'unknown'}`",
+                f"- {_t(lang, '주요 업무 결과', 'Primary business result')}: {_t(lang, '데이터셋', 'dataset')} `{page.primaryDatasetId or 'unknown'}` / {_t(lang, '그리드', 'grid')} `{page.mainGridComponentId or 'unknown'}`",
+                f"- {_t(lang, '주요 트랜잭션', 'Primary transaction')}: `{join_values(page.primaryTransactionIds, _t(lang, '잠금 없음', 'none locked'))}`",
+                f"- {_t(lang, '관련 화면', 'Related screens')}: `{len(package.relatedPages)}` {_t(lang, '건 감지,', 'detected,')} `{sum(1 for item in package.relatedPages if item.resolutionStatus != 'resolved')}` {_t(lang, '건 미해결', 'unresolved')}",
             ],
         ),
         (
-            "Key Decisions",
+            _t(lang, "핵심 판단", "Key Decisions"),
             [
-                f"- Treat `{page.primaryDatasetId or 'unknown'}` as the main result dataset unless review overrides change it.",
-                f"- Keep interaction pattern as `{page.interactionPattern or 'unknown'}` and preserve the dominant result flow before UI redesign.",
-                "- Treat popup/subview targets as separate screens, not inline fragments of the current page.",
-                "- Use `review.json` for corrections; do not carry technical fixes only in chat.",
+                f"- `{page.primaryDatasetId or 'unknown'}` {_t(lang, '를 대표 결과 데이터셋으로 본다. review override가 있으면 그 값을 따른다.', 'remains the main result dataset unless review overrides change it.')}",
+                f"- `{page.interactionPattern or 'unknown'}` {_t(lang, '패턴을 기준으로 주요 결과 흐름을 먼저 보존한다.', 'interaction pattern should be preserved before UI redesign.')}",
+                f"- {_t(lang, 'popup/subview 대상은 현재 화면 내부 조각이 아니라 별도 화면으로 취급한다.', 'Treat popup/subview targets as separate screens, not inline fragments of the current page.')}",
+                f"- {_t(lang, '`review.json`에 보정사항을 남기고, 기술 보정만 대화에 두지 않는다.', 'Use `review.json` for corrections; do not carry technical fixes only in chat.')}",
             ],
         ),
     ]
@@ -199,14 +212,14 @@ def _generate_package_report_v2(
     if flow_rows:
         sections.append(
             (
-                f"Main User Flows ({len(flow_rows)})",
+                f"{_t(lang, '주요 사용자 흐름', 'Main User Flows')} ({len(flow_rows)})",
                 render_markdown_table(
                     [
-                        ("Flow", "flow"),
-                        ("Trigger", "trigger"),
-                        ("Transaction", "transactions"),
-                        ("Navigation", "navigation"),
-                        ("Summary", "summary"),
+                        (_t(lang, "구분", "Flow"), "flow"),
+                        (_t(lang, "트리거", "Trigger"), "trigger"),
+                        (_t(lang, "트랜잭션", "Transaction"), "transactions"),
+                        (_t(lang, "화면 이동", "Navigation"), "navigation"),
+                        (_t(lang, "요약", "Summary"), "summary"),
                     ],
                     flow_rows,
                 ),
@@ -217,14 +230,14 @@ def _generate_package_report_v2(
     if trace_rows:
         sections.append(
             (
-                f"Backend Trace Summary ({len(trace_rows)})",
+                f"{_t(lang, '백엔드 추적 요약', 'Backend Trace Summary')} ({len(trace_rows)})",
                 render_markdown_table(
                     [
-                        ("Transaction", "transactionId"),
-                        ("Route", "url"),
-                        ("Controller", "controller"),
-                        ("SQL Map", "sqlMapId"),
-                        ("Tables", "tables"),
+                        (_t(lang, "트랜잭션", "Transaction"), "transactionId"),
+                        (_t(lang, "경로", "Route"), "url"),
+                        (_t(lang, "컨트롤러", "Controller"), "controller"),
+                        (_t(lang, "SQL Map", "SQL Map"), "sqlMapId"),
+                        (_t(lang, "테이블", "Tables"), "tables"),
                     ],
                     trace_rows,
                 ),
@@ -233,66 +246,68 @@ def _generate_package_report_v2(
 
     sections.append(
         (
-            f"Risks / Open Questions ({len(package.openQuestions)})",
-            [f"- {item}" for item in package.openQuestions] or ["- None"],
+            f"{_t(lang, '리스크 / 미해결 이슈', 'Risks / Open Questions')} ({len(package.openQuestions)})",
+            [f"- {item}" for item in package.openQuestions] or [f"- {_t(lang, '없음', 'None')}"],
         )
     )
     sections.append(
         (
-            "Artifact Index",
+            _t(lang, "산출물 링크", "Artifact Index"),
             _artifact_index_lines(
                 registry_dir=registry_dir,
                 registry_files=list(generate_stage1_registries(package).keys()),
                 artifact_links=artifact_links,
+                lang=lang,
             ),
         )
     )
     sections.append(
         (
-            "Review Guidance",
+            _t(lang, "리뷰 가이드", "Review Guidance"),
             [
-                "- Validate the primary dataset and dominant grid before downstream generation.",
-                "- Resolve unresolved related screens and dynamic wrapper transactions before treating stage 1 as stable.",
-                "- Keep technical corrections in `review.json` so the next run can reuse them.",
+                f"- {_t(lang, '다음 단계 생성 전, 대표 데이터셋과 대표 그리드를 먼저 검증한다.', 'Validate the primary dataset and dominant grid before downstream generation.')}",
+                f"- {_t(lang, '미해결 관련 화면과 동적 wrapper 트랜잭션은 stage1 안정판으로 보기 전에 먼저 정리한다.', 'Resolve unresolved related screens and dynamic wrapper transactions before treating stage 1 as stable.')}",
+                f"- {_t(lang, '기술 보정은 `review.json`에 남겨 다음 실행에서 재사용되게 한다.', 'Keep technical corrections in `review.json` so the next run can reuse them.')}",
             ],
         )
     )
-    return _compose_report("Stage 1 - Conversion Package", sections)
+    return _compose_report(_t(lang, "Stage 1 전환 패키지", "Stage 1 - Conversion Package"), sections)
 
 
 def _generate_analysis_report_v2(
     package: PageConversionPackage,
     registry_dir: str = "",
     artifact_links: dict[str, str] | None = None,
+    lang: str = "en",
 ) -> str:
     page = package.page
     unresolved_related = [item for item in package.relatedPages if item.resolutionStatus != "resolved"]
     sections: list[tuple[str, list[str]]] = [
         (
-            "Executive Summary",
+            _t(lang, "요약", "Executive Summary"),
             [
-                f"- This page behaves as a `{page.interactionPattern or 'unknown'}` centered on `{page.primaryDatasetId or 'unknown'}`.",
-                f"- Main visible result area is `{page.mainGridComponentId or 'unknown'}` and primary transaction is `{join_values(page.primaryTransactionIds, 'none inferred')}`.",
-                f"- Backend traces resolved: `{len(package.backendTraces)}` / unresolved related screens: `{len(unresolved_related)}`.",
-                f"- Source file: `{page.legacy.sourceFile or 'unknown'}`.",
+                f"- {_t(lang, '이 화면은', 'This page behaves as a')} `{page.interactionPattern or 'unknown'}` {_t(lang, '패턴이며 중심 데이터셋은', 'centered on')} `{page.primaryDatasetId or 'unknown'}` {_t(lang, '이다.', '.')}",
+                f"- {_t(lang, '대표 가시 영역은', 'Main visible result area is')} `{page.mainGridComponentId or 'unknown'}` {_t(lang, '이고 주요 트랜잭션은', 'and primary transaction is')} `{join_values(page.primaryTransactionIds, _t(lang, '추론 없음', 'none inferred'))}`{'' if lang == 'ko' else '.'}",
+                f"- {_t(lang, '백엔드 추적', 'Backend traces resolved')}: `{len(package.backendTraces)}` / {_t(lang, '미해결 관련 화면', 'unresolved related screens')}: `{len(unresolved_related)}`",
+                f"- {_t(lang, '원본 파일', 'Source file')}: `{page.legacy.sourceFile or 'unknown'}`",
             ],
         ),
-        ("Screen Story", _screen_story_lines(package)),
+        (_t(lang, "화면 해석", "Screen Story"), _screen_story_lines(package, lang)),
     ]
 
     dataset_rows = _dataset_summary_rows(page)
     if dataset_rows:
         sections.append(
             (
-                f"Primary Data Model ({len(dataset_rows)})",
+                f"{_t(lang, '주요 데이터 모델', 'Primary Data Model')} ({len(dataset_rows)})",
                 render_markdown_table(
                     [
-                        ("Dataset", "datasetId"),
-                        ("Role", "role"),
-                        ("Usage", "primaryUsage"),
-                        ("Columns", "columnCount"),
-                        ("Bound Components", "boundComponents"),
-                        ("Salience", "salienceScore"),
+                        (_t(lang, "Dataset", "Dataset"), "datasetId"),
+                        (_t(lang, "역할", "Role"), "role"),
+                        (_t(lang, "사용 방식", "Usage"), "primaryUsage"),
+                        (_t(lang, "컬럼 수", "Columns"), "columnCount"),
+                        (_t(lang, "바인딩 컴포넌트", "Bound Components"), "boundComponents"),
+                        (_t(lang, "중요도", "Salience"), "salienceScore"),
                     ],
                     dataset_rows,
                 ),
@@ -303,15 +318,15 @@ def _generate_analysis_report_v2(
     if action_rows:
         sections.append(
             (
-                f"Action And Event Flow ({len(action_rows)})",
+                f"{_t(lang, '행동 / 이벤트 흐름', 'Action And Event Flow')} ({len(action_rows)})",
                 render_markdown_table(
                     [
-                        ("Handler", "functionName"),
-                        ("Trigger", "trigger"),
-                        ("Transactions", "transactions"),
-                        ("Reads", "readsDatasets"),
-                        ("Writes", "writesDatasets"),
-                        ("Summary", "summary"),
+                        (_t(lang, "핸들러", "Handler"), "functionName"),
+                        (_t(lang, "트리거", "Trigger"), "trigger"),
+                        (_t(lang, "트랜잭션", "Transactions"), "transactions"),
+                        (_t(lang, "읽기 ds", "Reads"), "readsDatasets"),
+                        (_t(lang, "쓰기 ds", "Writes"), "writesDatasets"),
+                        (_t(lang, "요약", "Summary"), "summary"),
                     ],
                     action_rows,
                 ),
@@ -322,15 +337,15 @@ def _generate_analysis_report_v2(
     if trace_rows:
         sections.append(
             (
-                f"Backend Trace Summary ({len(trace_rows)})",
+                f"{_t(lang, '백엔드 추적 요약', 'Backend Trace Summary')} ({len(trace_rows)})",
                 render_markdown_table(
                     [
-                        ("Transaction", "transactionId"),
-                        ("Controller", "controller"),
-                        ("Service", "service"),
-                        ("DAO", "dao"),
-                        ("SQL Map", "sqlMapId"),
-                        ("Tables", "tables"),
+                        (_t(lang, "트랜잭션", "Transaction"), "transactionId"),
+                        (_t(lang, "컨트롤러", "Controller"), "controller"),
+                        (_t(lang, "서비스", "Service"), "service"),
+                        (_t(lang, "DAO", "DAO"), "dao"),
+                        (_t(lang, "SQL Map", "SQL Map"), "sqlMapId"),
+                        (_t(lang, "테이블", "Tables"), "tables"),
                     ],
                     trace_rows,
                 ),
@@ -340,14 +355,14 @@ def _generate_analysis_report_v2(
     if package.relatedPages:
         sections.append(
             (
-                f"Related Screens ({len(package.relatedPages)})",
+                f"{_t(lang, '관련 화면', 'Related Screens')} ({len(package.relatedPages)})",
                 render_markdown_table(
                     [
-                        ("Type", "navigationType"),
-                        ("Target", "target"),
-                        ("Trigger", "triggerFunction"),
-                        ("Status", "resolutionStatus"),
-                        ("Resolved Page", "pageId"),
+                        (_t(lang, "유형", "Type"), "navigationType"),
+                        (_t(lang, "대상", "Target"), "target"),
+                        (_t(lang, "트리거", "Trigger"), "triggerFunction"),
+                        (_t(lang, "상태", "Status"), "resolutionStatus"),
+                        (_t(lang, "해석 결과", "Resolved Page"), "pageId"),
                     ],
                     _related_screen_rows(package),
                 ),
@@ -356,18 +371,19 @@ def _generate_analysis_report_v2(
 
     implication_lines = [f"- {item}" for item in package.aiHints]
     implication_lines.extend(f"- {item}" for item in package.stageNotes if item)
-    sections.append(("Migration Implications", implication_lines or ["- None"]))
+    sections.append((_t(lang, "전환 시사점", "Migration Implications"), implication_lines or [f"- {_t(lang, '없음', 'None')}"]))
     sections.append(
         (
-            "Evidence Registry Links",
+            _t(lang, "근거 링크", "Evidence Registry Links"),
             _artifact_index_lines(
                 registry_dir=registry_dir,
                 registry_files=list(generate_stage1_registries(package).keys()),
                 artifact_links=artifact_links,
+                lang=lang,
             ),
         )
     )
-    return _compose_report("Detailed Legacy Analysis Report", sections)
+    return _compose_report(_t(lang, "상세 레거시 분석 보고서", "Detailed Legacy Analysis Report"), sections)
 
 
 def _compose_report(title: str, sections: list[tuple[str, list[str]]]) -> str:
@@ -385,15 +401,16 @@ def _artifact_index_lines(
     registry_dir: str,
     registry_files: list[str],
     artifact_links: dict[str, str] | None = None,
+    lang: str = "en",
 ) -> list[str]:
     lines: list[str] = []
     for label, target in (artifact_links or {}).items():
         lines.append(f"- {label}: {markdown_link(label, target)}")
     if registry_dir:
-        lines.append(f"- Registry directory: {markdown_link(registry_dir, registry_dir)}")
+        lines.append(f"- {_t(lang, '레지스트리 디렉토리', 'Registry directory')}: {markdown_link(registry_dir, registry_dir)}")
         for file_name in registry_files:
-            lines.append(f"- Registry: {markdown_link(file_name, f'{registry_dir}/{file_name}')}")
-    return lines or ["- No sidecar artifacts recorded."]
+            lines.append(f"- {_t(lang, '레지스트리', 'Registry')}: {markdown_link(file_name, f'{registry_dir}/{file_name}')}")
+    return lines or [f"- {_t(lang, '기록된 sidecar 산출물이 없습니다.', 'No sidecar artifacts recorded.')}"]
 
 
 def _dataset_rows(page: PageModel) -> list[dict[str, Any]]:
@@ -606,132 +623,6 @@ def _grid_column_rows(page: PageModel) -> list[dict[str, Any]]:
     return rows
 
 
-def _main_flow_rows(package: PageConversionPackage) -> list[dict[str, Any]]:
-    event_map = {event.handlerFunction: event for event in package.page.events if event.handlerFunction}
-    navigation_map: dict[str, list[str]] = {}
-    for navigation in package.page.navigation:
-        navigation_map.setdefault(navigation.triggerFunction, []).append(
-            f"{navigation.navigationType}:{navigation.target}"
-        )
-
-    rows: list[dict[str, Any]] = []
-    for function in package.page.functions:
-        if function.functionType != "event-handler":
-            continue
-        event = event_map.get(function.functionName)
-        trigger = event.sourceComponentId if event and event.sourceComponentId else function.functionName
-        transactions = join_values(function.callsTransactions, "none")
-        navigation = join_values(navigation_map.get(function.functionName, []), "none")
-        summary_parts = [
-            f"reads {join_values(function.readsDatasets, 'none')}",
-            f"writes {join_values(function.writesDatasets, 'none')}",
-        ]
-        rows.append(
-            {
-                "flow": function.functionName,
-                "trigger": trigger,
-                "transactions": transactions,
-                "navigation": navigation,
-                "summary": "; ".join(summary_parts),
-            }
-        )
-    return rows
-
-
-def _screen_story_lines(package: PageConversionPackage) -> list[str]:
-    page = package.page
-    lines = [
-        f"- The screen centers on dataset `{page.primaryDatasetId or 'unknown'}` and grid `{page.mainGridComponentId or 'unknown'}`.",
-        f"- Main transaction path: `{join_values(page.primaryTransactionIds, 'none inferred')}`.",
-    ]
-    if package.relatedPages:
-        lines.append(
-            f"- Related screens exist for `{join_values([item.target for item in package.relatedPages], 'none')}`."
-        )
-    if page.validationRules:
-        lines.append(f"- Validation rules detected: `{len(page.validationRules)}`.")
-    if page.messages:
-        lines.append(f"- User-facing messages detected: `{len(page.messages)}`.")
-    return lines
-
-
-def _dataset_summary_rows(page: PageModel) -> list[dict[str, Any]]:
-    return [
-        {
-            "datasetId": dataset.datasetId,
-            "role": dataset.role or "unknown",
-            "primaryUsage": dataset.primaryUsage or "unknown",
-            "columnCount": len(dataset.columns),
-            "boundComponents": join_values(dataset.boundComponents, "none"),
-            "salienceScore": dataset.salienceScore,
-        }
-        for dataset in sorted(page.datasets, key=lambda item: (-item.salienceScore, item.datasetId))
-    ]
-
-
-def _action_summary_rows(package: PageConversionPackage) -> list[dict[str, Any]]:
-    event_map = {event.handlerFunction: event for event in package.page.events if event.handlerFunction}
-    rows: list[dict[str, Any]] = []
-    for function in package.page.functions:
-        if function.functionType != "event-handler":
-            continue
-        event = event_map.get(function.functionName)
-        trigger = event.sourceComponentId if event and event.sourceComponentId else function.functionName
-        rows.append(
-            {
-                "functionName": function.functionName,
-                "trigger": trigger,
-                "transactions": join_values(function.callsTransactions, "none"),
-                "readsDatasets": join_values(function.readsDatasets, "none"),
-                "writesDatasets": join_values(function.writesDatasets, "none"),
-                "summary": limit_text(
-                    "controls "
-                    + join_values(function.controlsComponents, "none")
-                    + ", calls "
-                    + join_values(function.callsFunctions, "none")
-                ),
-            }
-        )
-    return rows
-
-
-def _backend_trace_summary_rows(package: PageConversionPackage) -> list[dict[str, Any]]:
-    return [
-        {
-            "transactionId": trace.transactionId,
-            "url": limit_text(trace.url or "unknown"),
-            "controller": _join_nonempty(trace.controllerClass, trace.controllerMethod),
-            "service": _join_nonempty(trace.serviceImplClass or trace.serviceInterface, trace.serviceMethod),
-            "dao": _join_nonempty(trace.daoClass, trace.daoMethod),
-            "sqlMapId": trace.sqlMapId or "unknown",
-            "tables": join_values(trace.tableCandidates, "none"),
-        }
-        for trace in package.backendTraces
-    ]
-
-
-def _related_screen_rows(package: PageConversionPackage) -> list[dict[str, Any]]:
-    return [
-        {
-            "navigationType": item.navigationType or "unknown",
-            "target": item.target or "unknown",
-            "triggerFunction": item.triggerFunction or "unknown",
-            "resolutionStatus": item.resolutionStatus or "unknown",
-            "pageId": item.pageId or "unresolved",
-        }
-        for item in package.relatedPages
-    ]
-
-
-def _component_label(page: PageModel, component) -> str:
-    text = str(component.properties.get("Text", "") or component.properties.get("text", "") or "").strip()
-    if text:
-        return text
-    if component.componentId:
-        return component.componentId
-    return "unknown"
-
-
 def _dataset_summary_rows(page: PageModel) -> list[dict[str, Any]]:
     rows = _dataset_rows(page)
     for row in rows:
@@ -825,14 +716,32 @@ def _related_screen_rows(package: PageConversionPackage) -> list[dict[str, Any]]
     ]
 
 
-def _screen_story_lines(package: PageConversionPackage) -> list[str]:
+def _screen_story_lines(package: PageConversionPackage, lang: str = "en") -> list[str]:
     page = package.page
     return [
-        f"- The page opens as `{page.pageType or 'unknown'}` and centers the user on `{page.mainGridComponentId or 'unknown'}` backed by `{page.primaryDatasetId or 'unknown'}`.",
-        f"- Initial event is `{page.legacy.initialEvent or 'unknown'}` and should be reviewed for preload or lookup behavior.",
-        f"- Primary visible actions detected: {join_values([item['trigger'] for item in _main_flow_rows(package)], 'none inferred')}.",
-        f"- Related navigation count: `{len(package.relatedPages)}`.",
+        (
+            f"- {_t(lang, '이 페이지는', 'This page opens as')} "
+            f"`{page.pageType or 'unknown'}` "
+            f"{_t(lang, '유형이며', 'and centers the user on')} "
+            f"`{page.mainGridComponentId or 'unknown'}` "
+            f"{_t(lang, '영역과', 'backed by')} "
+            f"`{page.primaryDatasetId or 'unknown'}`."
+        ),
+        (
+            f"- {_t(lang, '초기 이벤트는', 'Initial event is')} "
+            f"`{page.legacy.initialEvent or 'unknown'}` "
+            f"{_t(lang, '이며 preload 또는 lookup 성격인지 검토해야 한다.', 'and should be reviewed for preload or lookup behavior.')}"
+        ),
+        (
+            f"- {_t(lang, '주요 가시 액션은', 'Primary visible actions detected')}: "
+            f"{join_values([item['trigger'] for item in _main_flow_rows(package)], _t(lang, '추론 없음', 'none inferred'))}."
+        ),
+        f"- {_t(lang, '관련 화면 이동 수', 'Related navigation count')}: `{len(package.relatedPages)}`.",
     ]
+
+
+def _t(lang: str, ko: str, en: str) -> str:
+    return ko if lang == "ko" else en
 
 
 def _trigger_label(page: PageModel, component_id: str) -> str:

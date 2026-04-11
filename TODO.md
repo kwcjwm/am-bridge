@@ -6,12 +6,14 @@
 ## 현재 상태
 
 - [x] 저장소 목적 / 범위 / 비범위 정의
+- [x] 외부 지원 워크스페이스와 내부 단일모델 반입 번들 역할 분리
 - [x] 공통 플랫폼 경계 정의
 - [x] 범용 MES canonical domain 초안 정의
 - [x] F/E 전환 상세 분석 항목 정의
 - [x] OI / Vision 누락 항목 보강
 - [x] 기본 분석 산출물 템플릿 일부 작성
 - [x] 분석 산출물 템플릿 전체 세트 1차 완성
+- [x] `UI Shell First`와 `Behavior / Contract Lock` 이중 레인 운영모델 문서화
 - [x] 중간 모델 스키마 초안 작성
 - [x] 분석기별 입출력 스펙 초안 작성
 - [x] 분석기 구현 착수
@@ -28,6 +30,7 @@
 - [x] [docs/frontend-conversion-design.md](/c:/workspace/am-bridge/docs/frontend-conversion-design.md) 정리
 - [x] [docs/oi-vision-component-checklist.md](/c:/workspace/am-bridge/docs/oi-vision-component-checklist.md) 정리
 - [x] [docs/mes-domain-model.md](/c:/workspace/am-bridge/docs/mes-domain-model.md) 정리
+- [x] [docs/ai-pro-am-workflow.md](/c:/workspace/am-bridge/docs/ai-pro-am-workflow.md) 정리
 - [x] 중간 모델 JSON 스키마 문서화
 
 완료 기준:
@@ -39,6 +42,7 @@
 ### 2-1. 기본 분석 템플릿
 
 - [x] [templates/analysis/system-profile.yaml](/c:/workspace/am-bridge/templates/analysis/system-profile.yaml)
+- [x] [templates/analysis/page-triage.yaml](/c:/workspace/am-bridge/templates/analysis/page-triage.yaml)
 - [x] [templates/analysis/screen-inventory.csv](/c:/workspace/am-bridge/templates/analysis/screen-inventory.csv)
 - [x] [templates/analysis/component-inventory.csv](/c:/workspace/am-bridge/templates/analysis/component-inventory.csv)
 - [x] [templates/analysis/dataset-contract.yaml](/c:/workspace/am-bridge/templates/analysis/dataset-contract.yaml)
@@ -70,6 +74,7 @@
 - [x] [templates/target/module-blueprint.yaml](/c:/workspace/am-bridge/templates/target/module-blueprint.yaml)
 - [x] [templates/target/api-contract.openapi.yaml](/c:/workspace/am-bridge/templates/target/api-contract.openapi.yaml)
 - [x] [templates/reports/conversion-report.md](/c:/workspace/am-bridge/templates/reports/conversion-report.md)
+- [x] [templates/target/ui-shell-blueprint.yaml](/c:/workspace/am-bridge/templates/target/ui-shell-blueprint.yaml)
 - [x] [templates/target/vue-page-blueprint.yaml](/c:/workspace/am-bridge/templates/target/vue-page-blueprint.yaml)
 - [x] [templates/target/platform-integration-spec.yaml](/c:/workspace/am-bridge/templates/target/platform-integration-spec.yaml)
 
@@ -188,6 +193,9 @@
 - [x] `platformDependency` 모델 배열 정규화
 - [x] `popup / complex-grid / platform-heavy` fixture 확장
 - [x] page conversion spec 생성기에 style/state/validation/message 반영
+- [x] 고객 구조합의용 `UI Shell` 레인과 템플릿 정리
+- [ ] `UI Shell`과 staged contract lock을 연결하는 실제 실행 스크립트나 자동화 포인트 확정
+- [ ] evidence / parity를 도입할지, 도입한다면 어떤 수준까지 도입할지 실제 현업 조건에 맞춰 결정
 
 즉, 방향은 맞다.
 이제부터는 "문서 정리"보다 "스키마와 스펙 고정"으로 넘어가야 한다.

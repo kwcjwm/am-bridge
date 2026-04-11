@@ -15,6 +15,7 @@ if str(SRC_ROOT) not in sys.path:
 from am_bridge.config import derive_stage_artifact_paths, load_cli_config, resolve_input_path
 from am_bridge.generators import generate_page_conversion_spec
 from am_bridge.pipeline import analyze_file
+from am_bridge.report_hubs import build_page_report_hub
 from am_bridge.report_artifacts import build_stage1_report_sidecars, build_stage2_report_sidecars
 from am_bridge.stages import (
     build_conversion_package,
@@ -108,6 +109,8 @@ def _run_stage1(input_path: Path, config, paths, review_path: Path) -> int:
                 "package-json": _relative_path(paths.packageJson, paths.packageReport.parent),
                 "review-json": _relative_path(paths.reviewJson, paths.packageReport.parent),
                 "page-spec": _relative_path(paths.pageSpec, paths.packageReport.parent),
+                "page report hub": _relative_path(paths.reportDir / "README.md", paths.packageReport.parent),
+                "stage1 report pack": _relative_path(paths.stage1ReportDir / "README.md", paths.packageReport.parent),
             },
         ),
     )
@@ -120,11 +123,27 @@ def _run_stage1(input_path: Path, config, paths, review_path: Path) -> int:
                 "package-json": _relative_path(paths.packageJson, paths.analysisReport.parent),
                 "review-json": _relative_path(paths.reviewJson, paths.analysisReport.parent),
                 "page-spec": _relative_path(paths.pageSpec, paths.analysisReport.parent),
+                "page report hub": _relative_path(paths.reportDir / "README.md", paths.analysisReport.parent),
+                "stage1 report pack": _relative_path(paths.stage1ReportDir / "README.md", paths.analysisReport.parent),
             },
         ),
     )
     _write_sidecars(paths.stage1ReportDir, build_stage1_report_sidecars(package))
     _write_json(paths.reviewJson, build_review_template(package))
+    _write_sidecars(
+        paths.reportDir,
+        build_page_report_hub(
+            package,
+            {
+                "page_spec": _relative_path(paths.pageSpec, paths.reportDir),
+                "package_json": _relative_path(paths.packageJson, paths.reportDir),
+                "package_report": _relative_path(paths.packageReport, paths.reportDir),
+                "analysis_report": _relative_path(paths.analysisReport, paths.reportDir),
+                "review_json": _relative_path(paths.reviewJson, paths.reportDir),
+            },
+            {"stage1"},
+        ),
+    )
 
     summary = {
         "stage": "stage1",
@@ -183,6 +202,8 @@ def _run_stage2(input_path: Path, config, paths, review_path: Path) -> int:
                 "package-json": _relative_path(paths.packageJson, paths.packageReport.parent),
                 "review-json": _relative_path(paths.reviewJson, paths.packageReport.parent),
                 "page-spec": _relative_path(paths.pageSpec, paths.packageReport.parent),
+                "page report hub": _relative_path(paths.reportDir / "README.md", paths.packageReport.parent),
+                "stage1 report pack": _relative_path(paths.stage1ReportDir / "README.md", paths.packageReport.parent),
             },
         ),
     )
@@ -195,6 +216,8 @@ def _run_stage2(input_path: Path, config, paths, review_path: Path) -> int:
                 "package-json": _relative_path(paths.packageJson, paths.analysisReport.parent),
                 "review-json": _relative_path(paths.reviewJson, paths.analysisReport.parent),
                 "page-spec": _relative_path(paths.pageSpec, paths.analysisReport.parent),
+                "page report hub": _relative_path(paths.reportDir / "README.md", paths.analysisReport.parent),
+                "stage1 report pack": _relative_path(paths.stage1ReportDir / "README.md", paths.analysisReport.parent),
             },
         ),
     )
@@ -214,6 +237,8 @@ def _run_stage2(input_path: Path, config, paths, review_path: Path) -> int:
                 "vue-config-json": _relative_path(paths.vueConfigJson, paths.planReport.parent),
                 "pm-checklist": _relative_path(paths.pmChecklist, paths.planReport.parent),
                 "review-json": _relative_path(paths.reviewJson, paths.planReport.parent),
+                "page report hub": _relative_path(paths.reportDir / "README.md", paths.planReport.parent),
+                "stage2 report pack": _relative_path(paths.stage2ReportDir / "README.md", paths.planReport.parent),
             },
         ),
     )
@@ -221,6 +246,24 @@ def _run_stage2(input_path: Path, config, paths, review_path: Path) -> int:
     _write_text(paths.pmChecklist, pm_checklist)
     _write_sidecars(paths.stage1ReportDir, build_stage1_report_sidecars(package))
     _write_sidecars(paths.stage2ReportDir, build_stage2_report_sidecars(package, plan, vue_config))
+    _write_sidecars(
+        paths.reportDir,
+        build_page_report_hub(
+            package,
+            {
+                "page_spec": _relative_path(paths.pageSpec, paths.reportDir),
+                "package_json": _relative_path(paths.packageJson, paths.reportDir),
+                "package_report": _relative_path(paths.packageReport, paths.reportDir),
+                "analysis_report": _relative_path(paths.analysisReport, paths.reportDir),
+                "review_json": _relative_path(paths.reviewJson, paths.reportDir),
+                "plan_json": _relative_path(paths.planJson, paths.reportDir),
+                "plan_report": _relative_path(paths.planReport, paths.reportDir),
+                "vue_config_json": _relative_path(paths.vueConfigJson, paths.reportDir),
+                "pm_checklist": _relative_path(paths.pmChecklist, paths.reportDir),
+            },
+            {"stage1", "stage2"},
+        ),
+    )
 
     summary = {
         "stage": "stage2",
@@ -286,6 +329,8 @@ def _run_stage3(input_path: Path, config, paths, review_path: Path) -> int:
                 "package-json": _relative_path(paths.packageJson, paths.packageReport.parent),
                 "review-json": _relative_path(paths.reviewJson, paths.packageReport.parent),
                 "page-spec": _relative_path(paths.pageSpec, paths.packageReport.parent),
+                "page report hub": _relative_path(paths.reportDir / "README.md", paths.packageReport.parent),
+                "stage1 report pack": _relative_path(paths.stage1ReportDir / "README.md", paths.packageReport.parent),
             },
         ),
     )
@@ -298,6 +343,8 @@ def _run_stage3(input_path: Path, config, paths, review_path: Path) -> int:
                 "package-json": _relative_path(paths.packageJson, paths.analysisReport.parent),
                 "review-json": _relative_path(paths.reviewJson, paths.analysisReport.parent),
                 "page-spec": _relative_path(paths.pageSpec, paths.analysisReport.parent),
+                "page report hub": _relative_path(paths.reportDir / "README.md", paths.analysisReport.parent),
+                "stage1 report pack": _relative_path(paths.stage1ReportDir / "README.md", paths.analysisReport.parent),
             },
         ),
     )
@@ -314,6 +361,8 @@ def _run_stage3(input_path: Path, config, paths, review_path: Path) -> int:
                 "vue-config-json": _relative_path(paths.vueConfigJson, paths.planReport.parent),
                 "pm-checklist": _relative_path(paths.pmChecklist, paths.planReport.parent),
                 "review-json": _relative_path(paths.reviewJson, paths.planReport.parent),
+                "page report hub": _relative_path(paths.reportDir / "README.md", paths.planReport.parent),
+                "stage2 report pack": _relative_path(paths.stage2ReportDir / "README.md", paths.planReport.parent),
             },
         ),
     )
@@ -325,6 +374,26 @@ def _run_stage3(input_path: Path, config, paths, review_path: Path) -> int:
     _write_json(paths.starterDir / "handoff-prompts.json", bundle.handoffPrompts)
     _write_text(paths.starterDir / "vue-page-config.json", vue_config.to_json())
     _write_text(paths.starterDir / "pm-test-checklist.md", pm_checklist)
+    _write_sidecars(
+        paths.reportDir,
+        build_page_report_hub(
+            package,
+            {
+                "page_spec": _relative_path(paths.pageSpec, paths.reportDir),
+                "package_json": _relative_path(paths.packageJson, paths.reportDir),
+                "package_report": _relative_path(paths.packageReport, paths.reportDir),
+                "analysis_report": _relative_path(paths.analysisReport, paths.reportDir),
+                "review_json": _relative_path(paths.reviewJson, paths.reportDir),
+                "plan_json": _relative_path(paths.planJson, paths.reportDir),
+                "plan_report": _relative_path(paths.planReport, paths.reportDir),
+                "vue_config_json": _relative_path(paths.vueConfigJson, paths.reportDir),
+                "pm_checklist": _relative_path(paths.pmChecklist, paths.reportDir),
+                "starter_dir": _relative_path(paths.starterDir, paths.reportDir),
+                "starter_bundle": _relative_path(paths.starterDir / "starter-bundle.json", paths.reportDir),
+            },
+            {"stage1", "stage2", "stage3"},
+        ),
+    )
 
     summary = {
         "stage": "stage3",

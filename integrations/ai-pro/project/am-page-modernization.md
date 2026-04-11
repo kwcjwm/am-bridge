@@ -12,11 +12,12 @@ Use this prompt as the AI Pro project skill or workflow definition when moderniz
 
 Given a legacy page such as `aaa.xml`, drive staged AM work:
 
-1. build evidence
-2. review and correct weak judgment
-3. lock the conversion plan
-4. emit PM validation outputs
-5. generate starter files
+1. optionally build a customer-facing UI shell for layout signoff
+2. build evidence
+3. review and correct weak judgment
+4. lock the conversion plan
+5. emit PM validation outputs
+6. generate starter files
 
 ## Core Rule
 
@@ -36,6 +37,28 @@ Do not treat deterministic extraction as final truth.
 - resolving ambiguous or wrapper-heavy legacy behavior without context
 
 That judgment belongs to the AI review pass.
+
+## Two Lanes
+
+### UI Shell First
+
+Use this lane when the PM needs early structure agreement.
+
+Allowed:
+
+- page frame
+- search/result/detail block placement
+- tabs and popup entry points
+- placeholder actions such as `console.log`, `alert`, or `연결 예정`
+
+Not allowed:
+
+- pretending behavior is locked
+- presenting placeholder wiring as completed backend integration
+
+### Behavior / Contract Lock
+
+Use this lane for actual AM locking work through stage1, review, stage2, and stage3.
 
 ## Tool Contract
 
@@ -114,6 +137,7 @@ Read:
 - `artifacts/starter/<page>/pm-test-checklist.md`
 
 Treat this as scaffold plus contract, not final production code.
+Do not confuse a `UI Shell` with stage3 starter output.
 
 ## GLM-4.7 Working Style
 

@@ -1,0 +1,47 @@
+page_id: EQP_STATUS_001
+page_name: EquipmentStatusPage
+legacy_source: legacy/DefApp/Win32/form.xml
+
+classification:
+  level: L2
+  summary: standard CRUD or query page with meaningful layout pressure
+  shell_first_allowed: true
+  behavior_lock_priority: medium
+
+drivers:
+  customer_layout_risk:
+    enabled: true
+    notes:
+      - customer is likely to question missing buttons or moved sections first
+  backend_risk:
+    enabled: false
+    notes: []
+  save_flow_risk:
+    enabled: true
+    notes:
+      - save flow exists but can be locked after structure signoff
+  popup_or_subview_risk:
+    enabled: true
+    notes:
+      - popup anchors must be visible in the shell even before behavior is finalized
+
+recommended_lane:
+  first_step: ui-shell-first
+  second_step: stage1-review-stage2
+  final_step: stage3-when-plan-is-accepted
+
+required_outputs:
+  before_customer_review:
+    - ui-shell-blueprint
+    - component-placement-summary
+  before_behavior_lock:
+    - stage1-package
+    - review-json
+  before_implementation:
+    - stage2-plan
+    - vue-config
+    - pm-checklist
+
+review_notes:
+  - UI shell is for structure signoff only.
+  - API, validation, save flow, and backend mapping are not considered locked at triage time.

@@ -13,14 +13,14 @@
 
 ## Executive Summary
 
-- This page behaves as a `grid-page` centered on `ds_scorechk`.
+- This page behaves as a `grid-page` centered on `ds_scorechk` .
 - Main visible result area is `Grid0` and primary transaction is `TX-BUTTON0ONCLICK-1`.
-- Backend traces resolved: `2` / unresolved related screens: `1`.
-- Source file: `C:\workspace\am-bridge\samples\ScoreRanking_Proj-master\src\main\resources\egovframework\conf\scoreranking\DefApp\Win32\form.xml`.
+- Backend traces resolved: `2` / unresolved related screens: `1`
+- Source file: `C:\workspace\am-bridge\samples\ScoreRanking_Proj-master\src\main\resources\egovframework\conf\scoreranking\DefApp\Win32\form.xml`
 
 ## Screen Story
 
-- The page opens as `main` and centers the user on `Grid0` backed by `ds_scorechk`.
+- This page opens as `main` and centers the user on `Grid0` backed by `ds_scorechk`.
 - Initial event is `form_OnLoadCompleted` and should be reviewed for preload or lookup behavior.
 - Primary visible actions detected: 성적조회, form, 과목 담당교수, 장학금대상.
 - Related navigation count: `2`.
@@ -72,6 +72,8 @@
 - package-json: [package-json](form-package.json)
 - review-json: [review-json](../../../reviews/DefApp/Win32/form-review.json)
 - page-spec: [page-spec](../../../target/DefApp/Win32/form-spec.md)
+- page report hub: [page report hub](../../../reports/DefApp/Win32/form/README.md)
+- stage1 report pack: [stage1 report pack](../../../reports/DefApp/Win32/form/stage1/README.md)
 - Registry directory: [../../../reports/DefApp/Win32/form/stage1/registries](../../../reports/DefApp/Win32/form/stage1/registries)
 - Registry: [datasets.csv](../../../reports/DefApp/Win32/form/stage1/registries/datasets.csv)
 - Registry: [dataset-columns.csv](../../../reports/DefApp/Win32/form/stage1/registries/dataset-columns.csv)

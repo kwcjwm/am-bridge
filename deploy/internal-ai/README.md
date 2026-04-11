@@ -6,6 +6,7 @@ Use the exported bundle as the workspace root inside the company environment.
 Do not point the internal AI at the root of the external support repository.
 The first operator action should be to paste `bootstrap-initial-prompt.md` into the internal AI.
 For the shortest operator path, follow `operator-script.md`.
+The default export location from the external repository is `exports/internal-ai-workspace`.
 
 The internal workspace should contain only:
 
@@ -25,3 +26,12 @@ It should not contain Codex-side support-agent instructions.
 
 If you already have a strong operator-authored prompt such as `amprompt.md`, place it under `deploy/internal-ai/prompts/`.
 It will be exported into bundle-root `prompts/amprompt.md`.
+
+The exported workspace now supports two AM lanes:
+
+- `UI Shell First`
+  for early customer-facing layout agreement
+- `Behavior / Contract Lock`
+  for actual dataset / transaction / API / starter decisions
+
+Do not treat the first lane as a shortcut that skips the second lane.

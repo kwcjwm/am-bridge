@@ -18,7 +18,7 @@
 - [ ] The page opens without blocking errors and shows the intended business title/context.
 - [ ] The dominant business area is centered on dataset `ds_scorechk` and grid/component `Grid0`.
 - [ ] Search, result, and reference/code datasets are clearly separated in the rendered screen behavior.
-- [ ] Search controls are present and usable: Button0, Combo0, Button1, Button2.
+- [ ] Search controls are present and usable: 성적조회 (`Button0`), 시험 (`Combo0`), 과목 담당교수 (`Button1`), 장학금대상 (`Button2`).
 
 ## Data Retrieval Checks
 
@@ -26,8 +26,9 @@
 
 ## Functional Scenario Checks
 
-- [ ] `Button0_OnClick` behaves as expected. Transactions: TX-BUTTON0ONCLICK-1. Reads: no read dataset captured. Writes: no write dataset captured. Controls: Combo0.
-- [ ] `Button1_OnClick` behaves as expected. Transactions: no direct transaction captured. Reads: ds_screen. Writes: no write dataset captured. Controls: Div0.
+- [ ] 성적조회 (`Button0`) using handler `Button0_OnClick` behaves as expected. Transactions: TX-BUTTON0ONCLICK-1. Reads: no read dataset captured. Writes: no write dataset captured. Controls: Combo0. Related screens: no related screen captured.
+- [ ] 과목 담당교수 (`Button1`) using handler `Button1_OnClick` behaves as expected. Transactions: no direct transaction captured. Reads: ds_screen. Writes: no write dataset captured. Controls: Div0. Related screens: scurl.
+- [ ] 장학금대상 (`Button2`) using handler `Button2_OnClick` behaves as expected. Transactions: no direct transaction captured. Reads: no read dataset captured. Writes: no write dataset captured. Controls: no direct control target captured. Related screens: New Form.
 
 ## Backend And Integration Spot Checks
 
@@ -35,8 +36,8 @@
 
 ## Related Screen Checks
 
-- [ ] Clarify unresolved related target `scurl` before merging it into any current-page implementation.
-- [ ] `Button2_OnClick` opens `scholarship` from legacy target `DefApp::scholarship.xml` as a separate related screen with the expected handoff.
+- [ ] Clarify unresolved related target `scurl` triggered by 과목 담당교수 (`Button1`) before merging it into any current-page implementation.
+- [ ] 장학금대상 (`Button2`) opens `New Form` from legacy target `DefApp::scholarship.xml` as a separate related screen with the expected handoff.
 
 ## Negative And Regression Checks
 

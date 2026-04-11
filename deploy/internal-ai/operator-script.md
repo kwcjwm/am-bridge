@@ -18,10 +18,11 @@ In other words:
 - project harness activation is the real requirement
 - direct execution is the normal runtime path
 - global harness and tool registration are optional conveniences
+- `UI Shell First` is allowed when the PM wants early layout signoff, but it does not replace the staged behavior lock flow
 
-## Phase 0: Build The Internal Workspace
+## Phase 0: Build Or Locate The Internal Workspace
 
-If you cloned the full repository into the internal environment, do not open the repo root in AI Pro.
+If you are still in the full source repository, do not open the repo root in AI Pro.
 From a shell, run:
 
 ```powershell
@@ -32,21 +33,24 @@ python scripts/export_ai_pro_bundle.py
 This creates:
 
 ```text
-C:\path\to\am-bridge\artifacts\internal-ai-workspace
+C:\path\to\am-bridge\exports\internal-ai-workspace
 ```
+
+If you are already inside a copied exported bundle, skip this phase.
+Do not try to run `scripts/export_ai_pro_bundle.py` from the exported bundle, because that script is only present in the source repository.
 
 ## Phase 1: Open The Correct Workspace
 
 Open this folder in AI Pro:
 
 ```text
-C:\path\to\am-bridge\artifacts\internal-ai-workspace
+C:\path\to\am-bridge\exports\internal-ai-workspace
 ```
 
 Do not open:
 
 - the repository root
-- `artifacts/ai-pro-bundle`
+- anything under `artifacts/`
 
 ## Phase 2: First Message To Internal AI
 
@@ -146,13 +150,15 @@ If registered tools are unavailable, use one of these direct execution paths:
 3. `am-bridge-analyze ...`
 
 Execution policy:
-1. Run stage1.
-2. Review the package, detailed analysis report, and review.json.
-3. Correct primaryDatasetId, mainGridComponentId, primaryTransactionIds, dataset usage, and backend traces if needed.
-4. Run stage2.
-5. Inspect the PM checklist and make sure it matches the page's real business functions.
-6. Run stage3.
-7. Report locked decisions, remaining risks, and next implementation step.
+1. Classify whether this page needs `UI Shell First`.
+2. If early layout signoff matters, create a UI shell blueprint with clearly marked placeholder actions.
+3. Run stage1.
+4. Review the package, detailed analysis report, and review.json.
+5. Correct primaryDatasetId, mainGridComponentId, primaryTransactionIds, dataset usage, and backend traces if needed.
+6. Run stage2.
+7. Inspect the PM checklist and make sure it matches the page's real business functions.
+8. Run stage3.
+9. Report locked decisions, remaining risks, and next implementation step.
 ```
 
 Expected sample signals:
@@ -160,6 +166,26 @@ Expected sample signals:
 - `primaryDatasetId = ds_scorechk`
 - `mainGridComponentId = Grid0`
 - backend trace includes `sampleDAO.ScoreChk`
+
+## Phase 4A: Optional Korean Report Delivery
+
+Use this only after the English report pack looks correct.
+
+Ask the internal AI to read:
+
+- `artifacts/reports/<page>/README.md`
+- `artifacts/reports/<page>/translate-to-korean.md`
+- the linked Stage 1 / Stage 2 overview docs
+- the primary narrative reports under `artifacts/packages/` and `artifacts/plans/`
+
+Rule:
+
+- English reports remain canonical
+- Korean output is a derived operator/PM delivery layer
+- technical IDs, dataset IDs, transaction IDs, and file paths stay in backticks
+- default to summary-only Korean delivery, not a full mirrored Korean report tree
+- keep deep technical links pointed at the English canonical docs unless a Korean counterpart is explicitly required
+- before writing Korean files, list the exact output files and make sure none overwrite the English originals
 
 ## Phase 5: Switch To The Real Project
 

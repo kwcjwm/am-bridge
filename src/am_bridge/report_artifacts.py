@@ -4,6 +4,7 @@ import csv
 from io import StringIO
 
 from am_bridge.models import ConversionPlanModel, PageConversionPackage, VuePageConfigModel
+from am_bridge.report_hubs import build_stage1_hub_docs, build_stage2_hub_docs
 
 
 def build_stage1_report_sidecars(package: PageConversionPackage) -> dict[str, str]:
@@ -186,7 +187,9 @@ def build_stage1_report_sidecars(package: PageConversionPackage) -> dict[str, st
         ),
     ]
 
-    return _with_readme(table_specs, _render_stage1_readme(package, table_specs))
+    files = _with_readme(table_specs, _render_stage1_readme(package, table_specs))
+    files.update(build_stage1_hub_docs(package, [(name, description, description) for name, description, _content in table_specs]))
+    return files
 
 
 def build_stage2_report_sidecars(
@@ -210,6 +213,7 @@ def build_stage2_report_sidecars(
                     "events",
                     "triggerActions",
                     "validationRuleCount",
+                    "validationSummary",
                 ],
                 [
                     {
@@ -223,6 +227,12 @@ def build_stage2_report_sidecars(
                         "events": _join(item.get("events", [])),
                         "triggerActions": _join(item.get("triggerActions", [])),
                         "validationRuleCount": len(item.get("validationRules", [])),
+                        "validationSummary": _join(
+                            [
+                                rule.get("message", "") or rule.get("validationType", "")
+                                for rule in item.get("validationRules", [])
+                            ]
+                        ),
                     }
                     for item in vue_config.searchControls
                 ],
@@ -300,6 +310,7 @@ def build_stage2_report_sidecars(
                     "readsDatasets",
                     "writesDatasets",
                     "navigationCount",
+                    "navigationTargets",
                 ],
                 [
                     {
@@ -314,6 +325,12 @@ def build_stage2_report_sidecars(
                         "readsDatasets": _join(item.get("readsDatasets", [])),
                         "writesDatasets": _join(item.get("writesDatasets", [])),
                         "navigationCount": len(item.get("navigationTargets", [])),
+                        "navigationTargets": _join(
+                            [
+                                nav.get("pageId", "") or nav.get("target", "")
+                                for nav in item.get("navigationTargets", [])
+                            ]
+                        ),
                     }
                     for item in vue_config.actions
                 ],
@@ -336,6 +353,7 @@ def build_stage2_report_sidecars(
                     "dao",
                     "sqlMapId",
                     "tableCandidates",
+                    "querySummary",
                 ],
                 [
                     {
@@ -351,6 +369,7 @@ def build_stage2_report_sidecars(
                         "dao": item.get("dao", ""),
                         "sqlMapId": item.get("sqlMapId", ""),
                         "tableCandidates": _join(item.get("tableCandidates", [])),
+                        "querySummary": item.get("querySummary", ""),
                     }
                     for item in vue_config.endpoints
                 ],
@@ -416,7 +435,16 @@ def build_stage2_report_sidecars(
         ),
     ]
 
-    return _with_readme(table_specs, _render_stage2_readme(package, plan, vue_config, table_specs))
+    files = _with_readme(table_specs, _render_stage2_readme(package, plan, vue_config, table_specs))
+    files.update(
+        build_stage2_hub_docs(
+            package,
+            plan,
+            vue_config,
+            [(name, description, description) for name, description, _content in table_specs],
+        )
+    )
+    return files
 
 
 def _with_readme(
@@ -504,6 +532,7 @@ def _render_stage2_readme(
 
 def _csv(headers: list[str], rows: list[dict[str, object]]) -> str:
     buffer = StringIO()
+    buffer.write("\ufeff")
     writer = csv.DictWriter(buffer, fieldnames=headers, extrasaction="ignore", lineterminator="\n")
     writer.writeheader()
     for row in rows:

@@ -110,8 +110,10 @@ For this project, GLM-4.7 should:
 
 ## Export
 
-Use `scripts/export_ai_pro_bundle.py` to build a ready-to-copy bundle for another environment.
+Use `scripts/export_ai_pro_bundle.py` only from the source repository when building a ready-to-copy bundle for another environment.
+The default output path is `exports/internal-ai-workspace`.
 The exported bundle is the only workspace that should be opened in the internal company AI environment.
+If you are already inside a copied exported bundle, skip the export step and start from `bootstrap-initial-prompt.md`.
 
 ## Bootstrap With GLM-4.7
 

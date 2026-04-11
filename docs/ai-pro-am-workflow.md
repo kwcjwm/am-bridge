@@ -1,6 +1,7 @@
 # AI Pro AM Workflow
 
 This workflow is meant for the exported internal workspace, not for the external Codex support repository root.
+The default generated location is `exports/internal-ai-workspace`.
 Start with `bootstrap-initial-prompt.md` first, then bootstrap AI Pro, then run page AM work.
 If `prompts/amprompt.md` exists in the internal bundle, use it only as supplemental detail guidance after the core harness is loaded.
 
@@ -22,15 +23,48 @@ This is important for legacy AM because:
 - backend routes may be partially hidden behind wrappers
 - one-shot conversion is less reliable than staged correction
 
+## Two Working Lanes
+
+This internal workflow supports two lanes that must not be confused.
+
+### Lane A. UI Shell First
+
+Use this lane when the PM needs early layout signoff or wants to reduce customer questions such as:
+
+- why did this button move
+- why is this block missing
+- where did the popup entry go
+
+In this lane:
+
+- lock the page frame, search area, grid area, detail area, tabs, popup anchors, and button placement
+- allow placeholder actions such as `console.log`, `alert`, or `연결 예정`
+- do not claim API, save flow, validation, or backend behavior is finalized
+
+### Lane B. Behavior / Contract Lock
+
+Use this lane when the PM needs actual modernization decisions locked.
+
+In this lane:
+
+- analyze the dominant dataset and transaction flow
+- correct weak judgments in `review.json`
+- lock the page conversion plan and Vue config
+- generate starter artifacts only after the plan is acceptable
+
 ## Stage Flow
 
-1. `stage1`
+1. `page triage`
+   Classify the page and decide whether `UI Shell First` is allowed.
+2. optional `UI shell`
+   Build a customer-facing layout shell when early structure signoff matters.
+3. `stage1`
    Build the page conversion package, detailed legacy analysis report, and review JSON.
-2. `AI review`
+4. `AI review`
    Correct dominant dataset, main grid, primary transaction, and backend trace when needed.
-3. `stage2`
+5. `stage2`
    Lock the conversion plan, file ownership, Vue page config JSON, and PM test checklist.
-4. `stage3`
+6. `stage3`
    Generate starter code, handoff prompts, and copy the Vue config and PM checklist into the starter bundle.
 
 ## Recommended Operator Prompt
@@ -42,7 +76,9 @@ Target page: C:\path\to\aaa.xml
 I am the PM and you are the PL.
 Use am-bridge as your deterministic toolset.
 
-Run stage1 first.
+First classify whether this page needs `UI Shell First`.
+If layout signoff is needed, create a shell blueprint before locking behavior.
+Then run stage1.
 Review the package and review JSON before proceeding.
 Correct primaryDatasetId, mainGridComponentId, primaryTransactionIds, dataset usage, and backendTraces when needed.
 Then run stage2, inspect the PM checklist, and run stage3.
@@ -71,6 +107,7 @@ Typical corrections:
 
 When the PM gives `aaa.xml`, AI Pro should be able to:
 
+- create a customer-facing UI shell when early structure agreement matters
 - analyze the page and related backend chain
 - distinguish main business datasets from secondary datasets
 - lock a page-level modernization plan

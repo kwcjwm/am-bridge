@@ -14,6 +14,7 @@ from am_bridge.config import (
 )
 from am_bridge.generators import generate_page_conversion_spec
 from am_bridge.pipeline import analyze_file
+from am_bridge.report_hubs import build_page_report_hub
 from am_bridge.report_artifacts import build_stage1_report_sidecars, build_stage2_report_sidecars
 from am_bridge.stages import (
     build_conversion_package,
@@ -137,11 +138,22 @@ def _run_stage1(args: argparse.Namespace) -> int:
         "package-json": _relative_path(package_output, package_report_output.parent),
         "review-json": _relative_path(review_output, package_report_output.parent),
         "page-spec": _relative_path(paths.pageSpec, package_report_output.parent),
+        "page report hub": _relative_path(paths.reportDir / "README.md", package_report_output.parent),
+        "stage1 report pack": _relative_path(paths.stage1ReportDir / "README.md", package_report_output.parent),
     }
     analysis_artifact_links = {
         "package-json": _relative_path(package_output, paths.analysisReport.parent),
         "review-json": _relative_path(review_output, paths.analysisReport.parent),
         "page-spec": _relative_path(paths.pageSpec, paths.analysisReport.parent),
+        "page report hub": _relative_path(paths.reportDir / "README.md", paths.analysisReport.parent),
+        "stage1 report pack": _relative_path(paths.stage1ReportDir / "README.md", paths.analysisReport.parent),
+    }
+    page_report_artifact_links = {
+        "page_spec": _relative_path(paths.pageSpec, paths.reportDir),
+        "package_json": _relative_path(package_output, paths.reportDir),
+        "package_report": _relative_path(package_report_output, paths.reportDir),
+        "analysis_report": _relative_path(paths.analysisReport, paths.reportDir),
+        "review_json": _relative_path(review_output, paths.reportDir),
     }
 
     _write_text(paths.analysisJson, model.to_json())
@@ -167,6 +179,7 @@ def _run_stage1(args: argparse.Namespace) -> int:
     _write_sidecars(paths.stage1ReportDir, build_stage1_report_sidecars(package))
     if not review_output.exists():
         _write_json(review_output, build_review_template(package))
+    _write_sidecars(paths.reportDir, build_page_report_hub(package, page_report_artifact_links, {"stage1"}))
 
     print(f"Analysis JSON saved to: {paths.analysisJson}")
     print(f"Page spec saved to: {paths.pageSpec}")
@@ -246,6 +259,8 @@ def _run_stage2(args: argparse.Namespace) -> int:
                 "vue-config-json": _relative_path(paths.vueConfigJson, plan_report_output.parent),
                 "pm-checklist": _relative_path(paths.pmChecklist, plan_report_output.parent),
                 "review-json": _relative_path(paths.reviewJson, plan_report_output.parent),
+                "page report hub": _relative_path(paths.reportDir / "README.md", plan_report_output.parent),
+                "stage2 report pack": _relative_path(paths.stage2ReportDir / "README.md", plan_report_output.parent),
             },
         ),
     )
@@ -253,6 +268,24 @@ def _run_stage2(args: argparse.Namespace) -> int:
     _write_text(paths.pmChecklist, pm_checklist)
     _write_sidecars(paths.stage1ReportDir, build_stage1_report_sidecars(package))
     _write_sidecars(paths.stage2ReportDir, build_stage2_report_sidecars(package, plan, vue_config))
+    _write_sidecars(
+        paths.reportDir,
+        build_page_report_hub(
+            package,
+            {
+                "page_spec": _relative_path(paths.pageSpec, paths.reportDir),
+                "package_json": _relative_path(paths.packageJson, paths.reportDir),
+                "package_report": _relative_path(paths.packageReport, paths.reportDir),
+                "analysis_report": _relative_path(paths.analysisReport, paths.reportDir),
+                "review_json": _relative_path(paths.reviewJson, paths.reportDir),
+                "plan_json": _relative_path(plan_output, paths.reportDir),
+                "plan_report": _relative_path(plan_report_output, paths.reportDir),
+                "vue_config_json": _relative_path(paths.vueConfigJson, paths.reportDir),
+                "pm_checklist": _relative_path(paths.pmChecklist, paths.reportDir),
+            },
+            {"stage1", "stage2"},
+        ),
+    )
 
     print(f"Stage 1 package refreshed at: {paths.packageJson}")
     print(f"Stage 2 plan saved to: {plan_output}")
@@ -333,6 +366,8 @@ def _run_stage3(args: argparse.Namespace) -> int:
                 "vue-config-json": _relative_path(paths.vueConfigJson, paths.planReport.parent),
                 "pm-checklist": _relative_path(paths.pmChecklist, paths.planReport.parent),
                 "review-json": _relative_path(paths.reviewJson, paths.planReport.parent),
+                "page report hub": _relative_path(paths.reportDir / "README.md", paths.planReport.parent),
+                "stage2 report pack": _relative_path(paths.stage2ReportDir / "README.md", paths.planReport.parent),
             },
         ),
     )
@@ -342,6 +377,26 @@ def _run_stage3(args: argparse.Namespace) -> int:
     _write_sidecars(paths.stage2ReportDir, build_stage2_report_sidecars(package, plan, vue_config))
     _write_text(starter_dir / "vue-page-config.json", vue_config.to_json())
     _write_text(starter_dir / "pm-test-checklist.md", pm_checklist)
+    _write_sidecars(
+        paths.reportDir,
+        build_page_report_hub(
+            package,
+            {
+                "page_spec": _relative_path(paths.pageSpec, paths.reportDir),
+                "package_json": _relative_path(paths.packageJson, paths.reportDir),
+                "package_report": _relative_path(paths.packageReport, paths.reportDir),
+                "analysis_report": _relative_path(paths.analysisReport, paths.reportDir),
+                "review_json": _relative_path(paths.reviewJson, paths.reportDir),
+                "plan_json": _relative_path(paths.planJson, paths.reportDir),
+                "plan_report": _relative_path(paths.planReport, paths.reportDir),
+                "vue_config_json": _relative_path(paths.vueConfigJson, paths.reportDir),
+                "pm_checklist": _relative_path(paths.pmChecklist, paths.reportDir),
+                "starter_dir": _relative_path(starter_dir, paths.reportDir),
+                "starter_bundle": _relative_path(starter_dir / "starter-bundle.json", paths.reportDir),
+            },
+            {"stage1", "stage2", "stage3"},
+        ),
+    )
 
     print(f"Starter bundle saved to: {starter_dir}")
     print(f"Stage 2 plan refreshed at: {paths.planJson}")

@@ -1,2 +1,0 @@
-[console_scripts]
-am-bridge-analyze = am_bridge.cli:main

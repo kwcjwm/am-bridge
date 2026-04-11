@@ -20,6 +20,7 @@
 
 ## Phase 3. Target Blueprint
 
+- UI shell / page frame 템플릿 정리
 - Vue 3 화면 청사진 템플릿 정리
 - Spring Boot API / service / DTO 초안 정리
 - 모듈 경계와 package / feature 기준 정리
@@ -27,6 +28,7 @@
 ## Phase 4. Assisted Scaffold
 
 - 반복 가능한 초안 생성 자동화
+- 고객 구조합의용 UI shell 가속
 - conversion report 자동 생성
 - traceability link 자동 생성
 
@@ -35,11 +37,12 @@
 - 권한 / 감사 / 이력 / 인터페이스 / 배치 반영
 - 비기능 요구사항과 배포 구조 반영
 - 실제 고객사 적용 가이드 정리
+- 패리티 및 현업 수용성 기준 정리
 
 ## 지금 바로 다음 작업
 
 1. 샘플 프로젝트에서 `screen inventory`, `dataset contract`, `transaction map`을 뽑는다.
 2. 샘플의 화면 중심 이름을 canonical MES 관점으로 일반화한다.
 3. 타깃 산출물 템플릿에 샘플 결과를 한 번 넣어본다.
-4. 그 뒤에야 parser나 scaffold 자동화를 붙인다.
-
+4. 고객 구조합의용 `UI Shell First` 산출물을 샘플에 적용해 본다.
+5. 그 뒤에야 parser나 scaffold 자동화를 붙인다.

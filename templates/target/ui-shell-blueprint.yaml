@@ -1,0 +1,76 @@
+page:
+  page_id: EQP_STATUS_001
+  page_name: EquipmentStatusPage
+  route_hint: /equipment/status
+  shell_purpose: customer-facing structure signoff before behavior lock
+
+layout:
+  shell_type: shared-platform-page
+  content_pattern: search-grid-detail
+  visible_blocks:
+    - block_id: page-header
+      purpose: title and breadcrumb area
+    - block_id: search-panel
+      purpose: customer-visible search conditions
+    - block_id: main-grid
+      purpose: result list or dominant business table
+    - block_id: detail-panel
+      purpose: row detail or summary form
+    - block_id: popup-entry-group
+      purpose: popup or subview anchors that must stay visible
+
+components:
+  search_panel:
+    - component_id: cbo_status
+      type: select
+      label: Status
+    - component_id: txt_equipmentId
+      type: input
+      label: Equipment ID
+    - component_id: btn_search
+      type: button
+      label: Search
+      placeholder_action: console.log('Search wiring pending after contract lock.')
+  main_grid:
+    - component_id: grid_equipment
+      type: data-grid
+      columns:
+        - equipmentId
+        - status
+        - alarmLevel
+  detail_panel:
+    - component_id: frm_detail
+      type: detail-form
+      fields:
+        - equipmentId
+        - status
+        - alarmLevel
+  popup_entries:
+    - component_id: btn_history
+      type: button
+      label: History
+      target_kind: popup
+      placeholder_action: alert('Popup contract will be locked after analysis review.')
+
+guardrails:
+  structure_only: true
+  behavior_locked: false
+  backend_locked: false
+  validation_locked: false
+  save_flow_locked: false
+  notes:
+    - This shell may use placeholder actions.
+    - This shell must not be presented as completed functionality.
+    - Real API, save flow, validation, and backend mapping belong to the staged behavior lock flow.
+
+pm_signoff_check:
+  confirm:
+    - block placement is acceptable
+    - button presence is acceptable
+    - popup anchors are visible in the expected area
+    - labels and section names are directionally correct
+  defer:
+    - actual data loading
+    - save behavior
+    - exception handling
+    - detailed validation rules

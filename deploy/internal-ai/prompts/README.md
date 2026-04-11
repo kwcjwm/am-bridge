@@ -9,6 +9,7 @@ Recommended file:
 Role of `amprompt.md`:
 
 - supplemental prompt for high-detail analysis reporting
+- supplemental prompt for customer-facing UI shell quality and section naming
 - supplemental prompt for richer Vue conversion config generation
 - reference material after the core internal harness has been loaded
 
