@@ -14,6 +14,8 @@ The internal workspace should contain only:
 - the initial bootstrap prompt
 - the no-admin runtime prompt
 - the operator script
+- the bundle version metadata
+- the update journal and update playbook
 - any optional custom prompts under `prompts/`
 - the `am-page-modernization` skill assets
 - AI Pro integration prompts and tool contracts
@@ -23,6 +25,22 @@ The internal workspace should contain only:
 - the bundled public sample inputs used for first validation
 
 It should not contain Codex-side support-agent instructions.
+
+For future updates, do not assume a fresh reinstall is always required.
+Extract the new bundle into a separate directory and let the internal AI read:
+
+- `bundle-version.json`
+- `update-journal.md`
+- `update-playbook.md`
+
+before deciding whether the release requires:
+
+- fresh reinstall
+- runtime update only
+- docs/prompt update only
+
+Use `am-bridge.config.local.json` for environment-specific source and backend roots that should survive future bundle updates.
+Start from `am-bridge.config.local.example.json`.
 
 If you already have a strong operator-authored prompt such as `amprompt.md`, place it under `deploy/internal-ai/prompts/`.
 It will be exported into bundle-root `prompts/amprompt.md`.

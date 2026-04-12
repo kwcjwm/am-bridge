@@ -25,6 +25,10 @@
 
 - single-model operating role: `PL`
 - skills: `am-page-modernization`
+- update decision files:
+  - `bundle-version.json`
+  - `update-journal.md`
+  - `update-playbook.md`
 - working lanes:
   - `UI Shell First`
   - `Behavior / Contract Lock`
@@ -40,6 +44,7 @@
 - If the operator wants the shortest end-to-end setup path, use `operator-script.md`.
 - If `prompts/amprompt.md` contains a real project prompt, use it as a supplemental detail contract after the core harness is loaded.
 - Use `am-page-modernization` for actual page-level AM work.
+- Before updating an existing internal workspace with a newly extracted bundle, read `bundle-version.json` and `update-playbook.md` first.
 - Give a concrete legacy page such as `aaa.xml`, classify whether `UI Shell First` is needed, then let the PL run either:
   - `UI Shell -> stage1 -> review -> stage2 -> stage3`
   - or `stage1 -> review -> stage2 -> stage3`
@@ -58,11 +63,13 @@
 - Lack of global harness installation or custom tool registration does not block work if direct command execution is available.
 - Treat generated English reports as canonical. If the PM needs Korean delivery, derive it after review instead of replacing the English originals.
 - Default Korean delivery to summary-level PM/operator docs. Keep deep section docs and registries in English unless explicitly requested.
+- Keep environment-specific path settings in `am-bridge.config.local.json`, not in the exported base config.
 
 ## Change Log
 
 | Date | Change | Reason |
 |------|--------|--------|
+| 2026-04-12 | Added bundle update metadata, update playbook, and local config override guidance | Let internal AI decide whether future extracted bundles need fresh reinstall or partial update |
 | 2026-04-11 | Added `UI Shell First` lane alongside staged behavior / contract lock flow | Let internal AI produce early customer-facing layout agreements without pretending behavior is already fixed |
 | 2026-04-10 | Split internal single-model harness into its own source file for exported workspaces | Prevent confusion with the external Codex support workspace |
 | 2026-04-09 | Added AM page modernization harness, stage workflow, and review loop | Let AI Pro act as PL on top of deterministic AM tools |

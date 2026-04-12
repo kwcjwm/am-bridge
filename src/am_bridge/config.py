@@ -6,6 +6,7 @@ from pathlib import Path
 
 
 DEFAULT_CONFIG_NAME = "am-bridge.config.json"
+DEFAULT_LOCAL_CONFIG_NAME = "am-bridge.config.local.json"
 
 
 @dataclass
@@ -42,49 +43,73 @@ class StageArtifactPaths:
 
 def load_cli_config(config_path: str | Path | None = None, cwd: Path | None = None) -> CliConfig:
     working_dir = (cwd or Path.cwd()).resolve()
-    resolved_path = _find_config_path(config_path, working_dir)
+    base_config_path, local_config_path = _find_config_paths(config_path, working_dir)
+    base_raw = _load_config_json(base_config_path)
+    local_raw = _load_config_json(local_config_path)
 
-    if resolved_path is None or not resolved_path.exists():
+    if base_config_path is None and local_config_path is None:
         return CliConfig()
 
-    raw = json.loads(resolved_path.read_text(encoding="utf-8"))
-    base_dir = resolved_path.parent
     return CliConfig(
-        sourceRoots=[
-            _resolve_config_path(Path(item), base_dir) for item in raw.get("sourceRoots", [])
-        ],
-        backendRoots=[
-            _resolve_config_path(Path(item), base_dir) for item in raw.get("backendRoots", [])
-        ],
-        analysisRoot=_resolve_config_path(
-            Path(raw.get("analysisRoot", "artifacts/analysis")),
-            base_dir,
+        sourceRoots=_resolve_path_list("sourceRoots", base_raw, base_config_path, local_raw, local_config_path),
+        backendRoots=_resolve_path_list("backendRoots", base_raw, base_config_path, local_raw, local_config_path),
+        analysisRoot=_resolve_scalar_path(
+            "analysisRoot",
+            "artifacts/analysis",
+            base_raw,
+            base_config_path,
+            local_raw,
+            local_config_path,
         ),
-        pageSpecRoot=_resolve_config_path(
-            Path(raw.get("pageSpecRoot", "artifacts/target")),
-            base_dir,
+        pageSpecRoot=_resolve_scalar_path(
+            "pageSpecRoot",
+            "artifacts/target",
+            base_raw,
+            base_config_path,
+            local_raw,
+            local_config_path,
         ),
-        packageRoot=_resolve_config_path(
-            Path(raw.get("packageRoot", "artifacts/packages")),
-            base_dir,
+        packageRoot=_resolve_scalar_path(
+            "packageRoot",
+            "artifacts/packages",
+            base_raw,
+            base_config_path,
+            local_raw,
+            local_config_path,
         ),
-        planRoot=_resolve_config_path(
-            Path(raw.get("planRoot", "artifacts/plans")),
-            base_dir,
+        planRoot=_resolve_scalar_path(
+            "planRoot",
+            "artifacts/plans",
+            base_raw,
+            base_config_path,
+            local_raw,
+            local_config_path,
         ),
-        starterRoot=_resolve_config_path(
-            Path(raw.get("starterRoot", "artifacts/starter")),
-            base_dir,
+        starterRoot=_resolve_scalar_path(
+            "starterRoot",
+            "artifacts/starter",
+            base_raw,
+            base_config_path,
+            local_raw,
+            local_config_path,
         ),
-        reportRoot=_resolve_config_path(
-            Path(raw.get("reportRoot", "artifacts/reports")),
-            base_dir,
+        reportRoot=_resolve_scalar_path(
+            "reportRoot",
+            "artifacts/reports",
+            base_raw,
+            base_config_path,
+            local_raw,
+            local_config_path,
         ),
-        reviewRoot=_resolve_config_path(
-            Path(raw.get("reviewRoot", "artifacts/reviews")),
-            base_dir,
+        reviewRoot=_resolve_scalar_path(
+            "reviewRoot",
+            "artifacts/reviews",
+            base_raw,
+            base_config_path,
+            local_raw,
+            local_config_path,
         ),
-        configPath=resolved_path,
+        configPath=local_config_path or base_config_path,
     )
 
 
@@ -159,23 +184,41 @@ def derive_stage_artifact_paths(input_path: Path, config: CliConfig) -> StageArt
     )
 
 
-def _find_config_path(config_path: str | Path | None, working_dir: Path) -> Path | None:
+def _find_config_paths(
+    config_path: str | Path | None,
+    working_dir: Path,
+) -> tuple[Path | None, Path | None]:
     if config_path:
         requested_path = Path(config_path)
-        if requested_path.is_absolute():
-            return requested_path.resolve()
-        return (working_dir / requested_path).resolve()
+        resolved_requested = (
+            requested_path.resolve()
+            if requested_path.is_absolute()
+            else (working_dir / requested_path).resolve()
+        )
+        if resolved_requested.name == DEFAULT_LOCAL_CONFIG_NAME:
+            return None, resolved_requested if resolved_requested.exists() else None
+        sibling_local = resolved_requested.with_name(DEFAULT_LOCAL_CONFIG_NAME)
+        return (
+            resolved_requested if resolved_requested.exists() else None,
+            sibling_local if sibling_local.exists() else None,
+        )
 
     for candidate_dir in (working_dir, *working_dir.parents):
-        candidate = candidate_dir / DEFAULT_CONFIG_NAME
-        if candidate.exists():
-            return candidate.resolve()
+        base_candidate = candidate_dir / DEFAULT_CONFIG_NAME
+        local_candidate = candidate_dir / DEFAULT_LOCAL_CONFIG_NAME
+        if base_candidate.exists():
+            return base_candidate.resolve(), local_candidate.resolve() if local_candidate.exists() else None
+        if local_candidate.exists():
+            return None, local_candidate.resolve()
 
     package_default = _package_root() / DEFAULT_CONFIG_NAME
+    package_local = _package_root() / DEFAULT_LOCAL_CONFIG_NAME
     if package_default.exists():
-        return package_default.resolve()
+        return package_default.resolve(), package_local.resolve() if package_local.exists() else None
+    if package_local.exists():
+        return None, package_local.resolve()
 
-    return None
+    return None, None
 
 
 def _package_root() -> Path:
@@ -186,6 +229,52 @@ def _resolve_config_path(path: Path, base_dir: Path) -> Path:
     if path.is_absolute():
         return path.resolve()
     return (base_dir / path).resolve()
+
+
+def _load_config_json(path: Path | None) -> dict[str, object]:
+    if path is None or not path.exists():
+        return {}
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _resolve_path_list(
+    key: str,
+    base_raw: dict[str, object],
+    base_path: Path | None,
+    local_raw: dict[str, object],
+    local_path: Path | None,
+) -> list[Path]:
+    values, source_path = _pick_config_value(key, [], base_raw, base_path, local_raw, local_path)
+    base_dir = source_path.parent if source_path is not None else Path.cwd()
+    return [_resolve_config_path(Path(str(item)), base_dir) for item in values]
+
+
+def _resolve_scalar_path(
+    key: str,
+    default: str,
+    base_raw: dict[str, object],
+    base_path: Path | None,
+    local_raw: dict[str, object],
+    local_path: Path | None,
+) -> Path:
+    value, source_path = _pick_config_value(key, default, base_raw, base_path, local_raw, local_path)
+    base_dir = source_path.parent if source_path is not None else Path.cwd()
+    return _resolve_config_path(Path(str(value)), base_dir)
+
+
+def _pick_config_value(
+    key: str,
+    default: object,
+    base_raw: dict[str, object],
+    base_path: Path | None,
+    local_raw: dict[str, object],
+    local_path: Path | None,
+) -> tuple[object, Path | None]:
+    if key in local_raw:
+        return local_raw[key], local_path
+    if key in base_raw:
+        return base_raw[key], base_path
+    return default, local_path or base_path
 
 
 def _build_input_candidates(input_value: str, working_dir: Path) -> list[Path]:

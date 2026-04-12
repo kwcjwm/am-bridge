@@ -1,0 +1,30 @@
+{
+  "bundleVersion": "2026.04.12.2",
+  "releaseDate": "2026-04-12",
+  "previousVersion": "2026.04.12.1",
+  "summary": "Adds update-decision metadata, internal update playbook, local config override support, and richer canonical report guidance.",
+  "changedAreas": [
+    "internal-update-policy",
+    "bundle-metadata",
+    "local-config-override",
+    "reporting-contract",
+    "report-hubs",
+    "operator-prompts"
+  ],
+  "installImpactLevel": 3,
+  "requiresRebootstrap": true,
+  "requiresSmokeTest": true,
+  "recommendedAction": "Fresh reinstall is preferred for this release because the internal workspace did not previously include update-decision metadata or local config override rules.",
+  "reason": "After this reinstall, future releases can be judged by the internal AI using this metadata and the update playbook.",
+  "preservePaths": [
+    "artifacts/",
+    "prompts/amprompt.md",
+    "am-bridge.config.local.json"
+  ],
+  "localConfigFiles": [
+    "am-bridge.config.local.json"
+  ],
+  "validationTargets": [
+    "scripts/ai_pro_stage_runner.py stage2 DefApp/Win32/form.xml --config am-bridge.config.json"
+  ]
+}

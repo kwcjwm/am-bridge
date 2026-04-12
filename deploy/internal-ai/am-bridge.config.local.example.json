@@ -1,0 +1,9 @@
+{
+  "sourceRoots": [
+    "D:/am-project/source/legacy-ui"
+  ],
+  "backendRoots": [
+    "D:/am-project/source/backend-java",
+    "D:/am-project/source/backend-sqlmap"
+  ]
+}

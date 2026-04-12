@@ -20,6 +20,24 @@ In other words:
 - global harness and tool registration are optional conveniences
 - `UI Shell First` is allowed when the PM wants early layout signoff, but it does not replace the staged behavior lock flow
 
+## Before Any Future Update
+
+If this is not the first install, do not immediately reinstall.
+
+Extract the new bundle into a separate directory and read:
+
+- `bundle-version.json`
+- `update-journal.md`
+- `update-playbook.md`
+
+Then let the internal AI decide whether the new bundle requires:
+
+- fresh reinstall
+- runtime update only
+- docs/prompt update only
+
+If the current live workspace does not already contain `bundle-version.json`, treat the live workspace as a legacy install and prefer fresh reinstall.
+
 ## Phase 0: Build Or Locate The Internal Workspace
 
 If you are still in the full source repository, do not open the repo root in AI Pro.
@@ -38,6 +56,18 @@ C:\path\to\am-bridge\exports\internal-ai-workspace
 
 If you are already inside a copied exported bundle, skip this phase.
 Do not try to run `scripts/export_ai_pro_bundle.py` from the exported bundle, because that script is only present in the source repository.
+
+Keep environment-specific roots in:
+
+```text
+am-bridge.config.local.json
+```
+
+Start from:
+
+```text
+am-bridge.config.local.example.json
+```
 
 ## Phase 1: Open The Correct Workspace
 
@@ -195,15 +225,23 @@ Rule:
 
 ## Phase 5: Switch To The Real Project
 
-Only after the sample run works, update:
+Only after the sample run works, create or update:
 
 ```text
-am-bridge.config.json
+am-bridge.config.local.json
 ```
 
-Provide real:
+Start from:
+
+```text
+am-bridge.config.local.example.json
+```
+
+Provide real local values for:
 
 - `sourceRoots`
 - `backendRoots`
+
+Keep the exported base file `am-bridge.config.json` unchanged whenever possible.
 
 After that, repeat the readiness check if the environment or tool registration changed.

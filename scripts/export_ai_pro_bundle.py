@@ -15,6 +15,13 @@ FILES_TO_COPY = [
     (Path("deploy/internal-ai/bootstrap-initial-prompt.md"), Path("bootstrap-initial-prompt.md")),
     (Path("deploy/internal-ai/no-admin-runtime-prompt.md"), Path("no-admin-runtime-prompt.md")),
     (Path("deploy/internal-ai/operator-script.md"), Path("operator-script.md")),
+    (Path("deploy/internal-ai/bundle-version.json"), Path("bundle-version.json")),
+    (Path("deploy/internal-ai/update-journal.md"), Path("update-journal.md")),
+    (Path("deploy/internal-ai/update-playbook.md"), Path("update-playbook.md")),
+    (
+        Path("deploy/internal-ai/am-bridge.config.local.example.json"),
+        Path("am-bridge.config.local.example.json"),
+    ),
     (Path(".agents/skills/am-page-modernization/SKILL.md"), Path(".agents/skills/am-page-modernization/SKILL.md")),
     (
         Path(".agents/skills/am-page-modernization/references/stage-procedure.md"),
@@ -154,11 +161,15 @@ def _write_bundle_readme(output_root: Path) -> None:
         "operatorScript": "operator-script.md",
         "bootstrapPrompt": "bootstrap-initial-prompt.md",
         "noAdminRuntimePrompt": "no-admin-runtime-prompt.md",
+        "bundleVersionFile": "bundle-version.json",
+        "updateJournal": "update-journal.md",
+        "updatePlaybook": "update-playbook.md",
         "globalHarnessSource": "integrations/ai-pro/global/harness-global.md",
         "projectHarnessSource": "integrations/ai-pro/project/am-page-modernization.md",
         "toolRegistrySource": "integrations/ai-pro/tools/tool-registry.resolved.json",
         "runnerScript": "scripts/ai_pro_stage_runner.py",
         "configFile": "am-bridge.config.json",
+        "configLocalExample": "am-bridge.config.local.example.json",
         "sampleValidationPage": (
             "samples/ScoreRanking_Proj-master/src/main/resources/"
             "egovframework/conf/scoreranking/DefApp/Win32/form.xml"

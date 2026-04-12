@@ -29,6 +29,7 @@
 - internal runtime reference: `am-pl`
 - internal bundle source: `deploy/internal-ai/AGENTS.md`
 - internal skill/runtime assets: `am-page-modernization`, `integrations/ai-pro/*`, `scripts/export_ai_pro_bundle.py`
+- internal update assets: `deploy/internal-ai/bundle-version.json`, `deploy/internal-ai/update-journal.md`, `deploy/internal-ai/update-playbook.md`
 - dual-lane operating model:
   - `UI Shell First` for early layout signoff
   - `Behavior / Contract Lock` for staged AM correctness
@@ -58,6 +59,7 @@
 
 | Date | Change | Reason |
 |------|--------|--------|
+| 2026-04-12 | Added internal bundle update metadata, update playbook, and local config override support | Let the company-side single-model runtime judge future bundle updates without assuming a full reinstall every time |
 | 2026-04-11 | Formalized `UI Shell First` and `Behavior / Contract Lock` as separate AM lanes inside the support harness | Align the external preparation workspace with real customer-facing AM execution pressure and single-model internal runtime limits |
 | 2026-04-10 | Split the root workspace into an external Codex support harness and a separately exported internal AI bundle source | Prevent internal-model confusion and keep Codex support instructions out of the carry-in workspace |
 | 2026-04-10 | Added four Codex-side support sub-agents for planning, AI engineering, tool development, and review | Prepare the internal single-model AM environment from an external high-capability workspace |

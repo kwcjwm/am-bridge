@@ -141,3 +141,30 @@ Rules:
 9. Separate UI shell/layout decisions from behavior/API/SQL lock decisions.
 10. Do not change the English originals unless explicitly asked.
 ```
+
+## 7. Bundle Update Decision
+
+```text
+You are reviewing a newly extracted AM bundle update.
+
+Read:
+1. bundle-version.json
+2. update-journal.md
+3. update-playbook.md
+4. operator-script.md
+
+If the current live workspace also has bundle-version metadata, compare the current and new versions.
+If the current live workspace has no bundle-version metadata, treat it as a legacy install.
+
+Then decide one of:
+- fresh reinstall
+- runtime update only
+- docs/prompt update only
+
+Output:
+1. decision
+2. reason
+3. which local files must be preserved
+4. whether smoke test is required
+5. exact next steps
+```
