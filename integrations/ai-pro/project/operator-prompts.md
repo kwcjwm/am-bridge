@@ -39,6 +39,10 @@ Execution policy:
 8. Run stage3.
 9. Copy the PM checklist into the starter bundle.
 10. Report locked decisions, remaining risks, and next implementation step.
+11. Refresh the canonical English main report for the page.
+12. Keep the main report readable standalone with inline summary tables for the important sections.
+13. Use drill-down links to extend the report, not replace it.
+14. Keep `UI Shell First` decisions separate from `Behavior / Contract Lock` decisions.
 ```
 
 ## 2A. End-To-End AM With Custom AM Prompt
@@ -65,6 +69,7 @@ Execution policy:
 7. Run stage2.
 8. Run stage3 if stage2 is acceptable.
 9. Report what came from the core harness and what was additionally shaped by prompts/amprompt.md.
+10. Refresh the canonical English main report for the page and keep it readable standalone.
 ```
 
 ## 3. Review-Only Pass
@@ -122,15 +127,17 @@ Read:
 3. stage1/stage2 overview docs linked from the page hub
 4. the primary narrative reports in `artifacts/packages/` and `artifacts/plans/`
 
-Produce a Korean delivery version for PM/operator use.
+Produce one Korean main summary for PM/operator use.
 
 Rules:
-1. Keep dataset IDs, transaction IDs, endpoint IDs, and file paths in backticks.
-2. Translate explanation text, not technical identifiers.
-3. Default to summary-only Korean delivery, not a full Korean mirror of every section and CSV.
-4. Keep deep links pointed at the English canonical docs unless a Korean counterpart is explicitly required.
-5. Before writing files, list the exact Korean output files and confirm that none overwrite English originals.
-6. Separate UI shell/layout decisions from behavior/API/SQL lock decisions.
-7. Call out unresolved risks clearly.
-8. Do not change the English originals unless explicitly asked.
+1. English reports remain canonical.
+2. Use the reviewed English main report as the primary source.
+3. Keep dataset IDs, transaction IDs, endpoint IDs, component IDs, and file paths in backticks.
+4. Translate explanation and business meaning, not technical identifiers.
+5. Keep the same major sections as the English main report, but keep the Korean version shorter.
+6. Preserve links to the English canonical drill-down docs by default.
+7. If more Korean detail is needed, add it as a short appendix in the same Korean main summary document.
+8. Before writing files, list the exact Korean output files and confirm that none overwrite English originals.
+9. Separate UI shell/layout decisions from behavior/API/SQL lock decisions.
+10. Do not change the English originals unless explicitly asked.
 ```

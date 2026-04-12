@@ -218,6 +218,23 @@ GLM-4.7 works better when you keep context narrow and structured.
 - Keep generated reports canonical in English. If PM-facing Korean output is needed, derive it from the reviewed English report pack instead of treating generator-authored Korean as the source of truth.
 - By default, translate only the summary-level PM/operator docs and keep deeper section docs plus registries linked in English.
 
+## Canonical English Main Report Contract
+
+For each page, keep one canonical English main report that is readable standalone before the operator opens CSV files.
+
+Rules:
+
+1. Start the report with a short table of contents.
+2. Keep the main report as the readable entry point, not as navigation only.
+3. For major categories such as UI shell, datasets, actions, backend/endpoints, files, and verification:
+   - write a short summary,
+   - include an inline markdown table with the most important 3 to 7 rows,
+   - place the exact drill-down link to the detailed CSV or section doc directly under that table.
+4. Use model judgment to choose what is important enough to surface inline.
+5. Keep `UI Shell First` decisions separate from `Behavior / Contract Lock` decisions.
+6. If uncertainty remains, write it inside the section instead of hiding it behind a link.
+7. Prefer judgment-rich condensation over mechanical file listing. CSV files are evidence, not the only readable form of the report.
+
 ## PM / PL Contract
 
 - The PM gives scope, priority, deadlines, and approval.

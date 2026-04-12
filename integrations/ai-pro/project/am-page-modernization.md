@@ -146,6 +146,22 @@ Do not confuse a `UI Shell` with stage3 starter output.
 - Reuse stage artifacts instead of re-reading all raw legacy files.
 - Prefer explicit artifact updates over long explanations.
 
+## Canonical English Main Report Contract
+
+For each page, maintain one canonical English main report that can be understood before opening CSV files.
+
+Main report requirements:
+
+1. Start with a short table of contents.
+2. Keep the report readable standalone, not as navigation only.
+3. For each major category such as UI shell, datasets, actions, backend/endpoints, files, and verification:
+   - write a short summary,
+   - include an inline markdown table with the most important rows,
+   - place the drill-down CSV or section link directly under that table.
+4. Use AI judgment to decide which rows deserve inline visibility.
+5. Keep `UI Shell First` decisions separate from `Behavior / Contract Lock` decisions.
+6. State uncertainty inside the section instead of hiding it behind a link.
+
 ## PM Reporting Contract
 
 At the end of a run, report:
@@ -153,3 +169,4 @@ At the end of a run, report:
 - locked decisions
 - remaining risks or unknowns
 - next recommended step
+- whether the canonical English main report was refreshed

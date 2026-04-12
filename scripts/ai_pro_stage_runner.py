@@ -262,6 +262,8 @@ def _run_stage2(input_path: Path, config, paths, review_path: Path) -> int:
                 "pm_checklist": _relative_path(paths.pmChecklist, paths.reportDir),
             },
             {"stage1", "stage2"},
+            plan,
+            vue_config,
         ),
     )
 
@@ -392,6 +394,8 @@ def _run_stage3(input_path: Path, config, paths, review_path: Path) -> int:
                 "starter_bundle": _relative_path(paths.starterDir / "starter-bundle.json", paths.reportDir),
             },
             {"stage1", "stage2", "stage3"},
+            plan,
+            vue_config,
         ),
     )
 

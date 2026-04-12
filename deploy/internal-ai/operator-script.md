@@ -159,6 +159,10 @@ Execution policy:
 7. Inspect the PM checklist and make sure it matches the page's real business functions.
 8. Run stage3.
 9. Report locked decisions, remaining risks, and next implementation step.
+10. Refresh the canonical English main report for the page.
+11. Keep the main report readable standalone with inline summary tables for the important sections.
+12. Use drill-down links to extend the report, not replace it.
+13. Keep `UI Shell First` decisions separate from `Behavior / Contract Lock` decisions.
 ```
 
 Expected sample signals:
@@ -181,10 +185,12 @@ Ask the internal AI to read:
 Rule:
 
 - English reports remain canonical
-- Korean output is a derived operator/PM delivery layer
-- technical IDs, dataset IDs, transaction IDs, and file paths stay in backticks
-- default to summary-only Korean delivery, not a full mirrored Korean report tree
-- keep deep technical links pointed at the English canonical docs unless a Korean counterpart is explicitly required
+- use the reviewed English main report as the primary source
+- produce one Korean main summary for PM/operator use, not a full mirrored report tree
+- technical IDs, dataset IDs, transaction IDs, component IDs, and file paths stay in backticks
+- preserve links to the English canonical drill-down docs by default
+- keep the Korean version shorter than the English main report
+- if more Korean detail is needed, add it as a short appendix in the same Korean main summary document
 - before writing Korean files, list the exact output files and make sure none overwrite the English originals
 
 ## Phase 5: Switch To The Real Project

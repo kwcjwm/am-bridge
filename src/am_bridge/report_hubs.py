@@ -1,21 +1,23 @@
 from __future__ import annotations
 
+from typing import Any
+
 from am_bridge.models import ConversionPlanModel, PageConversionPackage, VuePageConfigModel
-from am_bridge.reporting import join_values, markdown_link, render_contents, render_markdown_table
+from am_bridge.reporting import join_values, limit_text, markdown_link, render_contents, render_markdown_table
 
 
-PAGE_ARTIFACT_LABELS: dict[str, tuple[str, str]] = {
-    "page_spec": ("페이지 스펙", "Page spec"),
-    "package_json": ("Stage 1 패키지 JSON", "Stage 1 package JSON"),
-    "package_report": ("Stage 1 패키지 보고서", "Stage 1 package report"),
-    "analysis_report": ("상세 레거시 분석 보고서", "Detailed legacy analysis report"),
-    "review_json": ("리뷰 보정 파일", "Review override file"),
-    "plan_json": ("Stage 2 계획 JSON", "Stage 2 plan JSON"),
-    "plan_report": ("Stage 2 계획 보고서", "Stage 2 plan report"),
-    "vue_config_json": ("Vue 계약 JSON", "Vue contract JSON"),
-    "pm_checklist": ("PM 테스트 체크리스트", "PM test checklist"),
-    "starter_dir": ("Starter 디렉토리", "Starter directory"),
-    "starter_bundle": ("Starter 번들 메타파일", "Starter bundle metadata"),
+PAGE_ARTIFACT_LABELS: dict[str, str] = {
+    "page_spec": "Page spec",
+    "package_json": "Stage 1 package JSON",
+    "package_report": "Stage 1 package report",
+    "analysis_report": "Detailed legacy analysis report",
+    "review_json": "Review override file",
+    "plan_json": "Stage 2 plan JSON",
+    "plan_report": "Stage 2 plan report",
+    "vue_config_json": "Vue contract JSON",
+    "pm_checklist": "PM test checklist",
+    "starter_dir": "Starter directory",
+    "starter_bundle": "Starter bundle metadata",
 }
 
 
@@ -23,10 +25,13 @@ def build_page_report_hub(
     package: PageConversionPackage,
     artifact_links: dict[str, str],
     available_stages: set[str],
+    plan: ConversionPlanModel | None = None,
+    vue_config: VuePageConfigModel | None = None,
 ) -> dict[str, str]:
+    content = _render_page_hub(package, artifact_links, available_stages, plan, vue_config)
     return {
-        "README.md": _render_page_hub(package, artifact_links, available_stages, "en"),
-        "README.en.md": _render_page_hub(package, artifact_links, available_stages, "en"),
+        "README.md": content,
+        "README.en.md": content,
         "translate-to-korean.md": _render_translation_guide(package),
     }
 
@@ -35,21 +40,28 @@ def build_stage1_hub_docs(
     package: PageConversionPackage,
     compact_specs: list[tuple[str, str, str]],
 ) -> dict[str, str]:
+    overview = _render_stage1_overview(package, compact_specs)
+    datasets = _render_stage1_datasets_doc(package)
+    components = _render_stage1_components_doc(package)
+    actions = _render_stage1_actions_doc(package)
+    backend = _render_stage1_backend_doc(package)
+    navigation = _render_stage1_navigation_doc(package)
+    validation = _render_stage1_validation_doc(package)
     return {
-        "README.md": _render_stage1_overview(package, compact_specs, "en"),
-        "README.en.md": _render_stage1_overview(package, compact_specs, "en"),
-        "sections/datasets.md": _render_stage1_datasets_doc(package, "en"),
-        "sections/datasets.en.md": _render_stage1_datasets_doc(package, "en"),
-        "sections/components.md": _render_stage1_components_doc(package, "en"),
-        "sections/components.en.md": _render_stage1_components_doc(package, "en"),
-        "sections/actions.md": _render_stage1_actions_doc(package, "en"),
-        "sections/actions.en.md": _render_stage1_actions_doc(package, "en"),
-        "sections/backend.md": _render_stage1_backend_doc(package, "en"),
-        "sections/backend.en.md": _render_stage1_backend_doc(package, "en"),
-        "sections/navigation.md": _render_stage1_navigation_doc(package, "en"),
-        "sections/navigation.en.md": _render_stage1_navigation_doc(package, "en"),
-        "sections/validation.md": _render_stage1_validation_doc(package, "en"),
-        "sections/validation.en.md": _render_stage1_validation_doc(package, "en"),
+        "README.md": overview,
+        "README.en.md": overview,
+        "sections/datasets.md": datasets,
+        "sections/datasets.en.md": datasets,
+        "sections/components.md": components,
+        "sections/components.en.md": components,
+        "sections/actions.md": actions,
+        "sections/actions.en.md": actions,
+        "sections/backend.md": backend,
+        "sections/backend.en.md": backend,
+        "sections/navigation.md": navigation,
+        "sections/navigation.en.md": navigation,
+        "sections/validation.md": validation,
+        "sections/validation.en.md": validation,
     }
 
 
@@ -59,19 +71,25 @@ def build_stage2_hub_docs(
     vue_config: VuePageConfigModel,
     compact_specs: list[tuple[str, str, str]],
 ) -> dict[str, str]:
+    overview = _render_stage2_overview(package, plan, vue_config, compact_specs)
+    ui_contract = _render_stage2_ui_contract_doc(plan, vue_config)
+    actions = _render_stage2_actions_doc(vue_config)
+    endpoints = _render_stage2_endpoints_doc(vue_config)
+    files = _render_stage2_files_doc(plan)
+    verification = _render_stage2_verification_doc(package, plan, vue_config)
     return {
-        "README.md": _render_stage2_overview(package, plan, vue_config, compact_specs, "en"),
-        "README.en.md": _render_stage2_overview(package, plan, vue_config, compact_specs, "en"),
-        "sections/ui-contract.md": _render_stage2_ui_contract_doc(package, plan, vue_config, "en"),
-        "sections/ui-contract.en.md": _render_stage2_ui_contract_doc(package, plan, vue_config, "en"),
-        "sections/actions.md": _render_stage2_actions_doc(package, vue_config, "en"),
-        "sections/actions.en.md": _render_stage2_actions_doc(package, vue_config, "en"),
-        "sections/endpoints.md": _render_stage2_endpoints_doc(package, vue_config, "en"),
-        "sections/endpoints.en.md": _render_stage2_endpoints_doc(package, vue_config, "en"),
-        "sections/files.md": _render_stage2_files_doc(plan, "en"),
-        "sections/files.en.md": _render_stage2_files_doc(plan, "en"),
-        "sections/verification.md": _render_stage2_verification_doc(package, plan, vue_config, "en"),
-        "sections/verification.en.md": _render_stage2_verification_doc(package, plan, vue_config, "en"),
+        "README.md": overview,
+        "README.en.md": overview,
+        "sections/ui-contract.md": ui_contract,
+        "sections/ui-contract.en.md": ui_contract,
+        "sections/actions.md": actions,
+        "sections/actions.en.md": actions,
+        "sections/endpoints.md": endpoints,
+        "sections/endpoints.en.md": endpoints,
+        "sections/files.md": files,
+        "sections/files.en.md": files,
+        "sections/verification.md": verification,
+        "sections/verification.en.md": verification,
     }
 
 
@@ -84,169 +102,35 @@ def _render_translation_guide(package: PageConversionPackage) -> str:
         "",
         "## Rules",
         "",
-        "- Treat the generated English Markdown as the canonical source of truth.",
-        "- Preserve dataset IDs, transaction IDs, endpoint names, and file paths in backticks.",
-        "- Translate explanation text, not technical identifiers.",
+        "- Treat the English Markdown as the canonical source of truth.",
+        "- Preserve dataset IDs, transaction IDs, endpoint names, component IDs, and file paths in backticks.",
+        "- Translate explanation text and business meaning, not technical identifiers.",
         "- Do not edit the English originals unless explicitly asked.",
-        "- Default to summary-only Korean delivery, not a full mirrored Korean tree.",
-        "- Keep detailed links pointed at the English canonical docs unless a Korean counterpart is explicitly required.",
-        "",
-        "## Default Korean Output Scope",
-        "",
-        "- `README.ko.md` for the page hub summary",
-        "- `stage1/README.ko.md` for the Stage 1 overview summary",
-        "- `stage2/README.ko.md` for the Stage 2 overview summary",
-        "- Korean summaries of the main narrative reports in `artifacts/packages/` and `artifacts/plans/`",
-        "- A Korean PM/operator version of the PM checklist when requested",
-        "- Keep section guides, CSV files, registries, and deep technical docs in English by default",
+        "- Default to one Korean main summary document, not a mirrored Korean report tree.",
+        "- Keep drill-down links pointed at the English canonical docs unless a Korean counterpart is explicitly required.",
         "",
         "## Suggested Prompt For Internal AI",
         "",
         "```text",
         f"Read the English canonical report set for `{page.pageId or 'legacy-page'}` and produce a Korean delivery version.",
         "Requirements:",
-        "1. Keep technical IDs, dataset IDs, transaction IDs, endpoint IDs, and file paths in backticks.",
-        "2. Translate only the explanatory text into natural Korean.",
-        "3. Translate only the summary-level PM/operator documents unless explicitly asked for a full Korean mirror.",
+        "1. Use the English main report as the primary source.",
+        "2. Keep technical IDs, dataset IDs, transaction IDs, endpoint IDs, component IDs, and file paths in backticks.",
+        "3. Produce one Korean main summary document unless a wider Korean scope is explicitly requested.",
         "4. Keep links pointed at the English canonical docs unless a Korean counterpart is explicitly required and named in advance.",
-        "5. Before writing files, list the exact Korean output files you plan to create and confirm that none of them overwrite the English originals.",
+        "5. Before writing files, list the exact Korean output files and confirm that none overwrite the English originals.",
         "6. Separate layout/signoff items from behavior/API/SQL lock items.",
         "7. Call out unresolved risks and manual review points clearly.",
-        "8. If file output is needed, create derived files such as `README.ko.md` or `stage2/README.ko.md` without changing the English originals.",
+        "8. If more Korean detail is needed, add it as a short appendix in the same Korean main summary document.",
         "```",
         "",
     ]
     return "\n".join(lines)
 
 
-def _render_page_hub(
-    package: PageConversionPackage,
-    artifact_links: dict[str, str],
-    available_stages: set[str],
-    lang: str,
-) -> str:
-    page = package.page
-    reading_order = [
-        f"1. {markdown_link(_t(lang, 'Stage 1 전체 안내', 'Stage 1 overview'), 'stage1/README.md')}",
-        f"2. {markdown_link(_t(lang, '데이터셋 분석', 'Dataset analysis'), 'stage1/sections/datasets.md')}",
-        f"3. {markdown_link(_t(lang, '행동/이벤트 분석', 'Action and event analysis'), 'stage1/sections/actions.md')}",
-        f"4. {markdown_link(_t(lang, '백엔드 추적', 'Backend trace'), 'stage1/sections/backend.md')}",
-    ]
-    if "stage2" in available_stages:
-        reading_order.extend(
-            [
-                f"5. {markdown_link(_t(lang, 'Stage 2 전체 안내', 'Stage 2 overview'), 'stage2/README.md')}",
-                f"6. {markdown_link(_t(lang, 'UI 계약', 'UI contract'), 'stage2/sections/ui-contract.md')}",
-                f"7. {markdown_link(_t(lang, '엔드포인트 계약', 'Endpoint contract'), 'stage2/sections/endpoints.md')}",
-                f"8. {markdown_link(_t(lang, '검증/체크리스트', 'Verification/checklist'), 'stage2/sections/verification.md')}",
-            ]
-        )
-    stage_status = [
-        f"- Stage 1: {_t(lang, '생성됨', 'generated')}",
-        f"- Stage 2: {_t(lang, '생성됨', 'generated') if 'stage2' in available_stages else _t(lang, '아직 없음', 'not generated yet')}",
-        f"- Stage 3: {_t(lang, '생성됨', 'generated') if 'stage3' in available_stages else _t(lang, '아직 없음', 'not generated yet')}",
-    ]
-    return _render_doc(
-        _t(lang, "페이지 종합 보고서", "Page Report Hub") + f" - {page.pageId or 'legacy-page'}",
-        [
-            (
-                _t(lang, "한눈에 보기", "At A Glance"),
-                [
-                    f"- {_t(lang, '페이지명', 'Page name')}: `{page.pageName or 'unknown'}`",
-                    f"- {_t(lang, '상호작용 패턴', 'Interaction pattern')}: `{page.interactionPattern or 'unknown'}`",
-                    f"- {_t(lang, '주요 데이터셋', 'Primary dataset')}: `{page.primaryDatasetId or 'unknown'}`",
-                    f"- {_t(lang, '대표 그리드', 'Main grid')}: `{page.mainGridComponentId or 'unknown'}`",
-                    f"- {_t(lang, '주요 트랜잭션', 'Primary transactions')}: `{join_values(page.primaryTransactionIds, 'none')}`",
-                ],
-            ),
-            (_t(lang, "현재 상태", "Current Status"), stage_status),
-            (_t(lang, "권장 읽기 순서", "Recommended Reading Order"), reading_order),
-            (_t(lang, "바로 가기", "Shortcuts"), _page_shortcuts(lang, available_stages)),
-            (_t(lang, "원본 산출물", "Primary Artifacts"), _artifact_lines(artifact_links, lang)),
-            (
-                _t(lang, "언어 안내", "Language"),
-                [
-                    f"- {markdown_link(_t(lang, '영문 정본', 'English canonical'), 'README.md')}",
-                    f"- {markdown_link(_t(lang, '호환용 영문 미러', 'Compatibility mirror'), 'README.en.md')}",
-                    f"- {markdown_link(_t(lang, '한글 변환 가이드', 'Korean translation guide'), 'translate-to-korean.md')}",
-                ],
-            ),
-        ],
-    )
-
-
-def _render_stage1_overview(
-    package: PageConversionPackage,
-    compact_specs: list[tuple[str, str, str]],
-    lang: str,
-) -> str:
-    page = package.page
-    return _render_doc(
-        _t(lang, "Stage 1 분석 보고서 안내", "Stage 1 Analysis Guide") + f" - {page.pageId or 'legacy-page'}",
-        [
-            (
-                _t(lang, "한눈에 보기", "At A Glance"),
-                [
-                    f"- {_t(lang, '페이지명', 'Page name')}: `{page.pageName or 'unknown'}`",
-                    f"- {_t(lang, '주요 데이터셋', 'Primary dataset')}: `{page.primaryDatasetId or 'unknown'}`",
-                    f"- {_t(lang, '대표 그리드', 'Main grid')}: `{page.mainGridComponentId or 'unknown'}`",
-                    f"- {_t(lang, '주요 트랜잭션', 'Primary transactions')}: `{join_values(page.primaryTransactionIds, 'none')}`",
-                    f"- {_t(lang, '백엔드 추적 수', 'Backend trace count')}: `{len(package.backendTraces)}`",
-                    f"- {_t(lang, '관련 화면 수', 'Related screen count')}: `{len(package.relatedPages)}`",
-                ],
-            ),
-            (_t(lang, "읽기 순서", "Reading Order"), _stage1_reading_order(lang)),
-            (_t(lang, "카테고리 안내", "Categories"), _stage1_categories(lang)),
-            (
-                _t(lang, "Compact CSV", "Compact CSV"),
-                [f"- {markdown_link(name, name)}: {_t(lang, ko, en)}" for name, ko, en in compact_specs],
-            ),
-            (
-                _t(lang, "한글 변환 워크플로", "Korean Translation Workflow"),
-                [f"- {markdown_link('translate-to-korean.md', '../translate-to-korean.md')}"],
-            ),
-        ],
-    )
-
-
-def _render_stage2_overview(
-    package: PageConversionPackage,
-    plan: ConversionPlanModel,
-    vue_config: VuePageConfigModel,
-    compact_specs: list[tuple[str, str, str]],
-    lang: str,
-) -> str:
-    return _render_doc(
-        _t(lang, "Stage 2 구현 계약 안내", "Stage 2 Plan Guide") + f" - {plan.pageId or 'legacy-page'}",
-        [
-            (
-                _t(lang, "한눈에 보기", "At A Glance"),
-                [
-                    f"- {_t(lang, '라우트', 'Route')}: `{plan.route or 'unknown'}`",
-                    f"- {_t(lang, 'Vue 페이지명', 'Vue page name')}: `{plan.vuePageName or 'unknown'}`",
-                    f"- {_t(lang, '주요 데이터셋', 'Primary dataset')}: `{package.page.primaryDatasetId or 'unknown'}`",
-                    f"- {_t(lang, '검색 컨트롤 수', 'Search control count')}: `{len(vue_config.searchControls)}`",
-                    f"- {_t(lang, '행동 수', 'Action count')}: `{len(vue_config.actions)}`",
-                    f"- {_t(lang, '엔드포인트 수', 'Endpoint count')}: `{len(vue_config.endpoints)}`",
-                ],
-            ),
-            (_t(lang, "읽기 순서", "Reading Order"), _stage2_reading_order(lang)),
-            (_t(lang, "카테고리 안내", "Categories"), _stage2_categories(lang)),
-            (
-                _t(lang, "Compact CSV", "Compact CSV"),
-                [f"- {markdown_link(name, name)}: {_t(lang, ko, en)}" for name, ko, en in compact_specs],
-            ),
-            (
-                _t(lang, "추가 자료", "Additional Material"),
-                [f"- {markdown_link('ai-prompts.md', 'ai-prompts.md')}"],
-            ),
-        ],
-    )
-
-
 def _render_doc(title: str, sections: list[tuple[str, list[str]]]) -> str:
     lines = [f"# {title}", ""]
-    lines.extend(render_contents([section_title for section_title, _body in sections]))
+    lines.extend(render_contents([section_title for section_title, _ in sections]))
     for section_title, body in sections:
         lines.append(f"## {section_title}")
         lines.append("")
@@ -255,78 +139,455 @@ def _render_doc(title: str, sections: list[tuple[str, list[str]]]) -> str:
     return "\n".join(lines).rstrip() + "\n"
 
 
-def _artifact_lines(artifact_links: dict[str, str], lang: str) -> list[str]:
-    lines: list[str] = []
-    for key, target in artifact_links.items():
-        ko_label, en_label = PAGE_ARTIFACT_LABELS.get(key, (key, key))
-        lines.append(f"- {markdown_link(_t(lang, ko_label, en_label), target)}")
-    return lines or ["- None"]
+def _artifact_lines(artifact_links: dict[str, str]) -> list[str]:
+    return [f"- {markdown_link(PAGE_ARTIFACT_LABELS.get(key, key), target)}" for key, target in artifact_links.items()] or ["- None"]
 
 
-def _page_shortcuts(lang: str, available_stages: set[str]) -> list[str]:
-    lines = [
-        f"- {_t(lang, '데이터셋', 'Datasets')}: {markdown_link('stage1/sections/datasets.md', 'stage1/sections/datasets.md')}",
-        f"- {_t(lang, '컴포넌트', 'Components')}: {markdown_link('stage1/sections/components.md', 'stage1/sections/components.md')}",
-        f"- {_t(lang, '행동/이벤트', 'Actions and events')}: {markdown_link('stage1/sections/actions.md', 'stage1/sections/actions.md')}",
-        f"- {_t(lang, '백엔드', 'Backend')}: {markdown_link('stage1/sections/backend.md', 'stage1/sections/backend.md')}",
-    ]
-    if "stage2" in available_stages:
-        lines.extend(
+def _detail_lines(label: str, links: list[tuple[str, str]]) -> list[str]:
+    return [f"- {label}: {', '.join(markdown_link(name, path) for name, path in links)}"]
+
+
+def _snapshot_lines(
+    intro: list[str],
+    columns: list[tuple[str, str]],
+    rows: list[dict[str, Any]],
+    detail_links: list[tuple[str, str]],
+) -> list[str]:
+    return [*intro, "", *render_markdown_table(columns, rows), "", *_detail_lines("Full detail", detail_links)]
+
+
+def _render_page_hub(
+    package: PageConversionPackage,
+    artifact_links: dict[str, str],
+    available_stages: set[str],
+    plan: ConversionPlanModel | None,
+    vue_config: VuePageConfigModel | None,
+) -> str:
+    page = package.page
+    sections = [
+        (
+            "Executive Snapshot",
             [
-                f"- {_t(lang, 'UI 계약', 'UI contract')}: {markdown_link('stage2/sections/ui-contract.md', 'stage2/sections/ui-contract.md')}",
-                f"- {_t(lang, '엔드포인트 계약', 'Endpoint contract')}: {markdown_link('stage2/sections/endpoints.md', 'stage2/sections/endpoints.md')}",
-                f"- {_t(lang, '검증', 'Verification')}: {markdown_link('stage2/sections/verification.md', 'stage2/sections/verification.md')}",
-            ]
-        )
+                "- This is the canonical English main report for the page.",
+                "- Read this page first. Use CSV and section docs only for drill-down detail.",
+                "",
+                *render_markdown_table(
+                    [("Field", "field"), ("Value", "value")],
+                    [
+                        {"field": "Page name", "value": page.pageName or "unknown"},
+                        {"field": "Interaction pattern", "value": page.interactionPattern or "unknown"},
+                        {"field": "Primary dataset", "value": _backtick(page.primaryDatasetId)},
+                        {"field": "Main grid", "value": _backtick(page.mainGridComponentId)},
+                        {"field": "Primary transactions", "value": _backtick_join(page.primaryTransactionIds)},
+                        {"field": "Route", "value": _backtick(plan.route) if plan and plan.route else "not locked yet"},
+                        {"field": "Vue page name", "value": _backtick(plan.vuePageName) if plan and plan.vuePageName else "not locked yet"},
+                    ],
+                ),
+                "",
+                f"- Stage 1: generated",
+                f"- Stage 2: {'generated' if 'stage2' in available_stages else 'not generated yet'}",
+                f"- Stage 3: {'generated' if 'stage3' in available_stages else 'not generated yet'}",
+            ],
+        ),
+        ("Recommended Reading Order", _page_reading_order(available_stages)),
+        ("UI Shell Snapshot", _ui_shell_snapshot_lines(page, vue_config, "stage2" if "stage2" in available_stages else "stage1")),
+        ("Dataset Snapshot", _dataset_snapshot_lines(page, "stage1")),
+        ("Action / Transaction Flow", _action_snapshot_lines(page, "stage1")),
+        ("Backend / Endpoint Snapshot", _backend_endpoint_snapshot_lines(package, vue_config, available_stages)),
+        ("Risks / Review Focus", _risk_snapshot_lines(package, vue_config)),
+        ("Drill-down Index", _drill_down_lines(available_stages)),
+        ("Primary Artifacts", _artifact_lines(artifact_links)),
+        ("Language", [f"- {markdown_link('English canonical', 'README.md')}", f"- {markdown_link('Compatibility mirror', 'README.en.md')}", f"- {markdown_link('Korean translation guide', 'translate-to-korean.md')}"]),
+    ]
+    return _render_doc(f"Page Report Hub - {page.pageId or 'legacy-page'}", sections)
+
+
+def _render_stage1_overview(package: PageConversionPackage, compact_specs: list[tuple[str, str, str]]) -> str:
+    page = package.page
+    sections = [
+        (
+            "Executive Snapshot",
+            [
+                "- Stage 1 is the evidence and restoration pass for the legacy page.",
+                "- This overview keeps the most important Stage 1 signals inline and points to detailed drill-down artifacts.",
+                "",
+                *render_markdown_table(
+                    [("Field", "field"), ("Value", "value")],
+                    [
+                        {"field": "Page name", "value": page.pageName or "unknown"},
+                        {"field": "Primary dataset", "value": _backtick(page.primaryDatasetId)},
+                        {"field": "Main grid", "value": _backtick(page.mainGridComponentId)},
+                        {"field": "Primary transactions", "value": _backtick_join(page.primaryTransactionIds)},
+                        {"field": "Backend trace count", "value": str(len(package.backendTraces))},
+                        {"field": "Related screen count", "value": str(len(package.relatedPages))},
+                    ],
+                ),
+            ],
+        ),
+        ("Reading Order", _stage1_reading_order()),
+        ("Dataset Snapshot", _dataset_snapshot_lines(page, "")),
+        ("Action Snapshot", _action_snapshot_lines(page, "")),
+        ("Backend Snapshot", _stage1_backend_snapshot_lines(package, "")),
+        ("Validation Snapshot", _validation_snapshot_lines(page, "")),
+        ("Detailed Table Index", [*[
+            f"- {markdown_link(name, name)}: {en}" for name, _ko, en in compact_specs
+        ], f"- {markdown_link('tables.md', 'tables.md')}: CSV-oriented index for the Stage 1 root directory.", f"- {markdown_link('translate-to-korean.md', '../translate-to-korean.md')}: derived Korean summary guidance."]),
+    ]
+    return _render_doc(f"Stage 1 Analysis Guide - {page.pageId or 'legacy-page'}", sections)
+
+
+def _render_stage2_overview(
+    package: PageConversionPackage,
+    plan: ConversionPlanModel,
+    vue_config: VuePageConfigModel,
+    compact_specs: list[tuple[str, str, str]],
+) -> str:
+    sections = [
+        (
+            "Executive Snapshot",
+            [
+                "- Stage 2 locks the implementation contract after Stage 1 review.",
+                "- The sections below show the contract inline before you open CSV or deep section docs.",
+                "",
+                *render_markdown_table(
+                    [("Field", "field"), ("Value", "value")],
+                    [
+                        {"field": "Route", "value": _backtick(plan.route or "unknown")},
+                        {"field": "Vue page name", "value": _backtick(plan.vuePageName or "unknown")},
+                        {"field": "Primary dataset", "value": _backtick(package.page.primaryDatasetId)},
+                        {"field": "Search control count", "value": str(len(vue_config.searchControls))},
+                        {"field": "Action count", "value": str(len(vue_config.actions))},
+                        {"field": "Endpoint count", "value": str(len(vue_config.endpoints))},
+                    ],
+                ),
+            ],
+        ),
+        ("Reading Order", _stage2_reading_order()),
+        ("UI Contract Snapshot", _ui_shell_snapshot_lines(package.page, vue_config, "")),
+        ("Action Contract Snapshot", _stage2_action_snapshot_lines(vue_config, "")),
+        ("Endpoint Contract Snapshot", _stage2_endpoint_snapshot_lines(vue_config, "")),
+        ("File Blueprint Snapshot", _file_blueprint_snapshot_lines(plan, "")),
+        ("Verification Snapshot", _verification_snapshot_lines(package, plan, vue_config, "")),
+        ("Detailed Table Index", [*[
+            f"- {markdown_link(name, name)}: {en}" for name, _ko, en in compact_specs
+        ], f"- {markdown_link('tables.md', 'tables.md')}: CSV-oriented index for the Stage 2 root directory.", f"- {markdown_link('ai-prompts.md', 'ai-prompts.md')}: prompt pack for internal AI follow-up."]),
+    ]
+    return _render_doc(f"Stage 2 Plan Guide - {plan.pageId or 'legacy-page'}", sections)
+
+
+def _render_stage1_section_doc(
+    title: str,
+    page_id: str,
+    intro: list[str],
+    quick_links: list[tuple[str, str]],
+    columns: list[tuple[str, str]],
+    rows: list[dict[str, Any]],
+) -> str:
+    return _render_doc(
+        f"{title} - {page_id or 'legacy-page'}",
+        [
+            ("What This Document Does", intro),
+            ("Quick Links", _detail_lines("Detail", quick_links)),
+            ("Summary", render_markdown_table(columns, rows)),
+        ],
+    )
+
+
+def _render_stage2_section_doc(
+    title: str,
+    page_id: str,
+    intro: list[str],
+    quick_links: list[tuple[str, str]],
+    sections: list[tuple[str, list[str]]],
+) -> str:
+    return _render_doc(f"{title} - {page_id or 'legacy-page'}", [("What This Document Does", intro), ("Quick Links", _detail_lines("Detail", quick_links)), *sections])
+
+
+def _render_stage1_datasets_doc(package: PageConversionPackage) -> str:
+    page = package.page
+    return _render_stage1_section_doc(
+        "Stage 1 Dataset Analysis",
+        page.pageId,
+        ["- Confirms the dominant datasets, their role, and their main bindings.", "- Use the linked CSV files when you need full columns or binding-level detail."],
+        [("datasets.csv", "../datasets.csv"), ("dataset-columns.csv", "../registries/dataset-columns.csv"), ("bindings.csv", "../registries/bindings.csv"), ("components", "components.md")],
+        [("Dataset", "dataset"), ("Role", "role"), ("Usage", "usage"), ("Bound components", "components"), ("Columns", "columns"), ("Salience", "salience")],
+        _dataset_rows(page),
+    )
+
+
+def _render_stage1_components_doc(package: PageConversionPackage) -> str:
+    page = package.page
+    return _render_stage1_section_doc(
+        "Stage 1 Components And Layout",
+        page.pageId,
+        ["- Reviews where buttons, inputs, grids, and containers are placed.", "- Use this first when UI Shell signoff pressure is stronger than behavior lock pressure."],
+        [("components.csv", "../components.csv"), ("bindings.csv", "../registries/bindings.csv"), ("grid-columns.csv", "../registries/grid-columns.csv")],
+        [("Component", "component"), ("Type", "type"), ("Group", "group"), ("Parent", "parent"), ("Events", "events"), ("Platform dependency", "platform")],
+        _component_rows(page),
+    )
+
+
+def _render_stage1_actions_doc(package: PageConversionPackage) -> str:
+    page = package.page
+    return _render_stage1_section_doc(
+        "Stage 1 Actions And Events",
+        page.pageId,
+        ["- Reviews which handlers touch datasets, transactions, and related screens.", "- If the flow is wrong here, the Stage 2 action contract will drift too."],
+        [("user-actions.csv", "../user-actions.csv"), ("functions.csv", "../registries/functions.csv"), ("events.csv", "../registries/events.csv"), ("transactions.csv", "../registries/transactions.csv")],
+        [("Handler", "handler"), ("Transactions", "transactions"), ("Reads", "reads"), ("Writes", "writes"), ("Controls", "controls"), ("Calls", "calls")],
+        _action_rows(page),
+    )
+
+
+def _render_stage1_backend_doc(package: PageConversionPackage) -> str:
+    return _render_stage1_section_doc(
+        "Stage 1 Backend Trace",
+        package.page.pageId,
+        ["- Traces each transaction into controller, service, DAO, and SQL evidence.", "- Read this together with dataset analysis before locking DB or API contracts."],
+        [("backend-traces.csv", "../backend-traces.csv"), ("transactions.csv", "../registries/transactions.csv")],
+        [("Transaction", "transaction"), ("URL", "url"), ("Controller", "controller"), ("Service", "service"), ("DAO", "dao"), ("SQL Map", "sql"), ("Tables", "tables")],
+        _backend_rows(package),
+    )
+
+
+def _render_stage1_navigation_doc(package: PageConversionPackage) -> str:
+    return _render_stage1_section_doc(
+        "Stage 1 Related Screens",
+        package.page.pageId,
+        ["- Reviews popups, subviews, and page-to-page navigation that leave the current page.", "- Resolve unresolved targets before collapsing them into the current page implementation."],
+        [("related-pages.csv", "../related-pages.csv"), ("navigation.csv", "../registries/navigation.csv")],
+        [("Type", "type"), ("Trigger", "trigger"), ("Target", "target"), ("Resolved page", "page"), ("Status", "status")],
+        _navigation_rows(package),
+    )
+
+
+def _render_stage1_validation_doc(package: PageConversionPackage) -> str:
+    page = package.page
+    return _render_stage1_section_doc(
+        "Stage 1 Validation And Messages",
+        page.pageId,
+        ["- Reviews validation, state rules, and user-facing message evidence.", "- Read this with action analysis when error messaging or disable/enable logic matters."],
+        [("validation-rules.csv", "../validation-rules.csv"), ("state-rules.csv", "../registries/state-rules.csv"), ("messages.csv", "../registries/messages.csv")],
+        [("Rule", "rule"), ("Field", "field"), ("Type", "type"), ("Timing", "timing"), ("Source", "source"), ("Message", "message")],
+        _validation_rows(page),
+    )
+
+
+def _render_stage2_ui_contract_doc(plan: ConversionPlanModel, vue_config: VuePageConfigModel) -> str:
+    return _render_stage2_section_doc(
+        "Stage 2 UI Contract",
+        plan.pageId,
+        ["- Reviews the post-conversion page shell and binding contract.", "- Use this to confirm customer-facing control placement before deeper behavior review."],
+        [("search-controls.csv", "../search-controls.csv"), ("grids.csv", "../grids.csv"), ("grid-columns.csv", "../grid-columns.csv")],
+        [("Search / Command Controls", render_markdown_table([("Component", "component"), ("Label", "label"), ("Dataset", "dataset"), ("Role", "role"), ("Events", "events")], _search_control_rows(vue_config))), ("Grid Contract", render_markdown_table([("Grid", "grid"), ("Dataset", "dataset"), ("Layout", "layout"), ("Columns", "columns"), ("Headers", "headers")], _grid_rows(vue_config)))],
+    )
+
+
+def _render_stage2_actions_doc(vue_config: VuePageConfigModel) -> str:
+    return _render_stage2_section_doc(
+        "Stage 2 Action Contract",
+        vue_config.pageId,
+        ["- Reviews which UI triggers connect to transactions, datasets, and navigation.", "- This is the locked action contract after the Stage 1 review pass."],
+        [("actions.csv", "../actions.csv"), ("related-pages.csv", "../related-pages.csv")],
+        [("Action Summary", render_markdown_table([("Function", "function"), ("Kind", "kind"), ("Source", "source"), ("Transactions", "transactions"), ("Reads", "reads"), ("Writes", "writes"), ("Navigation", "navigation")], _stage2_action_rows(vue_config)))],
+    )
+
+
+def _render_stage2_endpoints_doc(vue_config: VuePageConfigModel) -> str:
+    return _render_stage2_section_doc(
+        "Stage 2 Endpoint Contract",
+        vue_config.pageId,
+        ["- Reviews endpoint contract rows with input/output datasets and backend chain evidence.", "- Use this as the pre/post MyBatis conversion comparison reference."],
+        [("endpoints.csv", "../endpoints.csv"), ("related-pages.csv", "../related-pages.csv")],
+        [("Endpoint Summary", render_markdown_table([("Transaction", "transaction"), ("URL", "url"), ("Input datasets", "inputs"), ("Output datasets", "outputs"), ("Controller", "controller"), ("Service", "service"), ("DAO", "dao"), ("SQL Map", "sql")], _endpoint_rows(vue_config)))],
+    )
+
+
+def _render_stage2_files_doc(plan: ConversionPlanModel) -> str:
+    return _render_stage2_section_doc(
+        "Stage 2 File Blueprints",
+        plan.pageId,
+        ["- Explains which frontend and backend files are planned and why.", "- Use this as the minimum file split reference even if responsibilities shift later."],
+        [("file-blueprints.csv", "../file-blueprints.csv"), ("registry copy", "../registries/file-blueprints.csv")],
+        [("File Blueprint Summary", render_markdown_table([("Kind", "kind"), ("Path", "path"), ("Purpose", "purpose"), ("Summary", "summary")], _file_rows(plan)))],
+    )
+
+
+def _render_stage2_verification_doc(package: PageConversionPackage, plan: ConversionPlanModel, vue_config: VuePageConfigModel) -> str:
+    return _render_stage2_section_doc(
+        "Stage 2 Verification And Checklist",
+        plan.pageId,
+        ["- Explains what must be verified after Stage 2 decisions are locked.", "- Shows PM review focus alongside internal verification items."],
+        [("verification-checks.csv", "../registries/verification-checks.csv"), ("execution-steps.csv", "../registries/execution-steps.csv"), ("ai-prompts.md", "../ai-prompts.md")],
+        [("Verification Snapshot", _verification_snapshot_lines(package, plan, vue_config, ""))],
+    )
+
+
+def _ui_shell_snapshot_lines(page: Any, vue_config: VuePageConfigModel | None, base_path: str) -> list[str]:
+    control_rows = _search_control_rows(vue_config)[:6] if vue_config else _stage1_shell_rows(page)[:6]
+    grid_rows = _grid_rows(vue_config)[:3] if vue_config else _stage1_grid_rows(page)[:2]
+    detail_links = [("UI contract", _path(base_path, "sections/ui-contract.md")), ("search-controls.csv", _path(base_path, "search-controls.csv")), ("grids.csv", _path(base_path, "grids.csv"))] if vue_config else [("components", _path(base_path, "sections/components.md")), ("components.csv", _path(base_path, "components.csv"))]
+    return ["- This section is for early structure signoff. It does not imply behavior/API/SQL lock by itself.", "- Focus here when the main risk is moved buttons, missing sections, or changed popup entry points.", "", "**Key controls**", "", *render_markdown_table([("Component", "component"), ("Label", "label"), ("Dataset", "dataset"), ("Role", "role"), ("Events", "events")], control_rows), "", "**Grid anchors**", "", *render_markdown_table([("Grid", "grid"), ("Dataset", "dataset"), ("Layout", "layout"), ("Columns", "columns"), ("Headers", "headers")], grid_rows), "", *_detail_lines("Full detail", detail_links)]
+
+
+def _dataset_snapshot_lines(page: Any, base_path: str) -> list[str]:
+    rows = _dataset_rows(page)
+    return _snapshot_lines(["- The primary dataset is always shown first, followed by the highest-salience datasets.", f"- Showing {min(len(rows), 5)} of {len(rows)} datasets inline."], [("Dataset", "dataset"), ("Role", "role"), ("Usage", "usage"), ("Bound components", "components"), ("Columns", "columns"), ("Salience", "salience")], rows[:5], [("Dataset analysis", _path(base_path, "sections/datasets.md")), ("datasets.csv", _path(base_path, "datasets.csv")), ("dataset-columns.csv", _path(base_path, "registries/dataset-columns.csv")), ("bindings.csv", _path(base_path, "registries/bindings.csv"))])
+
+
+def _action_snapshot_lines(page: Any, base_path: str) -> list[str]:
+    rows = _action_rows(page)
+    return _snapshot_lines(["- Prioritized handlers are the ones that call transactions, write datasets, or navigate away from the page.", f"- Showing {min(len(rows), 5)} of {len(rows)} handlers inline."], [("Handler", "handler"), ("Transactions", "transactions"), ("Reads", "reads"), ("Writes", "writes"), ("Controls", "controls"), ("Calls", "calls")], rows[:5], [("Action analysis", _path(base_path, "sections/actions.md")), ("user-actions.csv", _path(base_path, "user-actions.csv")), ("functions.csv", _path(base_path, "registries/functions.csv")), ("events.csv", _path(base_path, "registries/events.csv"))])
+
+
+def _stage1_backend_snapshot_lines(package: PageConversionPackage, base_path: str) -> list[str]:
+    rows = _backend_rows(package)
+    return _snapshot_lines(["- Primary transactions and unresolved chains are surfaced first.", f"- Showing {min(len(rows), 5)} of {len(rows)} backend traces inline."], [("Transaction", "transaction"), ("URL", "url"), ("Controller", "controller"), ("Service", "service"), ("DAO", "dao"), ("SQL Map", "sql"), ("Tables", "tables")], rows[:5], [("Backend trace", _path(base_path, "sections/backend.md")), ("backend-traces.csv", _path(base_path, "backend-traces.csv")), ("transactions.csv", _path(base_path, "registries/transactions.csv"))])
+
+
+def _backend_endpoint_snapshot_lines(package: PageConversionPackage, vue_config: VuePageConfigModel | None, available_stages: set[str]) -> list[str]:
+    if vue_config and "stage2" in available_stages:
+        return _stage2_endpoint_snapshot_lines(vue_config, "stage2")
+    return _stage1_backend_snapshot_lines(package, "stage1")
+
+
+def _validation_snapshot_lines(page: Any, base_path: str) -> list[str]:
+    rows = _validation_rows(page)
+    return _snapshot_lines(["- Validation rows surface fields with user-facing messages or non-trivial timing.", f"- Showing {min(len(rows), 5)} of {len(rows)} validation rules inline."], [("Rule", "rule"), ("Field", "field"), ("Type", "type"), ("Timing", "timing"), ("Source", "source"), ("Message", "message")], rows[:5], [("Validation detail", _path(base_path, "sections/validation.md")), ("validation-rules.csv", _path(base_path, "validation-rules.csv")), ("messages.csv", _path(base_path, "registries/messages.csv"))])
+
+
+def _stage2_action_snapshot_lines(vue_config: VuePageConfigModel, base_path: str) -> list[str]:
+    rows = _stage2_action_rows(vue_config)
+    return _snapshot_lines(["- Action contracts below show which UI triggers touch transactions, datasets, and navigation.", f"- Showing {min(len(rows), 5)} of {len(rows)} actions inline."], [("Function", "function"), ("Kind", "kind"), ("Source", "source"), ("Transactions", "transactions"), ("Reads", "reads"), ("Writes", "writes"), ("Navigation", "navigation")], rows[:5], [("Action contract", _path(base_path, "sections/actions.md")), ("actions.csv", _path(base_path, "actions.csv")), ("related-pages.csv", _path(base_path, "related-pages.csv"))])
+
+
+def _stage2_endpoint_snapshot_lines(vue_config: VuePageConfigModel, base_path: str) -> list[str]:
+    rows = _endpoint_rows(vue_config)
+    return _snapshot_lines(["- Primary transactions and unresolved endpoint chains stay visible here.", f"- Showing {min(len(rows), 5)} of {len(rows)} endpoint rows inline."], [("Transaction", "transaction"), ("URL", "url"), ("Input datasets", "inputs"), ("Output datasets", "outputs"), ("Controller", "controller"), ("Service", "service"), ("DAO", "dao"), ("SQL Map", "sql")], rows[:5], [("Endpoint contract", _path(base_path, "sections/endpoints.md")), ("endpoints.csv", _path(base_path, "endpoints.csv")), ("related-pages.csv", _path(base_path, "related-pages.csv"))])
+
+
+def _file_blueprint_snapshot_lines(plan: ConversionPlanModel, base_path: str) -> list[str]:
+    rows = _file_rows(plan)
+    return _snapshot_lines(["- Keep this file split visible even when later R&R adjustments move implementation ownership.", f"- Showing {min(len(rows), 6)} of {len(rows)} planned files inline."], [("Kind", "kind"), ("Path", "path"), ("Purpose", "purpose"), ("Summary", "summary")], rows[:6], [("File blueprints", _path(base_path, "sections/files.md")), ("file-blueprints.csv", _path(base_path, "file-blueprints.csv"))])
+
+
+def _verification_snapshot_lines(package: PageConversionPackage, plan: ConversionPlanModel, vue_config: VuePageConfigModel, base_path: str) -> list[str]:
+    checks = [{"check": limit_text(item, 100)} for item in plan.verificationChecks[:6]]
+    pm_rows = [{"item": "Confirm the primary dataset and main grid", "detail": f"{_backtick(package.page.primaryDatasetId)} / {_backtick(package.page.mainGridComponentId)}"}, {"item": "Confirm the primary transactions", "detail": _backtick_join(package.page.primaryTransactionIds)}, {"item": "Confirm action and endpoint counts", "detail": f"action={len(vue_config.actions)}, endpoint={len(vue_config.endpoints)}"}]
+    return ["- Use this section as the short acceptance view before opening the full PM checklist or verification registries.", "", "**Verification checks**", "", *render_markdown_table([("Check", "check")], checks), "", "**PM review focus**", "", *render_markdown_table([("Item", "item"), ("Detail", "detail")], pm_rows), "", *_detail_lines("Full detail", [("Verification detail", _path(base_path, "sections/verification.md")), ("verification-checks.csv", _path(base_path, "registries/verification-checks.csv")), ("execution-steps.csv", _path(base_path, "registries/execution-steps.csv"))])]
+
+
+def _risk_snapshot_lines(package: PageConversionPackage, vue_config: VuePageConfigModel | None) -> list[str]:
+    unresolved_related = sum(1 for item in package.relatedPages if (item.resolutionStatus or "").lower() != "resolved")
+    unknown_backend = sum(1 for item in package.backendTraces if not (item.controllerClass or item.serviceImplClass or item.daoClass or item.sqlMapId))
+    unknown_endpoints = sum(1 for item in (vue_config.endpoints if vue_config else []) if not (item.get("controller") or item.get("service") or item.get("dao") or item.get("sqlMapId")))
+    rows = [{"area": "Related screens", "detail": f"{unresolved_related} unresolved navigation targets"}, {"area": "Backend traces", "detail": f"{unknown_backend} traces without controller/service/DAO/sqlMap evidence"}, {"area": "Stage 2 endpoints", "detail": f"{unknown_endpoints} endpoint rows still have unknown backend chain" if vue_config else "not locked yet"}, {"area": "Validation", "detail": f"{len(package.page.validationRules)} validation rules need PM review"}, {"area": "Open questions", "detail": str(len(package.openQuestions))}]
+    lines = ["- Keep unresolved or weakly-supported items visible here instead of burying them in deep links.", "", *render_markdown_table([("Area", "area"), ("Detail", "detail")], rows)]
+    if package.openQuestions:
+        lines.extend(["", "**Open questions**", "", *[f"- {item}" for item in package.openQuestions[:6]]])
     return lines
 
 
-def _stage1_reading_order(lang: str) -> list[str]:
-    return [
-        f"1. {markdown_link(_t(lang, '데이터셋 분석', 'Dataset analysis'), 'sections/datasets.md')}",
-        f"2. {markdown_link(_t(lang, '백엔드 추적', 'Backend trace'), 'sections/backend.md')}",
-        f"3. {markdown_link(_t(lang, '행동/이벤트', 'Actions and events'), 'sections/actions.md')}",
-        f"4. {markdown_link(_t(lang, '관련 화면', 'Related screens'), 'sections/navigation.md')}",
-    ]
+def _drill_down_lines(available_stages: set[str]) -> list[str]:
+    lines = [f"- Datasets: {markdown_link('Stage 1 dataset guide', 'stage1/sections/datasets.md')} | {markdown_link('datasets.csv', 'stage1/datasets.csv')}", f"- Components / layout: {markdown_link('Stage 1 component guide', 'stage1/sections/components.md')} | {markdown_link('components.csv', 'stage1/components.csv')}", f"- Actions / events: {markdown_link('Stage 1 action guide', 'stage1/sections/actions.md')} | {markdown_link('user-actions.csv', 'stage1/user-actions.csv')}", f"- Backend traces: {markdown_link('Stage 1 backend guide', 'stage1/sections/backend.md')} | {markdown_link('backend-traces.csv', 'stage1/backend-traces.csv')}", f"- Validation: {markdown_link('Stage 1 validation guide', 'stage1/sections/validation.md')} | {markdown_link('validation-rules.csv', 'stage1/validation-rules.csv')}"]
+    if "stage2" in available_stages:
+        lines.extend([f"- UI contract: {markdown_link('Stage 2 UI guide', 'stage2/sections/ui-contract.md')} | {markdown_link('search-controls.csv', 'stage2/search-controls.csv')} | {markdown_link('grids.csv', 'stage2/grids.csv')}", f"- Action contract: {markdown_link('Stage 2 action guide', 'stage2/sections/actions.md')} | {markdown_link('actions.csv', 'stage2/actions.csv')}", f"- Endpoint contract: {markdown_link('Stage 2 endpoint guide', 'stage2/sections/endpoints.md')} | {markdown_link('endpoints.csv', 'stage2/endpoints.csv')}", f"- Files / verification: {markdown_link('Stage 2 files', 'stage2/sections/files.md')} | {markdown_link('Stage 2 verification', 'stage2/sections/verification.md')} | {markdown_link('file-blueprints.csv', 'stage2/file-blueprints.csv')}"])
+    return lines
 
 
-def _stage2_reading_order(lang: str) -> list[str]:
-    return [
-        f"1. {markdown_link(_t(lang, 'UI 계약', 'UI contract'), 'sections/ui-contract.md')}",
-        f"2. {markdown_link(_t(lang, '행동 계약', 'Action contract'), 'sections/actions.md')}",
-        f"3. {markdown_link(_t(lang, '엔드포인트 계약', 'Endpoint contract'), 'sections/endpoints.md')}",
-        f"4. {markdown_link(_t(lang, '파일 청사진', 'File blueprints'), 'sections/files.md')}",
-        f"5. {markdown_link(_t(lang, '검증과 체크리스트', 'Verification and checklist'), 'sections/verification.md')}",
-    ]
+def _page_reading_order(available_stages: set[str]) -> list[str]:
+    order = [f"1. {markdown_link('Stage 1 overview', 'stage1/README.md')}", f"2. {markdown_link('Stage 1 dataset guide', 'stage1/sections/datasets.md')}", f"3. {markdown_link('Stage 1 action guide', 'stage1/sections/actions.md')}", f"4. {markdown_link('Stage 1 backend guide', 'stage1/sections/backend.md')}"]
+    if "stage2" in available_stages:
+        order.extend([f"5. {markdown_link('Stage 2 overview', 'stage2/README.md')}", f"6. {markdown_link('Stage 2 UI guide', 'stage2/sections/ui-contract.md')}", f"7. {markdown_link('Stage 2 endpoint guide', 'stage2/sections/endpoints.md')}", f"8. {markdown_link('Stage 2 verification guide', 'stage2/sections/verification.md')}"])
+    return order
 
 
-def _stage1_categories(lang: str) -> list[str]:
-    return [
-        f"- {markdown_link(_t(lang, '데이터셋 분석', 'Dataset analysis'), 'sections/datasets.md')}",
-        f"- {markdown_link(_t(lang, '컴포넌트와 배치', 'Components and layout'), 'sections/components.md')}",
-        f"- {markdown_link(_t(lang, '행동과 이벤트', 'Actions and events'), 'sections/actions.md')}",
-        f"- {markdown_link(_t(lang, '백엔드 추적', 'Backend trace'), 'sections/backend.md')}",
-        f"- {markdown_link(_t(lang, '관련 화면', 'Related screens'), 'sections/navigation.md')}",
-        f"- {markdown_link(_t(lang, '검증과 메시지', 'Validation and messages'), 'sections/validation.md')}",
-    ]
+def _stage1_reading_order() -> list[str]:
+    return [f"1. {markdown_link('Dataset analysis', 'sections/datasets.md')}", f"2. {markdown_link('Backend trace', 'sections/backend.md')}", f"3. {markdown_link('Action analysis', 'sections/actions.md')}", f"4. {markdown_link('Related screens', 'sections/navigation.md')}", f"5. {markdown_link('Validation and messages', 'sections/validation.md')}"]
 
 
-def _stage2_categories(lang: str) -> list[str]:
-    return [
-        f"- {markdown_link(_t(lang, 'UI 계약', 'UI contract'), 'sections/ui-contract.md')}",
-        f"- {markdown_link(_t(lang, '행동 계약', 'Action contract'), 'sections/actions.md')}",
-        f"- {markdown_link(_t(lang, '엔드포인트 계약', 'Endpoint contract'), 'sections/endpoints.md')}",
-        f"- {markdown_link(_t(lang, '파일 청사진', 'File blueprints'), 'sections/files.md')}",
-        f"- {markdown_link(_t(lang, '검증과 체크리스트', 'Verification and checklist'), 'sections/verification.md')}",
-    ]
+def _stage2_reading_order() -> list[str]:
+    return [f"1. {markdown_link('UI contract', 'sections/ui-contract.md')}", f"2. {markdown_link('Action contract', 'sections/actions.md')}", f"3. {markdown_link('Endpoint contract', 'sections/endpoints.md')}", f"4. {markdown_link('File blueprints', 'sections/files.md')}", f"5. {markdown_link('Verification and checklist', 'sections/verification.md')}"]
 
 
-def _t(lang: str, ko: str, en: str) -> str:
-    return ko if lang == "ko" else en
+def _dataset_rows(page: Any) -> list[dict[str, Any]]:
+    items = sorted(page.datasets, key=lambda item: (item.datasetId != page.primaryDatasetId, -item.salienceScore, item.datasetId))
+    return [{"dataset": _mark_primary(item.datasetId, item.datasetId == page.primaryDatasetId), "role": item.role or "unknown", "usage": item.primaryUsage or "unknown", "components": join_values(item.boundComponents[:3], "none"), "columns": len(item.columns), "salience": item.salienceScore} for item in items]
+
+
+def _component_rows(page: Any) -> list[dict[str, Any]]:
+    return [{"component": item.componentId, "type": item.componentType, "group": item.layoutGroup or "unknown", "parent": item.parentId or "root", "events": join_values(item.events, "none"), "platform": join_values(item.platformDependency, "none")} for item in page.components]
+
+
+def _action_rows(page: Any) -> list[dict[str, Any]]:
+    items = [item for item in page.functions if item.functionType == "event-handler"]
+    items.sort(key=lambda item: (-len(item.callsTransactions), -len(item.writesDatasets), -len(item.readsDatasets), -len(item.controlsComponents), item.functionName))
+    return [{"handler": item.functionName, "transactions": _backtick_join(item.callsTransactions), "reads": _backtick_join(item.readsDatasets), "writes": _backtick_join(item.writesDatasets), "controls": _backtick_join(item.controlsComponents), "calls": _backtick_join(item.callsFunctions)} for item in items]
+
+
+def _backend_rows(package: PageConversionPackage) -> list[dict[str, Any]]:
+    primary = set(package.page.primaryTransactionIds)
+    items = list(package.backendTraces)
+    items.sort(key=lambda item: (item.transactionId not in primary, bool(item.controllerClass or item.serviceImplClass or item.daoClass or item.sqlMapId), item.transactionId))
+    return [{"transaction": _backtick(item.transactionId), "url": item.url or "unknown", "controller": _join_pair(item.controllerClass, item.controllerMethod), "service": _join_pair(item.serviceImplClass or item.serviceInterface, item.serviceMethod), "dao": _join_pair(item.daoClass, item.daoMethod), "sql": item.sqlMapId or "unknown", "tables": join_values(item.tableCandidates[:3], "none")} for item in items]
+
+
+def _navigation_rows(package: PageConversionPackage) -> list[dict[str, Any]]:
+    return [{"type": item.navigationType or "unknown", "trigger": item.triggerFunction or "unknown", "target": item.target or item.navigationId or "unknown", "page": item.pageId or item.pageName or "unresolved", "status": item.resolutionStatus or "unknown"} for item in package.relatedPages]
+
+
+def _validation_rows(page: Any) -> list[dict[str, Any]]:
+    items = list(page.validationRules)
+    items.sort(key=lambda item: (not bool(item.message), item.targetField or "", item.ruleId))
+    return [{"rule": item.ruleId, "field": item.targetField or "unknown", "type": item.validationType or "unknown", "timing": item.triggerTiming or "unknown", "source": item.sourceFunction or "unknown", "message": limit_text(item.message or item.expression or "unknown", 80)} for item in items]
+
+
+def _search_control_rows(vue_config: VuePageConfigModel | None) -> list[dict[str, Any]]:
+    if not vue_config:
+        return []
+    return [{"component": item.get("componentId", "") or "unknown", "label": item.get("label", "") or item.get("componentId", "") or "unknown", "dataset": item.get("datasetId", "") or "none", "role": item.get("controlRole", "") or "unknown", "events": join_values(item.get("events", [])[:3], "none")} for item in vue_config.searchControls]
+
+
+def _grid_rows(vue_config: VuePageConfigModel | None) -> list[dict[str, Any]]:
+    if not vue_config:
+        return []
+    return [{"grid": item.get("componentId", "") or "unknown", "dataset": item.get("datasetId", "") or "unknown", "layout": item.get("layoutGroup", "") or "unknown", "columns": len(item.get("bodyColumns", [])), "headers": limit_text(join_values(item.get("headerTexts", [])[:4], "none"), 60)} for item in vue_config.grids]
+
+
+def _stage1_shell_rows(page: Any) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for item in sorted(page.components, key=lambda comp: (comp.componentId != page.mainGridComponentId, comp.layoutGroup or "", comp.componentId)):
+        if item.componentType.lower() not in {"button", "grid", "edit", "combo", "textarea", "tab"}:
+            continue
+        rows.append({"component": item.componentId, "label": item.properties.get("text", "") or item.componentId, "dataset": "n/a", "role": item.layoutGroup or item.componentType, "events": join_values(item.events[:3], "none")})
+    return rows
+
+
+def _stage1_grid_rows(page: Any) -> list[dict[str, Any]]:
+    rows = [{"grid": item.componentId, "dataset": page.primaryDatasetId or "unknown", "layout": item.layoutGroup or "unknown", "columns": "n/a", "headers": limit_text(str(item.properties.get("format", "") or "see grid-columns.csv"), 60)} for item in page.components if item.componentType.lower() == "grid"]
+    return rows or [{"grid": page.mainGridComponentId or "unknown", "dataset": page.primaryDatasetId or "unknown", "layout": "unknown", "columns": "n/a", "headers": "see grid-columns.csv"}]
+
+
+def _stage2_action_rows(vue_config: VuePageConfigModel) -> list[dict[str, Any]]:
+    rows = [{"function": item.get("functionName", "") or "unknown", "kind": item.get("actionKind", "") or "unknown", "source": item.get("sourceComponentLabel", "") or item.get("sourceComponentId", "") or "unknown", "transactions": _backtick_join(item.get("transactions", [])), "reads": _backtick_join(item.get("readsDatasets", [])), "writes": _backtick_join(item.get("writesDatasets", [])), "navigation": _backtick_join([nav.get("pageId") or nav.get("target") or "unresolved" for nav in item.get("navigationTargets", [])])} for item in vue_config.actions]
+    rows.sort(key=lambda item: ("none" in item["transactions"], "none" in item["writes"], item["function"]))
+    return rows
+
+
+def _endpoint_rows(vue_config: VuePageConfigModel) -> list[dict[str, Any]]:
+    rows = [{"transaction": _backtick(item.get("transactionId", "") or "unknown"), "url": item.get("url", "") or "unknown", "inputs": _backtick_join(item.get("inputDatasets", [])), "outputs": _backtick_join(item.get("outputDatasets", [])), "controller": item.get("controller", "") or "unknown", "service": item.get("service", "") or "unknown", "dao": item.get("dao", "") or "unknown", "sql": item.get("sqlMapId", "") or "unknown"} for item in vue_config.endpoints]
+    rows.sort(key=lambda item: (item["controller"] != "unknown" and item["service"] != "unknown" and item["dao"] != "unknown" and item["sql"] != "unknown", item["transaction"]))
+    return rows
+
+
+def _file_rows(plan: ConversionPlanModel) -> list[dict[str, Any]]:
+    rows = [{"kind": "frontend", "path": file.path, "purpose": file.purpose, "summary": limit_text(file.summary, 80)} for file in plan.frontendFiles] + [{"kind": "backend", "path": file.path, "purpose": file.purpose, "summary": limit_text(file.summary, 80)} for file in plan.backendFiles]
+    rows.sort(key=lambda item: (item["kind"], item["path"]))
+    return rows
 
 
 def _mark_primary(value: str, is_primary: bool) -> str:
-    return f"{value} [PRIMARY]" if is_primary else value
+    return f"{value} [PRIMARY]" if is_primary and value else value or "unknown"
 
 
 def _join_pair(first: str, second: str) -> str:
@@ -334,578 +595,14 @@ def _join_pair(first: str, second: str) -> str:
     return ".".join(parts) if parts else "unknown"
 
 
-def _render_stage1_datasets_doc(package: PageConversionPackage, lang: str) -> str:
-    page = package.page
-    rows = [
-        {
-            "dataset": _mark_primary(dataset.datasetId, dataset.datasetId == page.primaryDatasetId),
-            "role": dataset.role or "unknown",
-            "usage": dataset.primaryUsage or "unknown",
-            "components": join_values(dataset.boundComponents, "none"),
-            "columns": str(len(dataset.columns)),
-            "salience": str(dataset.salienceScore),
-        }
-        for dataset in sorted(page.datasets, key=lambda item: (-item.salienceScore, item.datasetId))
-    ]
-    return _render_doc(
-        _t(lang, "Stage 1 데이터셋 분석", "Stage 1 Dataset Analysis") + f" - {page.pageId or 'legacy-page'}",
-        [
-            (
-                _t(lang, "이 문서가 하는 일", "What This Document Does"),
-                [
-                    _t(lang, "주요 ds가 무엇인지, 검색/코드/결과 ds가 구분되는지 확인한다.", "Check the main dataset and whether search/code/result datasets are properly separated."),
-                    _t(lang, "컬럼 상세나 바인딩은 아래 링크로 내려가서 확인한다.", "Use the links below for column and binding detail."),
-                ],
-            ),
-            (
-                _t(lang, "빠른 링크", "Quick Links"),
-                [
-                    f"- {markdown_link('datasets.csv', '../datasets.csv')}",
-                    f"- {markdown_link('dataset-columns.csv', '../registries/dataset-columns.csv')}",
-                    f"- {markdown_link('bindings.csv', '../registries/bindings.csv')}",
-                    f"- {markdown_link(_t(lang, '컴포넌트 문서', 'Component guide'), 'components.md')}",
-                ],
-            ),
-            (
-                _t(lang, "데이터셋 요약", "Dataset Summary"),
-                render_markdown_table(
-                    [
-                        (_t(lang, "Dataset", "Dataset"), "dataset"),
-                        (_t(lang, "역할", "Role"), "role"),
-                        (_t(lang, "주요 사용", "Usage"), "usage"),
-                        (_t(lang, "바인딩 컴포넌트", "Bound components"), "components"),
-                        (_t(lang, "컬럼 수", "Columns"), "columns"),
-                        (_t(lang, "중요도", "Salience"), "salience"),
-                    ],
-                    rows,
-                ),
-            ),
-        ],
-    )
+def _backtick(value: str | None) -> str:
+    return f"`{value}`" if value else "unknown"
 
 
-def _render_stage1_components_doc(package: PageConversionPackage, lang: str) -> str:
-    page = package.page
-    rows = [
-        {
-            "component": component.componentId,
-            "type": component.componentType,
-            "group": component.layoutGroup or "unknown",
-            "parent": component.parentId or "root",
-            "events": join_values(component.events, "none"),
-            "platform": join_values(component.platformDependency, "none"),
-        }
-        for component in page.components
-    ]
-    return _render_doc(
-        _t(lang, "Stage 1 컴포넌트와 배치", "Stage 1 Components And Layout") + f" - {page.pageId or 'legacy-page'}",
-        [
-            (
-                _t(lang, "이 문서가 하는 일", "What This Document Does"),
-                [
-                    _t(lang, "버튼, 입력, 그리드가 어떤 그룹에 놓였는지 확인한다.", "Review where buttons, inputs, and grids are placed."),
-                    _t(lang, "UI Shell First 논의가 필요하면 이 문서를 먼저 본다.", "Start here when discussing UI Shell First layout signoff."),
-                ],
-            ),
-            (
-                _t(lang, "빠른 링크", "Quick Links"),
-                [
-                    f"- {markdown_link('components.csv', '../components.csv')}",
-                    f"- {markdown_link('bindings.csv', '../registries/bindings.csv')}",
-                    f"- {markdown_link('grid-columns.csv', '../registries/grid-columns.csv')}",
-                ],
-            ),
-            (
-                _t(lang, "컴포넌트 요약", "Component Summary"),
-                render_markdown_table(
-                    [
-                        (_t(lang, "컴포넌트", "Component"), "component"),
-                        (_t(lang, "유형", "Type"), "type"),
-                        (_t(lang, "그룹", "Group"), "group"),
-                        (_t(lang, "부모", "Parent"), "parent"),
-                        (_t(lang, "이벤트", "Events"), "events"),
-                        (_t(lang, "플랫폼 의존", "Platform dependency"), "platform"),
-                    ],
-                    rows,
-                ),
-            ),
-        ],
-    )
+def _backtick_join(values: list[str]) -> str:
+    items = [f"`{item}`" for item in values if item]
+    return ", ".join(items) if items else "none"
 
 
-def _render_stage1_actions_doc(package: PageConversionPackage, lang: str) -> str:
-    page = package.page
-    rows = [
-        {
-            "handler": function.functionName,
-            "transactions": join_values(function.callsTransactions, "none"),
-            "reads": join_values(function.readsDatasets, "none"),
-            "writes": join_values(function.writesDatasets, "none"),
-            "controls": join_values(function.controlsComponents, "none"),
-            "calls": join_values(function.callsFunctions, "none"),
-        }
-        for function in page.functions
-        if function.functionType == "event-handler"
-    ]
-    return _render_doc(
-        _t(lang, "Stage 1 행동과 이벤트", "Stage 1 Actions And Events") + f" - {page.pageId or 'legacy-page'}",
-        [
-            (
-                _t(lang, "이 문서가 하는 일", "What This Document Does"),
-                [
-                    _t(lang, "버튼 클릭이나 onload가 어떤 ds와 transaction을 건드리는지 확인한다.", "Review which datasets and transactions are touched by clicks and onload handlers."),
-                    _t(lang, "기능 흐름이 맞지 않으면 Stage 2 action contract도 틀어질 수 있다.", "If the flow is wrong here, the Stage 2 action contract will drift too."),
-                ],
-            ),
-            (
-                _t(lang, "빠른 링크", "Quick Links"),
-                [
-                    f"- {markdown_link('user-actions.csv', '../user-actions.csv')}",
-                    f"- {markdown_link('functions.csv', '../registries/functions.csv')}",
-                    f"- {markdown_link('events.csv', '../registries/events.csv')}",
-                    f"- {markdown_link('transactions.csv', '../registries/transactions.csv')}",
-                ],
-            ),
-            (
-                _t(lang, "핸들러 요약", "Handler Summary"),
-                render_markdown_table(
-                    [
-                        (_t(lang, "핸들러", "Handler"), "handler"),
-                        (_t(lang, "트랜잭션", "Transactions"), "transactions"),
-                        (_t(lang, "읽기 ds", "Reads"), "reads"),
-                        (_t(lang, "쓰기 ds", "Writes"), "writes"),
-                        (_t(lang, "제어 컴포넌트", "Controls"), "controls"),
-                        (_t(lang, "호출 함수", "Calls"), "calls"),
-                    ],
-                    rows,
-                ),
-            ),
-        ],
-    )
-
-
-def _render_stage1_backend_doc(package: PageConversionPackage, lang: str) -> str:
-    rows = [
-        {
-            "transaction": trace.transactionId,
-            "url": trace.url or "unknown",
-            "controller": _join_pair(trace.controllerClass, trace.controllerMethod),
-            "service": _join_pair(trace.serviceImplClass or trace.serviceInterface, trace.serviceMethod),
-            "dao": _join_pair(trace.daoClass, trace.daoMethod),
-            "sql": trace.sqlMapId or "unknown",
-            "tables": join_values(trace.tableCandidates, "none"),
-        }
-        for trace in package.backendTraces
-    ]
-    return _render_doc(
-        _t(lang, "Stage 1 백엔드 추적", "Stage 1 Backend Trace") + f" - {package.page.pageId or 'legacy-page'}",
-        [
-            (
-                _t(lang, "이 문서가 하는 일", "What This Document Does"),
-                [
-                    _t(lang, "transaction이 실제로 어느 controller/service/dao/sqlMap으로 이어지는지 본다.", "Trace where each transaction leads in controller/service/DAO/sqlMap terms."),
-                    _t(lang, "DB/API 계약 고정 전에는 datasets 문서와 같이 본다.", "Read this together with the dataset guide before locking DB/API contracts."),
-                ],
-            ),
-            (
-                _t(lang, "빠른 링크", "Quick Links"),
-                [
-                    f"- {markdown_link('backend-traces.csv', '../backend-traces.csv')}",
-                    f"- {markdown_link('transactions.csv', '../registries/transactions.csv')}",
-                ],
-            ),
-            (
-                _t(lang, "백엔드 추적 요약", "Backend Trace Summary"),
-                render_markdown_table(
-                    [
-                        (_t(lang, "트랜잭션", "Transaction"), "transaction"),
-                        (_t(lang, "URL", "URL"), "url"),
-                        (_t(lang, "컨트롤러", "Controller"), "controller"),
-                        (_t(lang, "서비스", "Service"), "service"),
-                        (_t(lang, "DAO", "DAO"), "dao"),
-                        (_t(lang, "SQL Map", "SQL Map"), "sql"),
-                        (_t(lang, "테이블", "Tables"), "tables"),
-                    ],
-                    rows,
-                ),
-            ),
-        ],
-    )
-
-
-def _render_stage1_navigation_doc(package: PageConversionPackage, lang: str) -> str:
-    rows = [
-        {
-            "type": related.navigationType or "unknown",
-            "trigger": related.triggerFunction or "unknown",
-            "target": related.target or related.navigationId,
-            "page": related.pageId or related.pageName or "unresolved",
-            "status": related.resolutionStatus or "unknown",
-        }
-        for related in package.relatedPages
-    ]
-    return _render_doc(
-        _t(lang, "Stage 1 관련 화면", "Stage 1 Related Screens") + f" - {package.page.pageId or 'legacy-page'}",
-        [
-            (
-                _t(lang, "이 문서가 하는 일", "What This Document Does"),
-                [
-                    _t(lang, "팝업, 서브뷰, 화면 이동처럼 현재 화면 밖으로 나가는 흐름을 정리한다.", "Review flows that leave the current page, including popups, subviews, and screen navigation."),
-                    _t(lang, "unresolved 대상은 현재 화면 안으로 섞지 말지 먼저 결정해야 한다.", "Resolve whether unresolved targets should stay as separate screens before merging them into the current page."),
-                ],
-            ),
-            (
-                _t(lang, "빠른 링크", "Quick Links"),
-                [
-                    f"- {markdown_link('related-pages.csv', '../related-pages.csv')}",
-                    f"- {markdown_link('navigation.csv', '../registries/navigation.csv')}",
-                ],
-            ),
-            (
-                _t(lang, "관련 화면 요약", "Related Screen Summary"),
-                render_markdown_table(
-                    [
-                        (_t(lang, "유형", "Type"), "type"),
-                        (_t(lang, "트리거", "Trigger"), "trigger"),
-                        (_t(lang, "대상", "Target"), "target"),
-                        (_t(lang, "해석 결과", "Resolved page"), "page"),
-                        (_t(lang, "상태", "Status"), "status"),
-                    ],
-                    rows,
-                ),
-            ),
-        ],
-    )
-
-
-def _render_stage1_validation_doc(package: PageConversionPackage, lang: str) -> str:
-    rows = [
-        {
-            "rule": rule.ruleId,
-            "field": rule.targetField or "unknown",
-            "type": rule.validationType or "unknown",
-            "timing": rule.triggerTiming or "unknown",
-            "source": rule.sourceFunction or "unknown",
-            "message": rule.message or rule.expression or "unknown",
-        }
-        for rule in package.page.validationRules
-    ]
-    return _render_doc(
-        _t(lang, "Stage 1 검증과 메시지", "Stage 1 Validation And Messages") + f" - {package.page.pageId or 'legacy-page'}",
-        [
-            (
-                _t(lang, "이 문서가 하는 일", "What This Document Does"),
-                [
-                    _t(lang, "validation, 상태 제어, 사용자 메시지 근거를 점검한다.", "Review validation, state rules, and user-facing message evidence."),
-                    _t(lang, "예외 메시지나 disabled 제어가 중요한 화면이면 actions 문서와 함께 본다.", "Read this with the action guide when error messaging or disabled-state control matters."),
-                ],
-            ),
-            (
-                _t(lang, "빠른 링크", "Quick Links"),
-                [
-                    f"- {markdown_link('validation-rules.csv', '../validation-rules.csv')}",
-                    f"- {markdown_link('validation-rules.csv', '../registries/validation-rules.csv')}",
-                    f"- {markdown_link('state-rules.csv', '../registries/state-rules.csv')}",
-                    f"- {markdown_link('messages.csv', '../registries/messages.csv')}",
-                ],
-            ),
-            (
-                _t(lang, "검증 규칙 요약", "Validation Summary"),
-                render_markdown_table(
-                    [
-                        (_t(lang, "규칙", "Rule"), "rule"),
-                        (_t(lang, "대상 필드", "Field"), "field"),
-                        (_t(lang, "유형", "Type"), "type"),
-                        (_t(lang, "시점", "Timing"), "timing"),
-                        (_t(lang, "소스", "Source"), "source"),
-                        (_t(lang, "메시지", "Message"), "message"),
-                    ],
-                    rows,
-                ),
-            ),
-        ],
-    )
-
-
-def _render_stage2_ui_contract_doc(
-    package: PageConversionPackage,
-    plan: ConversionPlanModel,
-    vue_config: VuePageConfigModel,
-    lang: str,
-) -> str:
-    search_rows = [
-        {
-            "component": item.get("componentId", ""),
-            "label": item.get("label", "") or item.get("componentId", ""),
-            "dataset": item.get("datasetId", "") or "none",
-            "field": item.get("requestFieldCandidate", "") or item.get("boundColumn", "") or "none",
-            "role": item.get("controlRole", "") or "unknown",
-        }
-        for item in vue_config.searchControls
-    ]
-    grid_rows = [
-        {
-            "grid": item.get("componentId", ""),
-            "dataset": item.get("datasetId", "") or "unknown",
-            "layout": item.get("layoutGroup", "") or "unknown",
-            "columns": str(len(item.get("bodyColumns", []))),
-            "headers": join_values(item.get("headerTexts", []), "none"),
-        }
-        for item in vue_config.grids
-    ]
-    return _render_doc(
-        _t(lang, "Stage 2 UI 계약", "Stage 2 UI Contract") + f" - {plan.pageId or 'legacy-page'}",
-        [
-            (
-                _t(lang, "이 문서가 하는 일", "What This Document Does"),
-                [
-                    _t(lang, "Vue 전환 후 화면 껍데기와 데이터 바인딩 계약을 확인한다.", "Review the post-conversion page shell and binding contract."),
-                    _t(lang, "고객이 보는 검색영역, 버튼, 그리드 배치 합의는 여기서 본다.", "Use this to review customer-facing search, button, and grid placement."),
-                ],
-            ),
-            (
-                _t(lang, "빠른 링크", "Quick Links"),
-                [
-                    f"- {markdown_link('search-controls.csv', '../search-controls.csv')}",
-                    f"- {markdown_link('grids.csv', '../grids.csv')}",
-                    f"- {markdown_link('grid-columns.csv', '../grid-columns.csv')}",
-                ],
-            ),
-            (
-                _t(lang, "검색/명령 컨트롤", "Search / Command Controls"),
-                render_markdown_table(
-                    [
-                        (_t(lang, "컴포넌트", "Component"), "component"),
-                        (_t(lang, "라벨", "Label"), "label"),
-                        (_t(lang, "데이터셋", "Dataset"), "dataset"),
-                        (_t(lang, "요청 필드", "Request field"), "field"),
-                        (_t(lang, "역할", "Role"), "role"),
-                    ],
-                    search_rows,
-                ),
-            ),
-            (
-                _t(lang, "그리드 계약", "Grid Contract"),
-                render_markdown_table(
-                    [
-                        (_t(lang, "그리드", "Grid"), "grid"),
-                        (_t(lang, "데이터셋", "Dataset"), "dataset"),
-                        (_t(lang, "레이아웃", "Layout"), "layout"),
-                        (_t(lang, "컬럼 수", "Columns"), "columns"),
-                        (_t(lang, "헤더", "Headers"), "headers"),
-                    ],
-                    grid_rows,
-                ),
-            ),
-        ],
-    )
-
-
-def _render_stage2_actions_doc(
-    package: PageConversionPackage,
-    vue_config: VuePageConfigModel,
-    lang: str,
-) -> str:
-    rows = [
-        {
-            "function": item.get("functionName", ""),
-            "kind": item.get("actionKind", "") or "unknown",
-            "source": item.get("sourceComponentLabel", "") or item.get("sourceComponentId", "") or "unknown",
-            "transactions": join_values(item.get("transactions", []), "none"),
-            "reads": join_values(item.get("readsDatasets", []), "none"),
-            "writes": join_values(item.get("writesDatasets", []), "none"),
-            "navigation": join_values(
-                [nav.get("pageId") or nav.get("target") or "unresolved" for nav in item.get("navigationTargets", [])],
-                "none",
-            ),
-        }
-        for item in vue_config.actions
-    ]
-    return _render_doc(
-        _t(lang, "Stage 2 행동 계약", "Stage 2 Action Contract") + f" - {package.page.pageId or 'legacy-page'}",
-        [
-            (
-                _t(lang, "이 문서가 하는 일", "What This Document Does"),
-                [
-                    _t(lang, "버튼/이벤트가 어떤 transaction, dataset, 연관 화면과 연결되는지 확인한다.", "Review which buttons or events connect to transactions, datasets, and related screens."),
-                    _t(lang, "Stage 1 흐름이 Stage 2 계약으로 어떻게 굳었는지 보는 문서다.", "This shows how the Stage 1 flow became the Stage 2 contract."),
-                ],
-            ),
-            (
-                _t(lang, "빠른 링크", "Quick Links"),
-                [
-                    f"- {markdown_link('actions.csv', '../actions.csv')}",
-                    f"- {markdown_link('related-pages.csv', '../related-pages.csv')}",
-                ],
-            ),
-            (
-                _t(lang, "Action 요약", "Action Summary"),
-                render_markdown_table(
-                    [
-                        (_t(lang, "함수", "Function"), "function"),
-                        (_t(lang, "종류", "Kind"), "kind"),
-                        (_t(lang, "소스", "Source"), "source"),
-                        (_t(lang, "트랜잭션", "Transactions"), "transactions"),
-                        (_t(lang, "읽기 ds", "Reads"), "reads"),
-                        (_t(lang, "쓰기 ds", "Writes"), "writes"),
-                        (_t(lang, "연관 화면", "Navigation"), "navigation"),
-                    ],
-                    rows,
-                ),
-            ),
-        ],
-    )
-
-
-def _render_stage2_endpoints_doc(
-    package: PageConversionPackage,
-    vue_config: VuePageConfigModel,
-    lang: str,
-) -> str:
-    rows = [
-        {
-            "transaction": item.get("transactionId", ""),
-            "url": item.get("url", "") or "unknown",
-            "inputs": join_values(item.get("inputDatasets", []), "none"),
-            "outputs": join_values(item.get("outputDatasets", []), "none"),
-            "controller": item.get("controller", "") or "unknown",
-            "service": item.get("service", "") or "unknown",
-            "dao": item.get("dao", "") or "unknown",
-            "sql": item.get("sqlMapId", "") or "unknown",
-        }
-        for item in vue_config.endpoints
-    ]
-    return _render_doc(
-        _t(lang, "Stage 2 엔드포인트 계약", "Stage 2 Endpoint Contract") + f" - {package.page.pageId or 'legacy-page'}",
-        [
-            (
-                _t(lang, "이 문서가 하는 일", "What This Document Does"),
-                [
-                    _t(lang, "입출력 데이터셋과 backend chain을 함께 확인한다.", "Review input/output datasets together with the backend chain."),
-                    _t(lang, "MyBatis 전환 전후 비교 포인트는 이 문서가 기준이 된다.", "Use this as the reference for pre/post MyBatis conversion comparison."),
-                ],
-            ),
-            (
-                _t(lang, "빠른 링크", "Quick Links"),
-                [
-                    f"- {markdown_link('endpoints.csv', '../endpoints.csv')}",
-                    f"- {markdown_link('related-pages.csv', '../related-pages.csv')}",
-                ],
-            ),
-            (
-                _t(lang, "엔드포인트 요약", "Endpoint Summary"),
-                render_markdown_table(
-                    [
-                        (_t(lang, "트랜잭션", "Transaction"), "transaction"),
-                        (_t(lang, "URL", "URL"), "url"),
-                        (_t(lang, "입력 ds", "Input datasets"), "inputs"),
-                        (_t(lang, "출력 ds", "Output datasets"), "outputs"),
-                        (_t(lang, "컨트롤러", "Controller"), "controller"),
-                        (_t(lang, "서비스", "Service"), "service"),
-                        (_t(lang, "DAO", "DAO"), "dao"),
-                        (_t(lang, "SQL Map", "SQL Map"), "sql"),
-                    ],
-                    rows,
-                ),
-            ),
-        ],
-    )
-
-
-def _render_stage2_files_doc(plan: ConversionPlanModel, lang: str) -> str:
-    rows = [
-        {"kind": "frontend", "path": file.path, "purpose": file.purpose, "summary": file.summary}
-        for file in plan.frontendFiles
-    ] + [
-        {"kind": "backend", "path": file.path, "purpose": file.purpose, "summary": file.summary}
-        for file in plan.backendFiles
-    ]
-    return _render_doc(
-        _t(lang, "Stage 2 파일 청사진", "Stage 2 File Blueprints") + f" - {plan.pageId or 'legacy-page'}",
-        [
-            (
-                _t(lang, "이 문서가 하는 일", "What This Document Does"),
-                [
-                    _t(lang, "프론트/백엔드 파일이 왜 필요한지와 역할을 설명한다.", "Explain which frontend/backend files are planned and why."),
-                    _t(lang, "R&R 조정이 생겨도 최소 파일 구분 기준은 여기서 확인한다.", "Use this as the minimum file split reference even if responsibilities shift later."),
-                ],
-            ),
-            (
-                _t(lang, "빠른 링크", "Quick Links"),
-                [
-                    f"- {markdown_link('file-blueprints.csv', '../file-blueprints.csv')}",
-                    f"- {markdown_link('file-blueprints.csv', '../registries/file-blueprints.csv')}",
-                ],
-            ),
-            (
-                _t(lang, "파일 청사진 요약", "File Blueprint Summary"),
-                render_markdown_table(
-                    [
-                        (_t(lang, "구분", "Kind"), "kind"),
-                        (_t(lang, "경로", "Path"), "path"),
-                        (_t(lang, "목적", "Purpose"), "purpose"),
-                        (_t(lang, "설명", "Summary"), "summary"),
-                    ],
-                    rows,
-                ),
-            ),
-        ],
-    )
-
-
-def _render_stage2_verification_doc(
-    package: PageConversionPackage,
-    plan: ConversionPlanModel,
-    vue_config: VuePageConfigModel,
-    lang: str,
-) -> str:
-    verification_rows = [{"check": item} for item in plan.verificationChecks]
-    pm_rows = [
-        {
-            "item": _t(lang, "주요 데이터셋/그리드 확인", "Confirm the primary dataset/grid"),
-            "detail": f"`{package.page.primaryDatasetId or 'unknown'}` / `{package.page.mainGridComponentId or 'unknown'}`",
-        },
-        {
-            "item": _t(lang, "주요 트랜잭션 확인", "Confirm the primary transactions"),
-            "detail": join_values(package.page.primaryTransactionIds, "none"),
-        },
-        {
-            "item": _t(lang, "엔드포인트/행동 수 확인", "Confirm endpoint/action counts"),
-            "detail": f"endpoint={len(vue_config.endpoints)}, action={len(vue_config.actions)}",
-        },
-    ]
-    return _render_doc(
-        _t(lang, "Stage 2 검증과 체크리스트", "Stage 2 Verification And Checklist") + f" - {plan.pageId or 'legacy-page'}",
-        [
-            (
-                _t(lang, "이 문서가 하는 일", "What This Document Does"),
-                [
-                    _t(lang, "Stage 2 잠금 이후 무엇을 검증해야 하는지 정리한다.", "Explain what must be verified after Stage 2 decisions are locked."),
-                    _t(lang, "PM 체크리스트와 내부 검증 포인트를 같이 보여준다.", "Show the PM checklist focus together with internal verification points."),
-                ],
-            ),
-            (
-                _t(lang, "빠른 링크", "Quick Links"),
-                [
-                    f"- {markdown_link('verification-checks.csv', '../registries/verification-checks.csv')}",
-                    f"- {markdown_link('execution-steps.csv', '../registries/execution-steps.csv')}",
-                    f"- {markdown_link('ai-prompts.md', '../ai-prompts.md')}",
-                ],
-            ),
-            (
-                _t(lang, "검증 항목", "Verification Checks"),
-                render_markdown_table([(_t(lang, "체크 항목", "Check"), "check")], verification_rows),
-            ),
-            (
-                _t(lang, "PM 확인 포인트", "PM Review Focus"),
-                render_markdown_table(
-                    [(_t(lang, "항목", "Item"), "item"), (_t(lang, "상세", "Detail"), "detail")],
-                    pm_rows,
-                ),
-            ),
-            (
-                _t(lang, "미해결 항목", "Open Questions"),
-                [f"- {item}" for item in package.openQuestions] or ["- None"],
-            ),
-        ],
-    )
+def _path(base_path: str, relative_path: str) -> str:
+    return f"{base_path}/{relative_path}" if base_path else relative_path

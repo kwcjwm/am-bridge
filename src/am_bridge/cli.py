@@ -179,7 +179,10 @@ def _run_stage1(args: argparse.Namespace) -> int:
     _write_sidecars(paths.stage1ReportDir, build_stage1_report_sidecars(package))
     if not review_output.exists():
         _write_json(review_output, build_review_template(package))
-    _write_sidecars(paths.reportDir, build_page_report_hub(package, page_report_artifact_links, {"stage1"}))
+    _write_sidecars(
+        paths.reportDir,
+        build_page_report_hub(package, page_report_artifact_links, {"stage1"}, None, None),
+    )
 
     print(f"Analysis JSON saved to: {paths.analysisJson}")
     print(f"Page spec saved to: {paths.pageSpec}")
@@ -284,6 +287,8 @@ def _run_stage2(args: argparse.Namespace) -> int:
                 "pm_checklist": _relative_path(paths.pmChecklist, paths.reportDir),
             },
             {"stage1", "stage2"},
+            plan,
+            vue_config,
         ),
     )
 
@@ -395,6 +400,8 @@ def _run_stage3(args: argparse.Namespace) -> int:
                 "starter_bundle": _relative_path(starter_dir / "starter-bundle.json", paths.reportDir),
             },
             {"stage1", "stage2", "stage3"},
+            plan,
+            vue_config,
         ),
     )
 

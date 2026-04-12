@@ -138,19 +138,25 @@ def _assert_report_hubs() -> None:
             "plan_report": "form-plan.md",
         },
         {"stage1", "stage2"},
+        plan,
+        vue_config,
     )
 
     assert "README.md" in stage1_sidecars
+    assert "tables.md" in stage1_sidecars
     assert "sections/datasets.md" in stage1_sidecars
     assert "sections/backend.md" in stage1_sidecars
     assert "Stage 1 Analysis Guide" in stage1_sidecars["README.md"]
     assert "sections/datasets.md" in stage1_sidecars["README.md"]
+    assert "Dataset Snapshot" in stage1_sidecars["README.md"]
     assert stage1_sidecars["datasets.csv"].startswith("\ufeff")
 
     assert "README.md" in stage2_sidecars
+    assert "tables.md" in stage2_sidecars
     assert "sections/ui-contract.md" in stage2_sidecars
     assert "sections/verification.md" in stage2_sidecars
     assert "Stage 2 Plan Guide" in stage2_sidecars["README.md"]
+    assert "UI Contract Snapshot" in stage2_sidecars["README.md"]
     assert "navigationTargets" in stage2_sidecars["actions.csv"]
     assert "validationSummary" in stage2_sidecars["search-controls.csv"]
     assert "querySummary" in stage2_sidecars["endpoints.csv"]
@@ -159,4 +165,5 @@ def _assert_report_hubs() -> None:
     assert "README.en.md" in page_hub
     assert "translate-to-korean.md" in page_hub
     assert "Page Report Hub" in page_hub["README.md"]
-    assert "stage1/README.md" in page_hub["README.md"]
+    assert "Dataset Snapshot" in page_hub["README.md"]
+    assert "stage1/datasets.csv" in page_hub["README.md"]

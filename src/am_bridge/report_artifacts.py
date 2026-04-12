@@ -187,7 +187,7 @@ def build_stage1_report_sidecars(package: PageConversionPackage) -> dict[str, st
         ),
     ]
 
-    files = _with_readme(table_specs, _render_stage1_readme(package, table_specs))
+    files = _with_index_doc(table_specs, _render_stage1_readme(package, table_specs), "tables.md")
     files.update(build_stage1_hub_docs(package, [(name, description, description) for name, description, _content in table_specs]))
     return files
 
@@ -435,7 +435,7 @@ def build_stage2_report_sidecars(
         ),
     ]
 
-    files = _with_readme(table_specs, _render_stage2_readme(package, plan, vue_config, table_specs))
+    files = _with_index_doc(table_specs, _render_stage2_readme(package, plan, vue_config, table_specs), "tables.md")
     files.update(
         build_stage2_hub_docs(
             package,
@@ -447,11 +447,12 @@ def build_stage2_report_sidecars(
     return files
 
 
-def _with_readme(
+def _with_index_doc(
     table_specs: list[tuple[str, str, str]],
-    readme: str,
+    index_doc: str,
+    filename: str,
 ) -> dict[str, str]:
-    files = {"README.md": readme}
+    files = {filename: index_doc}
     files.update({name: content for name, _description, content in table_specs})
     return files
 
