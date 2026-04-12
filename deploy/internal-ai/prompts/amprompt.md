@@ -4,17 +4,12 @@ Replace this file with your validated prompt-engineered AM prompt.
 
 Recommended use:
 
-- detailed analysis report guidance
-- detailed Vue conversion config guidance
+- detailed Korean report heading guidance
+- detailed section/subsection rules
+- stronger table/ASCII/report formatting guidance
 - richer PM-facing explanation structure
 
-Do not use this file to override the staged execution contract.
-The core execution order remains:
-
-1. stage1
-2. review
-3. stage2
-4. stage3
+Do not use this file to override the AI-first harness rules.
 
 When this file contains real content, the internal AI should read it only after:
 
@@ -22,4 +17,5 @@ When this file contains real content, the internal AI should read it only after:
 2. `bootstrap-initial-prompt.md` when bootstrapping
 3. `.agents/skills/am-page-modernization/SKILL.md`
 
-Then it may use `amprompt.md` as a supplemental detail contract for report quality and config completeness.
+Then it should use `amprompt.md` as the preferred report heading/detail contract.
+If the prompt is incomplete, fill gaps with `REPORT-CONTRACT.md`.

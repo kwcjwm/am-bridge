@@ -12,6 +12,13 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 FILES_TO_COPY = [
     (Path("deploy/internal-ai/AGENTS.md"), Path("AGENTS.md")),
     (Path("deploy/internal-ai/README.md"), Path("README.md")),
+    (Path("deploy/internal-ai/WORKFLOW.md"), Path("WORKFLOW.md")),
+    (Path("deploy/internal-ai/REPORT-CONTRACT.md"), Path("REPORT-CONTRACT.md")),
+    (Path("deploy/internal-ai/KOREAN-DELIVERY.md"), Path("KOREAN-DELIVERY.md")),
+    (
+        Path("deploy/internal-ai/OPTIONAL-COMPLETENESS-SUPPORT.md"),
+        Path("OPTIONAL-COMPLETENESS-SUPPORT.md"),
+    ),
     (Path("deploy/internal-ai/bootstrap-initial-prompt.md"), Path("bootstrap-initial-prompt.md")),
     (Path("deploy/internal-ai/no-admin-runtime-prompt.md"), Path("no-admin-runtime-prompt.md")),
     (Path("deploy/internal-ai/operator-script.md"), Path("operator-script.md")),
@@ -22,35 +29,16 @@ FILES_TO_COPY = [
         Path("deploy/internal-ai/am-bridge.config.local.example.json"),
         Path("am-bridge.config.local.example.json"),
     ),
+    (Path("deploy/internal-ai/inputs/README.md"), Path("inputs/README.md")),
+    (Path("deploy/internal-ai/artifacts/README.md"), Path("artifacts/README.md")),
     (Path(".agents/skills/am-page-modernization/SKILL.md"), Path(".agents/skills/am-page-modernization/SKILL.md")),
     (
-        Path(".agents/skills/am-page-modernization/references/stage-procedure.md"),
-        Path(".agents/skills/am-page-modernization/references/stage-procedure.md"),
-    ),
-    (
         Path(".agents/skills/am-page-modernization/references/review-contract.md"),
         Path(".agents/skills/am-page-modernization/references/review-contract.md"),
     ),
     (
-        Path(".agents/skills/am-page-modernization/references/ai-pro-prompts.md"),
-        Path(".agents/skills/am-page-modernization/references/ai-pro-prompts.md"),
-    ),
-    (Path("integrations/ai-pro/README.md"), Path("integrations/ai-pro/README.md")),
-    (
-        Path("integrations/ai-pro/bootstrap/glm-bootstrap-playbook.md"),
-        Path("integrations/ai-pro/bootstrap/glm-bootstrap-playbook.md"),
-    ),
-    (
-        Path("integrations/ai-pro/bootstrap/bootstrap-prompts.md"),
-        Path("integrations/ai-pro/bootstrap/bootstrap-prompts.md"),
-    ),
-    (
-        Path("integrations/ai-pro/bootstrap/bootstrap-manifest.json"),
-        Path("integrations/ai-pro/bootstrap/bootstrap-manifest.json"),
-    ),
-    (
-        Path("integrations/ai-pro/global/harness-global.md"),
-        Path("integrations/ai-pro/global/harness-global.md"),
+        Path(".agents/skills/am-page-modernization/references/visual-shell-contract.md"),
+        Path(".agents/skills/am-page-modernization/references/visual-shell-contract.md"),
     ),
     (
         Path("integrations/ai-pro/project/am-page-modernization.md"),
@@ -59,18 +47,6 @@ FILES_TO_COPY = [
     (
         Path("integrations/ai-pro/project/operator-prompts.md"),
         Path("integrations/ai-pro/project/operator-prompts.md"),
-    ),
-    (
-        Path("integrations/ai-pro/tools/tool-contract.md"),
-        Path("integrations/ai-pro/tools/tool-contract.md"),
-    ),
-    (
-        Path("integrations/ai-pro/tools/tool-registry.example.json"),
-        Path("integrations/ai-pro/tools/tool-registry.example.json"),
-    ),
-    (
-        Path("integrations/ai-pro/tools/tool-registry.single-tool.example.json"),
-        Path("integrations/ai-pro/tools/tool-registry.single-tool.example.json"),
     ),
     (Path("scripts/ai_pro_stage_runner.py"), Path("scripts/ai_pro_stage_runner.py")),
     (Path("scripts/am_stage.ps1"), Path("scripts/am_stage.ps1")),
@@ -92,6 +68,16 @@ DIRS_TO_COPY = [
         Path("samples/ScoreRanking_Proj-master/src/main/resources/egovframework/sqlmap"),
         Path("samples/ScoreRanking_Proj-master/src/main/resources/egovframework/sqlmap"),
     ),
+]
+
+EMPTY_DIRS = [
+    Path("inputs/source"),
+    Path("inputs/screenshots"),
+    Path("inputs/notes"),
+    Path("artifacts/visual"),
+    Path("artifacts/reports"),
+    Path("artifacts/decisions"),
+    Path("artifacts/implementation"),
 ]
 
 
@@ -129,54 +115,43 @@ def main() -> int:
             ignore=shutil.ignore_patterns("__pycache__", "*.pyc", "*.pyo"),
         )
 
-    _write_resolved_tool_registry(output_root)
-    _write_bundle_readme(output_root)
+    for relative_path in EMPTY_DIRS:
+        (output_root / relative_path).mkdir(parents=True, exist_ok=True)
+
+    _write_bundle_manifest(output_root)
     print(output_root)
     return 0
 
 
-def _write_resolved_tool_registry(output_root: Path) -> None:
-    registry_dir = output_root / "integrations" / "ai-pro" / "tools"
-    registry_dir.mkdir(parents=True, exist_ok=True)
-    replacements = {"<REPO_ROOT>": "."}
-
-    templates = {
-        "tool-registry.example.json": "tool-registry.resolved.json",
-        "tool-registry.single-tool.example.json": "tool-registry.single-tool.resolved.json",
-    }
-
-    for source_name, target_name in templates.items():
-        template_path = REPO_ROOT / "integrations" / "ai-pro" / "tools" / source_name
-        content = template_path.read_text(encoding="utf-8")
-        for key, value in replacements.items():
-            content = content.replace(key, value)
-        (registry_dir / target_name).write_text(content, encoding="utf-8")
-
-
-def _write_bundle_readme(output_root: Path) -> None:
-    bundle_readme = {
+def _write_bundle_manifest(output_root: Path) -> None:
+    bundle_manifest = {
         "bundleType": "internal-ai-workspace",
         "bundleRoot": ".",
         "entryDocument": "AGENTS.md",
+        "workflowDoc": "WORKFLOW.md",
+        "reportContract": "REPORT-CONTRACT.md",
+        "koreanDelivery": "KOREAN-DELIVERY.md",
+        "optionalCompletenessSupport": "OPTIONAL-COMPLETENESS-SUPPORT.md",
         "operatorScript": "operator-script.md",
         "bootstrapPrompt": "bootstrap-initial-prompt.md",
         "noAdminRuntimePrompt": "no-admin-runtime-prompt.md",
         "bundleVersionFile": "bundle-version.json",
         "updateJournal": "update-journal.md",
         "updatePlaybook": "update-playbook.md",
-        "globalHarnessSource": "integrations/ai-pro/global/harness-global.md",
-        "projectHarnessSource": "integrations/ai-pro/project/am-page-modernization.md",
-        "toolRegistrySource": "integrations/ai-pro/tools/tool-registry.resolved.json",
-        "runnerScript": "scripts/ai_pro_stage_runner.py",
-        "configFile": "am-bridge.config.json",
-        "configLocalExample": "am-bridge.config.local.example.json",
-        "sampleValidationPage": (
-            "samples/ScoreRanking_Proj-master/src/main/resources/"
-            "egovframework/conf/scoreranking/DefApp/Win32/form.xml"
-        ),
+        "optionalSupport": {
+            "runnerScript": "scripts/ai_pro_stage_runner.py",
+            "wrapperScript": "scripts/am_stage.ps1",
+            "runtimePackage": "src/am_bridge",
+            "configFile": "am-bridge.config.json",
+            "configLocalExample": "am-bridge.config.local.example.json",
+            "sampleValidationPage": (
+                "samples/ScoreRanking_Proj-master/src/main/resources/"
+                "egovframework/conf/scoreranking/DefApp/Win32/form.xml"
+            ),
+        },
     }
     target = output_root / "bundle-manifest.json"
-    target.write_text(json.dumps(bundle_readme, ensure_ascii=False, indent=2), encoding="utf-8")
+    target.write_text(json.dumps(bundle_manifest, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 if __name__ == "__main__":

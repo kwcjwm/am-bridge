@@ -6,8 +6,11 @@ artifacts/raw/*
 !artifacts/README.md
 artifacts/analysis/*
 !artifacts/analysis/README.md
-!artifacts/target/*
-!artifacts/target/README.md
+artifacts/packages/*
+artifacts/plans/*
+artifacts/reviews/*
+artifacts/starter/*
+artifacts/target/*
 artifacts/reports/*
 !artifacts/reports/README.md
 exports/internal-ai-workspace/*

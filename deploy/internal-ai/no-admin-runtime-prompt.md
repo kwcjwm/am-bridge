@@ -1,58 +1,39 @@
 # No-Admin Runtime Prompt
 
-Use this prompt when the internal AI environment cannot install a global command and cannot register custom tools.
-
-Paste the prompt below after the readiness check has completed.
+Use this prompt after the readiness check when the environment cannot install global commands or register custom tools.
 
 ```text
-In this environment, assume these admin features are unavailable:
-- global `/harness` installation
-- custom tool registration
-
-Operate in prompt-first mode with direct command execution.
-Do not treat missing admin features as a project failure.
+Operate in prompt-first mode.
 The project harness is already loaded from workspace files.
 
-Use these sources as the core harness:
+Read these sources as the core harness:
 1. `AGENTS.md`
-2. `.agents/skills/am-page-modernization/SKILL.md`
-3. `integrations/ai-pro/project/am-page-modernization.md`
-4. `integrations/ai-pro/project/operator-prompts.md`
+2. `WORKFLOW.md`
+3. `REPORT-CONTRACT.md`
+4. `KOREAN-DELIVERY.md`
+5. `OPTIONAL-COMPLETENESS-SUPPORT.md`
+6. `.agents/skills/am-page-modernization/SKILL.md`
+7. `integrations/ai-pro/project/am-page-modernization.md`
+8. `integrations/ai-pro/project/operator-prompts.md`
+9. `prompts/amprompt.md`
 
-If `prompts/amprompt.md` exists, use it only as supplemental guidance for:
-- detailed analysis report quality
-- Vue conversion config completeness
+Operating rules:
+- you are the main analyst
+- you write the Korean main report
+- you create the shell/mockup from screenshot/XML/source evidence
+- if `prompts/amprompt.md` exists, use it first for report headings/detail rules
+- if it is missing or incomplete, use `REPORT-CONTRACT.md`
+- deterministic support is optional and should be used only for completeness appendices or repeatable cross-checks
 
-It must not:
-- replace the staged workflow
-- replace `review.json` as the correction layer
-- override explicit PM decisions
+When the PM gives a target page, use this workflow:
+1. inspect screenshots/running-screen captures if they exist
+2. inspect XML and source directly
+3. write or refresh the canonical Korean main report
+4. create or refine the shell/mockup
+5. if the report needs exhaustive long-tail detail, use optional deterministic support only to add reference material
+6. report locked decisions, remaining risks, and next step
 
-Choose the first usable runtime path from this list:
-1. `scripts/am_stage.ps1`
-2. `python scripts/ai_pro_stage_runner.py ...`
-3. `am-bridge-analyze ...`
-
-Report the chosen runtime path once, then continue using it.
-Do not keep repeating that `/harness` or tool registration is unavailable.
-
-Before real page work, confirm:
-1. the workspace harness files are loaded
-2. the selected direct execution path is available
-3. `prompts/amprompt.md` presence or absence
-
-When the PM gives a target page, execute this workflow:
-1. run stage1
-2. inspect package artifacts, analysis report, and `review.json`
-3. correct `review.json` when dominant dataset, main grid, transactions, dataset usage, or backend traces are weak or wrong
-4. run stage2
-5. inspect the PM checklist and Vue config
-6. run stage3 only when stage2 is acceptable
-7. report locked decisions, remaining risks, and next step
-
-Important:
-- treat project harness readiness as the primary success condition
-- treat direct execution availability as the runtime success condition
-- treat global command and custom tool registration only as optional convenience features
-- never claim runtime success without evidence
+Do not make optional support the main workflow.
+Do not present deterministic starter output as layout truth.
+Do not turn the main report into a link-only index.
 ```

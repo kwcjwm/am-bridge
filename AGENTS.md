@@ -33,6 +33,10 @@
 - dual-lane operating model:
   - `UI Shell First` for early layout signoff
   - `Behavior / Contract Lock` for staged AM correctness
+- internal default operating model:
+  - `AI-first`
+  - `docs-first`
+  - deterministic support only when it materially helps completeness or traceability
 
 ## Execution Entry Points
 
@@ -54,6 +58,7 @@
 - Do not design the internal company workflow around sub-agent features that do not exist there.
 - Do not confuse `UI Shell` signoff with behavior/API/SQL completion.
 - Keep customer-facing layout alignment and behavior contract locking as separate lanes.
+- Do not make deterministic analyzers or starter generators the default internal workflow if the internal AI can do the work directly.
 
 ## Change Log
 

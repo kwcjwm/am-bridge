@@ -4,52 +4,36 @@ This directory is the source for the internal single-model AM workspace.
 
 Use the exported bundle as the workspace root inside the company environment.
 Do not point the internal AI at the root of the external support repository.
-The first operator action should be to paste `bootstrap-initial-prompt.md` into the internal AI.
-For the shortest operator path, follow `operator-script.md`.
-The default export location from the external repository is `exports/internal-ai-workspace`.
 
-The internal workspace should contain only:
+The internal bundle is now `AI-first` and `docs-first`.
 
-- the internal `AGENTS.md`
-- the initial bootstrap prompt
-- the no-admin runtime prompt
-- the operator script
-- the bundle version metadata
-- the update journal and update playbook
-- any optional custom prompts under `prompts/`
-- the `am-page-modernization` skill assets
-- AI Pro integration prompts and tool contracts
-- the deterministic runner and configuration file
-- the direct command wrapper script
-- the runtime `src/am_bridge` package used by the runner
-- the bundled public sample inputs used for first validation
+What the internal AI should do by default:
 
-It should not contain Codex-side support-agent instructions.
+- read screenshots and running-screen captures
+- read XML and source directly
+- write the canonical Korean main report
+- create the first shell/mockup
+- use CSV and appendices only as supporting detail
 
-For future updates, do not assume a fresh reinstall is always required.
-Extract the new bundle into a separate directory and let the internal AI read:
+What optional deterministic support may do:
 
-- `bundle-version.json`
-- `update-journal.md`
-- `update-playbook.md`
+- help enumerate exhaustive dataset/component/transaction lists
+- surface backend candidate traces
+- provide machine-generated reference material when the AI-written report needs a completeness appendix
 
-before deciding whether the release requires:
+What optional deterministic support should not do by default:
 
-- fresh reinstall
-- runtime update only
-- docs/prompt update only
+- decide the final page layout
+- decide the dominant business interpretation
+- generate the primary shell/mokcup truth
+- become the mandatory workflow engine
 
-Use `am-bridge.config.local.json` for environment-specific source and backend roots that should survive future bundle updates.
-Start from `am-bridge.config.local.example.json`.
+Start with:
+
+1. `bootstrap-initial-prompt.md`
+2. `WORKFLOW.md`
+3. `REPORT-CONTRACT.md`
+4. `operator-script.md`
 
 If you already have a strong operator-authored prompt such as `amprompt.md`, place it under `deploy/internal-ai/prompts/`.
 It will be exported into bundle-root `prompts/amprompt.md`.
-
-The exported workspace now supports two AM lanes:
-
-- `UI Shell First`
-  for early customer-facing layout agreement
-- `Behavior / Contract Lock`
-  for actual dataset / transaction / API / starter decisions
-
-Do not treat the first lane as a shortcut that skips the second lane.

@@ -533,7 +533,8 @@ def build_frontend_prompt(
         f"treat {page.primaryDatasetId or 'the primary dataset'} as the main business result, and keep platform features out of local reimplementation. "
         f"Build the search area from {search_summary}. Render the main data grid using {grid_summary}. "
         f"Implement action flows {action_summary}. Respect validation/state/message rules: {rule_summary}. "
-        f"Keep related-screen handling explicit: {navigation_summary}."
+        f"Keep related-screen handling explicit: {navigation_summary}. "
+        "If reviewed screenshot-driven shell evidence exists, treat it as the visual source of truth and use this plan only for behavior and contract locking."
     )
 
 

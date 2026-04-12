@@ -2,73 +2,55 @@
 
 ## Trigger Rules
 
-- Use `$am-page-modernization` when the user asks to analyze a MiPlatform/XPlatform/Nexacro page for AM work.
-- Use `$am-page-modernization` when the user wants page-level conversion planning, starter generation, or staged frontend/backend modernization.
-- Use `$am-page-modernization` when the user wants a customer-facing `UI Shell` first before behavior is locked.
+- Use `$am-page-modernization` when the PM wants AM work for a legacy page.
 - Treat the human user as `PM`.
-- Treat the AI assistant as the working `PL`.
-- Treat `am-bridge` CLI stages as deterministic tools under the PL.
+- Treat the internal AI as the working `PL`.
+- The internal AI is the primary analyst, report writer, and mockup/shell author.
+- Deterministic tools are optional support only.
 - Do not assume sub-agent features exist in this workspace.
 
 ## Layout
 
 - `.agents/skills/`
 - `prompts/`
-- `artifacts/analysis/`
-- `artifacts/packages/`
-- `artifacts/plans/`
-- `artifacts/reviews/`
-- `artifacts/starter/`
-- `integrations/ai-pro/`
+- `inputs/`
+- `artifacts/`
+- `samples/`
+- optional deterministic support:
+  - `scripts/`
+  - `src/am_bridge/`
+  - `am-bridge.config.json`
 
-## Current Components
+## Core Documents
 
-- single-model operating role: `PL`
-- skills: `am-page-modernization`
-- update decision files:
-  - `bundle-version.json`
-  - `update-journal.md`
-  - `update-playbook.md`
-- working lanes:
-  - `UI Shell First`
-  - `Behavior / Contract Lock`
-- baseline execution path: `scripts/am_stage.ps1 <stage> <page>`
-- direct runner fallback: `python scripts/ai_pro_stage_runner.py <stage> <page> --config am-bridge.config.json`
-- optional registered tools when the platform allows them: `am-bridge-stage1`, `am-bridge-stage2`, `am-bridge-stage3`
-- direct CLI fallback only when explicitly available: `am-bridge-analyze analyze|stage1|stage2|stage3`
-
-## Execution Entry Points
-
-- First, use `bootstrap-initial-prompt.md` to produce a readiness report for this workspace.
-- If the environment has no admin capability for global commands or custom tool registration, use `no-admin-runtime-prompt.md` after readiness.
-- If the operator wants the shortest end-to-end setup path, use `operator-script.md`.
-- If `prompts/amprompt.md` contains a real project prompt, use it as a supplemental detail contract after the core harness is loaded.
-- Use `am-page-modernization` for actual page-level AM work.
-- Before updating an existing internal workspace with a newly extracted bundle, read `bundle-version.json` and `update-playbook.md` first.
-- Give a concrete legacy page such as `aaa.xml`, classify whether `UI Shell First` is needed, then let the PL run either:
-  - `UI Shell -> stage1 -> review -> stage2 -> stage3`
-  - or `stage1 -> review -> stage2 -> stage3`
-- Keep PM decisions in conversation, but keep technical corrections in the review JSON so the next stage can reuse them.
-- Operate with one model plus deterministic tools and saved artifacts only.
+- `WORKFLOW.md`
+- `REPORT-CONTRACT.md`
+- `KOREAN-DELIVERY.md`
+- `OPTIONAL-COMPLETENESS-SUPPORT.md`
+- `operator-script.md`
+- `bootstrap-initial-prompt.md`
+- `no-admin-runtime-prompt.md`
 
 ## Working Rule
 
-- Do not treat stage 1 as final truth.
-- Do not treat a `UI Shell` as completed functionality.
-- Always allow an AI review pass before stage 2 when dataset salience or backend tracing looks wrong.
-- Keep deterministic extraction and probabilistic judgment separate.
-- Reuse saved package, plan, review, and starter artifacts instead of rebuilding context from scratch.
-- Ignore any external preparation workflow; this workspace is for internal execution only.
-- Treat `prompts/amprompt.md` as supplemental guidance, not as a replacement for the staged harness.
-- Lack of global harness installation or custom tool registration does not block work if direct command execution is available.
-- Treat generated English reports as canonical. If the PM needs Korean delivery, derive it after review instead of replacing the English originals.
-- Default Korean delivery to summary-level PM/operator docs. Keep deep section docs and registries in English unless explicitly requested.
-- Keep environment-specific path settings in `am-bridge.config.local.json`, not in the exported base config.
+- Start from screenshot, running-screen, XML, and source evidence first.
+- If the target page XML is `FF02_DtCode.xml`, the default main page image is `FF02_DtCode.jpg`.
+- In general, treat `<page>.xml` -> `<page>.jpg` as the default main page image naming rule.
+- If the main page image is missing, ask the PM/operator to provide it before treating the shell as reviewable.
+- Build the shell or mockup from visual/source evidence, not from deterministic starter output.
+- Use optional deterministic support only when it helps fill exhaustive inventories or candidate traces.
+- Do not let optional support decide final layout, dominant dataset judgment, or report narrative by itself.
+- English main reports are canonical.
+- Korean reports are derived delivery documents.
+- Keep shell decisions and behavior/contract decisions separate.
+- Do not treat stage-based outputs as mandatory workflow.
+- Avoid stage3 starter generation unless the PM explicitly asks for legacy deterministic scaffolding.
 
 ## Change Log
 
 | Date | Change | Reason |
 |------|--------|--------|
+| 2026-04-12 | Reframed the internal harness around AI-led analysis, reporting, and shell creation with optional completeness support only | Keep the internal AI in charge and prevent weak deterministic outputs from becoming default truth |
 | 2026-04-12 | Added bundle update metadata, update playbook, and local config override guidance | Let internal AI decide whether future extracted bundles need fresh reinstall or partial update |
 | 2026-04-11 | Added `UI Shell First` lane alongside staged behavior / contract lock flow | Let internal AI produce early customer-facing layout agreements without pretending behavior is already fixed |
 | 2026-04-10 | Split internal single-model harness into its own source file for exported workspaces | Prevent confusion with the external Codex support workspace |

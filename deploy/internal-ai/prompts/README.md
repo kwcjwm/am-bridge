@@ -8,16 +8,17 @@ Recommended file:
 
 Role of `amprompt.md`:
 
-- supplemental prompt for high-detail analysis reporting
+- preferred prompt for high-detail Korean report structure
+- preferred prompt for section names, 세부항목, 표 형식, ASCII 규칙
 - supplemental prompt for customer-facing UI shell quality and section naming
-- supplemental prompt for richer Vue conversion config generation
 - reference material after the core internal harness has been loaded
 
-Do not use it to replace the core staged harness rules.
+Do not use it to replace the core AI-first harness rules.
 The internal AI should still follow:
 
 - `AGENTS.md`
 - `bootstrap-initial-prompt.md`
 - `.agents/skills/am-page-modernization/SKILL.md`
 
-Use `amprompt.md` only as an additional quality and detail contract.
+Use `amprompt.md` as the first report heading/detail contract.
+If it is missing or incomplete, fall back to `REPORT-CONTRACT.md`.

@@ -817,6 +817,7 @@ def _augment_prompt(base: str, ctx: dict[str, Any], target: str) -> str:
         f"Legacy endpoint: {ctx['legacyUrl'] or 'manual review required'}",
         f"Search fields: {', '.join(item['name'] for item in ctx['searchFields']) or 'none inferred'}",
         f"Grid columns: {', '.join(item['name'] for item in ctx['tableColumns']) or 'none inferred'}",
+        "If reviewed screenshot-driven shell evidence exists, treat it as the visual source of truth and do not trust starter layout by itself.",
     ]
     if target == "frontend" and ctx["lookupEndpoints"]:
         lines.append("Lookup loaders: " + ", ".join(item["fieldName"] for item in ctx["lookupEndpoints"]))

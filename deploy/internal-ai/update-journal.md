@@ -2,24 +2,23 @@
 
 ## Current Release
 
-- Version: `2026.04.12.2`
+- Version: `2026.04.12.3`
 - Date: `2026-04-12`
 - Impact level: `3`
 - Recommended action: `fresh reinstall`
 
 ### Why This Release Is A Reinstall
 
-- Older internal workspaces do not contain the update-decision metadata files.
-- Older internal workspaces do not know the new `am-bridge.config.local.json` override rule.
-- The report workflow now assumes a stronger English main report contract and a Korean derived-summary flow.
+- The internal bundle is no longer organized around tool-first staged execution.
+- Core operator guidance, bundle manifest shape, and default workspace expectations changed materially.
+- The internal AI is now expected to lead analysis, reporting, and shell generation directly.
 
 ### What Changed
 
-- Added `bundle-version.json` for machine-readable install impact decisions.
-- Added `update-playbook.md` so the internal AI can decide whether a future bundle needs rebootstrap or partial update.
-- Added `am-bridge.config.local.json` support in the runtime config loader.
-- Added `am-bridge.config.local.example.json` to show what should stay local in the internal environment.
-- Strengthened the English canonical main report and Korean derived-summary guidance.
+- Added `WORKFLOW.md`, `REPORT-CONTRACT.md`, `KOREAN-DELIVERY.md`, and `OPTIONAL-COMPLETENESS-SUPPORT.md`.
+- Reframed the internal harness so the AI writes the main report and shell directly.
+- Kept deterministic support only as optional completeness/cross-check support.
+- Reduced the export surface by removing admin/bootstrap/tool-registry material from the internal bundle.
 
 ## Future Release Policy
 
@@ -30,9 +29,9 @@ Use `bundle-version.json` first.
 - `installImpactLevel = 1`
   prompt/skill/harness rules only
 - `installImpactLevel = 2`
-  runner/runtime/report generator changed, but rebootstrap is not required
+  optional support code or report helpers changed, but rebootstrap is not required
 - `installImpactLevel = 3`
-  bootstrap/runtime/update structure changed enough that fresh reinstall is safer
+  bundle structure or default operating model changed enough that fresh reinstall is safer
 
 If `requiresRebootstrap = true`, reinstall from a fresh bundle.
-If `requiresRebootstrap = false`, follow `update-playbook.md` and preserve the local config plus internal artifacts.
+If `requiresRebootstrap = false`, follow `update-playbook.md` and preserve local inputs, artifacts, and prompts.

@@ -1,23 +1,23 @@
 {
-  "bundleVersion": "2026.04.12.2",
+  "bundleVersion": "2026.04.12.3",
   "releaseDate": "2026-04-12",
-  "previousVersion": "2026.04.12.1",
-  "summary": "Adds update-decision metadata, internal update playbook, local config override support, and richer canonical report guidance.",
+  "previousVersion": "2026.04.12.2",
+  "summary": "Reframes the internal bundle around AI-led analysis and reporting, with optional completeness support instead of tool-first staged execution.",
   "changedAreas": [
-    "internal-update-policy",
-    "bundle-metadata",
-    "local-config-override",
-    "reporting-contract",
-    "report-hubs",
-    "operator-prompts"
+    "internal-harness-contract",
+    "workflow-docs",
+    "report-contract",
+    "optional-completeness-support",
+    "bundle-export-surface"
   ],
   "installImpactLevel": 3,
   "requiresRebootstrap": true,
-  "requiresSmokeTest": true,
-  "recommendedAction": "Fresh reinstall is preferred for this release because the internal workspace did not previously include update-decision metadata or local config override rules.",
-  "reason": "After this reinstall, future releases can be judged by the internal AI using this metadata and the update playbook.",
+  "requiresSmokeTest": false,
+  "recommendedAction": "Fresh reinstall is preferred because the internal bundle structure and default operating model have changed materially.",
+  "reason": "The bundle is now AI-first and docs-first. Deterministic support remains optional, but no longer defines the default internal workflow.",
   "preservePaths": [
     "artifacts/",
+    "inputs/",
     "prompts/amprompt.md",
     "am-bridge.config.local.json"
   ],
@@ -25,6 +25,8 @@
     "am-bridge.config.local.json"
   ],
   "validationTargets": [
-    "scripts/ai_pro_stage_runner.py stage2 DefApp/Win32/form.xml --config am-bridge.config.json"
+    "bootstrap-initial-prompt.md",
+    "WORKFLOW.md",
+    "REPORT-CONTRACT.md"
   ]
 }
