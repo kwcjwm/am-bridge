@@ -2,7 +2,9 @@
 
 ## Summary
 
-CUBE 메뉴, route, page frame, layout, action area를 실제 화면 구현에 반영한다.
+CUBE 메뉴, route, page frame, layout, action area를 실제 화면 구현에 반영하는 역할이다.
+
+이 역할은 메뉴/레이아웃 설계를 별도 문서로만 남기지 않고, target Vue 프로젝트의 route/page/layout 코드에 반영하는 것을 목표로 한다.
 
 ## Responsibilities
 
@@ -20,17 +22,40 @@ CUBE 메뉴, route, page frame, layout, action area를 실제 화면 구현에 �
 - CUBE menu/route/layout reference
 - permission/auth reference
 - target route/page convention
+- existing CUBE page examples
 
-## Outputs
+## Implementation Steps
+
+1. pageId, menuKey, permissionKey, routePath, routeName, titleI18nKey를 확정한다.
+2. 기존 CUBE 화면 예시에서 route/menu 등록 패턴을 확인한다.
+3. 대상 Vue page를 CUBE page frame 안에 배치한다.
+4. page title, breadcrumb, permission hook을 CUBE 방식으로 연결한다.
+5. search/filter, main grid/list, detail/form, action area를 CUBE layout에 배치한다.
+6. 조회, 신규, 저장, 삭제, 엑셀, 닫기 같은 action을 CUBE action area에 연결한다.
+7. 버튼 visible/enabled rule을 permission, loading, edit mode, row selection과 연결한다.
+
+## Code Reflection Rules
+
+- route/menu 등록은 대상 프로젝트의 기존 CUBE 방식으로 추가한다.
+- page title, breadcrumb, permission hook은 CUBE frame에서 제공하는 방식을 사용한다.
+- 버튼 영역은 page-local floating button이 아니라 CUBE action area에 연결한다.
+- 스크린샷과 다르더라도 CUBE 표준 layout이 있으면 CUBE를 우선한다.
+- 단, 업무상 핵심 영역의 우선순위는 스크린샷과 보고서 근거에 맞게 유지한다.
+- menuKey/permissionKey를 임시 문자열로 남기면 `UNRESOLVED`로 표시한다.
+
+## Output
 
 - `cube-menu-route-map.md`
 - `action-permission-state-map.csv`
 - `layout-implementation-notes.md`
 - route/page/layout code changes
 
-## Done Criteria
+## Handoff To Reviewers
 
-- 화면이 CUBE page frame과 route/menu 체계에 연결되어 있다.
-- action area와 permission state가 CUBE 기준으로 반영되어 있다.
-- layout 차이가 있으면 CUBE 표준과 screenshot 근거로 설명되어 있다.
+Pass these to `visual-alignment-reviewer` and `implementation-reviewer`:
+
+- route/menu registration points
+- permission/action state map
+- layout differences from screenshot
+- unresolved menu or permission keys
 

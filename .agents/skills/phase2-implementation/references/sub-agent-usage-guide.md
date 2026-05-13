@@ -8,6 +8,10 @@
 
 single-model runtime이면 같은 역할 문서를 순서대로 읽고, 해당 역할 관점으로 집중 수행한다.
 
+CUBE 공통 컴포넌트, 메뉴/레이아웃, 스타일 반영 규칙은 별도 reference 문서로 늘리지 않고 각 구현 역할 문서에 둔다.
+
+QA 체크리스트는 구현 역할 문서가 아니라 `visual-alignment-reviewer`와 `implementation-reviewer`가 소유한다.
+
 ## Step별 역할 매핑
 
 | Workflow Step | 사용 역할 |

@@ -42,12 +42,17 @@ description: Use after Phase 1 analysis/design and Phase 1.5 QA are accepted, wh
 2. `references/implementation-contract.md`
 3. `references/cube-platform-adoption-guide.md`
 4. `references/i18n-contract.md`
-5. `references/cube-component-implementation-harness.md`
-6. `references/cube-menu-layout-implementation-harness.md`
-7. `references/cube-style-implementation-harness.md`
-8. `references/test-and-feedback-loop-contract.md`
-9. `references/sub-agent-usage-guide.md`
-10. `references/output-checklist.md`
+5. `references/test-and-feedback-loop-contract.md`
+6. `references/sub-agent-usage-guide.md`
+7. `references/output-checklist.md`
+
+## CUBE 구현 역할 문서
+
+Workflow에서 CUBE 반영 step을 수행할 때는 별도 reference 문서를 더 찾지 말고 아래 역할 문서를 직접 참조한다.
+
+- `agents/cube-component-implementer.md`
+- `agents/menu-layout-implementer.md`
+- `agents/component-style-implementer.md`
 
 ## 핵심 규칙
 

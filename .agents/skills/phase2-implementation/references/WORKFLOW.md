@@ -183,15 +183,15 @@ CUBE가 제공하는 것은 CUBE를 사용한다.
 
 - `cube-platform-adapter`
 
-## Step 2.1. CUBE 공통 컴포넌트 구현 반영 하네스
+## Step 2.1. CUBE 공통 컴포넌트 구현 반영
 
 ### 목적
 
 CUBE 공통 컴포넌트를 "사용 예정"으로만 표시하지 않고, 실제 Vue 코드에 어떻게 반영할지 확정한다.
 
-### 참조 문서
+### 참조 역할 문서
 
-- `cube-component-implementation-harness.md`
+- `agents/cube-component-implementer.md`
 
 ### 작업
 
@@ -221,15 +221,15 @@ CUBE 공통 컴포넌트를 "사용 예정"으로만 표시하지 않고, 실제
 - `cube-component-implementer`
 - `cube-platform-adapter`
 
-## Step 2.2. CUBE 메뉴/배치 레이아웃 구현 반영 하네스
+## Step 2.2. CUBE 메뉴/배치 레이아웃 구현 반영
 
 ### 목적
 
 화면을 CUBE 메뉴, route, page frame, action area, permission 구조에 실제로 연결한다.
 
-### 참조 문서
+### 참조 역할 문서
 
-- `cube-menu-layout-implementation-harness.md`
+- `agents/menu-layout-implementer.md`
 
 ### 작업
 
@@ -258,15 +258,15 @@ CUBE 공통 컴포넌트를 "사용 예정"으로만 표시하지 않고, 실제
 - `menu-layout-implementer`
 - `cube-platform-adapter`
 
-## Step 2.3. CUBE 컴포넌트 스타일 구현 반영 하네스
+## Step 2.3. CUBE 컴포넌트 스타일 구현 반영
 
 ### 목적
 
 CUBE style guide, design token, component variant를 실제 Vue 구현에 반영한다.
 
-### 참조 문서
+### 참조 역할 문서
 
-- `cube-style-implementation-harness.md`
+- `agents/component-style-implementer.md`
 
 ### 작업
 
@@ -719,16 +719,15 @@ Vue 구현과 Spring Boot 구현 사이의 payload/DTO/상태 mismatch를 2단�
 
 구현된 Vue 화면이 1단계 shell과 원본 스크린샷의 의도를 유지하는지 확인한다.
 
-### 확인 항목
+### 확인 기준
 
-- 주요 영역 배치
-- grid/form/button 우선순위
-- CUBE style 적용 여부
-- 텍스트 overflow
-- 버튼/필드 비활성 상태
-- popup 진입점
-- loading/empty/error 표시
-- 다국어 적용 후 레이아웃 깨짐 여부
+세부 체크리스트는 `agents/visual-alignment-reviewer.md`를 따른다.
+
+Workflow에서는 아래 세 가지만 확인한다.
+
+- 스크린샷, Phase 1 shell, 구현 Vue 화면의 주요 영역이 서로 설명 가능한가
+- CUBE 컴포넌트/메뉴/레이아웃/스타일 적용 결과가 reviewer에게 전달되었는가
+- intentional difference와 rework 대상이 분리되었는가
 
 ### 산출물
 
@@ -745,19 +744,15 @@ Vue 구현과 Spring Boot 구현 사이의 payload/DTO/상태 mismatch를 2단�
 
 3단계 검증으로 넘기기 전에 2단계 산출물이 최소 품질을 만족하는지 자체 점검한다.
 
-### 확인 항목
+### 확인 기준
 
-- 1단계 보고서 요구사항이 구현에 반영되었는가
-- 1.5 QA 지적 사항이 해결 또는 보류 처리되었는가
-- CSV 산출물이 구현 입력으로 사용되었는가
-- CUBE 공통 기능을 중복 구현하지 않았는가
-- R&R matrix가 코드와 일치하는가
-- API contract가 FE/BE 코드와 일치하는가
-- 단위 테스트 결과가 기록되었는가
-- API 셀프 테스트 결과가 기록되었는가
-- FE/BE 피드백 루프 결과가 기록되었는가
-- i18n hard-coded text가 남아 있지 않은가
-- Phase 3에서 검증할 항목이 명확한가
+세부 체크리스트는 `agents/implementation-reviewer.md`를 따른다.
+
+Workflow에서는 아래 세 가지만 확인한다.
+
+- 2단계 산출물이 pass/rework/defer 중 하나로 판정되었는가
+- rework와 defer 항목에 owner, 이유, 다음 단계가 있는가
+- Phase 3 검증자가 재현할 수 있는 명령, 샘플, 검증 포인트가 남아 있는가
 
 ### 산출물
 

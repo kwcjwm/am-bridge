@@ -42,9 +42,6 @@ phase2-implementation/
     |-- sub-agent-usage-guide.md
     |-- implementation-contract.md
     |-- cube-platform-adoption-guide.md
-    |-- cube-component-implementation-harness.md
-    |-- cube-menu-layout-implementation-harness.md
-    |-- cube-style-implementation-harness.md
     |-- i18n-contract.md
     |-- test-and-feedback-loop-contract.md
     `-- output-checklist.md
@@ -74,7 +71,8 @@ $phase2-implementation
 - Phase 1 report and CSV files are implementation inputs, not appendix-only documents.
 - The Phase 1 Vue shell is a visual shell, not final implementation code.
 - CUBE common platform features must be reused before page-local implementation.
-- CUBE component, menu/layout, and style harnesses must be reflected in actual Vue route/page/component/style changes.
+- CUBE component, menu/layout, and style implementation rules live in the role harnesses under `agents/`.
+- Those role harnesses must be reflected in actual Vue route/page/component/style changes.
 - Unit tests, API self-tests, and FE/BE feedback loops are part of Phase 2, not only Phase 3.
 
 ## Runtime Notes

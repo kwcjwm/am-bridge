@@ -42,15 +42,15 @@ Phase 2 should reuse CUBE before creating page-local code.
 - Use CUBE i18n utilities before hard-coded labels.
 - Record missing CUBE support as a platform gap, not as silent local duplication.
 
-## Implementation Harnesses
+## Implementation Role Harnesses
 
-Use these detailed harnesses when moving from platform decision to code changes:
+When moving from platform decision to code changes, use the role documents under `agents/`:
 
-- `cube-component-implementation-harness.md`: CUBE component replacement, props/events/slots/v-model, data binding, validation, i18n.
-- `cube-menu-layout-implementation-harness.md`: menu, route, page frame, action area, permission, layout placement.
-- `cube-style-implementation-harness.md`: design tokens, spacing, typography, component variants, local CSS limits, i18n overflow.
+- `agents/cube-component-implementer.md`: CUBE component replacement, props/events/slots/v-model, data binding, validation, i18n.
+- `agents/menu-layout-implementer.md`: menu, route, page frame, action area, permission, layout placement.
+- `agents/component-style-implementer.md`: design tokens, spacing, typography, component variants, local CSS limits, i18n overflow.
 
-These harnesses are implementation documents. Their output must be reflected in Vue route/page/component/style changes, not only in design notes.
+Do not create additional reference documents just to restate these rules. The implementation guidance belongs in the role harnesses, and the workflow should only point to the relevant role.
 
 ## Platform Gap Format
 

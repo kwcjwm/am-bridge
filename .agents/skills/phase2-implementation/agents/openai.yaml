@@ -9,9 +9,6 @@ skills:
       - references/sub-agent-usage-guide.md
       - references/implementation-contract.md
       - references/cube-platform-adoption-guide.md
-      - references/cube-component-implementation-harness.md
-      - references/cube-menu-layout-implementation-harness.md
-      - references/cube-style-implementation-harness.md
       - references/i18n-contract.md
       - references/test-and-feedback-loop-contract.md
       - references/output-checklist.md
