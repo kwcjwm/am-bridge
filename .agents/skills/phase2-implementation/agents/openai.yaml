@@ -1,0 +1,17 @@
+version: 1
+skills:
+  - name: phase2-implementation
+    display_name: Phase 2 Implementation
+    description: CUBE 기반 Vue3/Spring Boot 2단계 구현 하네스. 분석 보고서/CSV/스크린샷을 입력으로 FE/BE R&R, API 계약, Vue shell 강화, 단위 테스트, API 셀프 테스트, FE/BE 루프를 수행한다.
+    entrypoint: SKILL.md
+    references:
+      - references/WORKFLOW.md
+      - references/sub-agent-usage-guide.md
+      - references/implementation-contract.md
+      - references/cube-platform-adoption-guide.md
+      - references/cube-component-implementation-harness.md
+      - references/cube-menu-layout-implementation-harness.md
+      - references/cube-style-implementation-harness.md
+      - references/i18n-contract.md
+      - references/test-and-feedback-loop-contract.md
+      - references/output-checklist.md
